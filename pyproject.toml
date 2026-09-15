@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "py4radiation"
+version = "0.1.0"
+authors = [
+  { name="Daniel Villarruel-Yanez", email="daniel.villarruel@yachaytech.edu.ec" },
+]
+description = "A package to prepare radiative heating/cooling/ion fractions for HD/MHD codes."
+readme = "README.md"
+requires-python = ">=3.11"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "requests>=2.31.0",
+    "numpy>=2.5.0",
+    "mpi4py >= 4.1.2",
+    "h5py >= 3.16.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/cphysplus/py4radiation"
