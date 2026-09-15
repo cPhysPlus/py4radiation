@@ -42,6 +42,7 @@ class IonTables:
             List of elements for the ion fraction tables.
         """
         self.run_dir  = Path(run_dir)
+        self.run_name = run_name
         self.elements = elements
 
         clean_run = run_name.removesuffix('.run')

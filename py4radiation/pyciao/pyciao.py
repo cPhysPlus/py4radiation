@@ -4,6 +4,7 @@ import sys
 import time
 import logging
 import argparse
+import itertools
 import multiprocessing
 
 from pathlib import Path
@@ -90,17 +91,23 @@ def write_runfile(config: Config) -> None:
             f.write('#\n')
             f.write('\t'.join(headers) + '\n')
 
-            idx = 1
-            hden_vals = config.loops_cmd[0]['values']
-            fils_vals = config.loops_cmd[1]['values']
+            loop_items = [
+                item
+                for item in config.loops_cmd
+                if item['type'] == 'single'
+            ]
 
-            for i in hden_vals:
-                for j in fils_vals:
-                    row = [str(idx)]
-                    row.extend([str(i)])
-                    row.extend([str(j)])
+            loop_values = [item['values'] for item in loop_items]
+
+            if loop_values:
+                for idx, values in enumerate(
+                    itertools.product(*loop_values),
+                    start=1,
+                ):
+                    row = [str(idx), *(str(value) for value in values)]
                     f.write('\t'.join(row) + '\n')
-                    idx += 1
+            else:
+                f.write('1\n')
     except IOError as e:
         logging.error(f'Failed to write runfile {runfile}: {e}.')
 
