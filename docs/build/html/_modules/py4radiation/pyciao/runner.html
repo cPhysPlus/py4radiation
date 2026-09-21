@@ -1,0 +1,743 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py4radiation.pyciao.runner &mdash; py4radiation 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            py4radiation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">py4radiation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">py4radiation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">py4radiation.pyciao.runner</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for py4radiation.pyciao.runner</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskDef</span>
+
+<div class="viewcode-block" id="TaskResult">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.TaskResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskResult</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Structure for the result returned by a worker task.</span>
+<span class="sd">    """</span>
+    <span class="n">run_index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+<span class="n">WORKER_CONFIG</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">ATOMIC_MASSES</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="mf">1.00794</span><span class="p">,</span> <span class="mf">4.002602</span><span class="p">,</span> <span class="mf">6.941</span><span class="p">,</span> <span class="mf">9.012182</span><span class="p">,</span> <span class="mf">10.811</span><span class="p">,</span>
+    <span class="mf">12.0107</span><span class="p">,</span> <span class="mf">14.0067</span><span class="p">,</span> <span class="mf">15.9994</span><span class="p">,</span> <span class="mf">18.9984032</span><span class="p">,</span> <span class="mf">20.1797</span><span class="p">,</span>
+    <span class="mf">22.989770</span><span class="p">,</span> <span class="mf">24.3050</span><span class="p">,</span> <span class="mf">26.981538</span><span class="p">,</span> <span class="mf">28.0855</span><span class="p">,</span> <span class="mf">30.973761</span><span class="p">,</span>
+    <span class="mf">32.065</span><span class="p">,</span> <span class="mf">35.453</span><span class="p">,</span> <span class="mf">39.948</span><span class="p">,</span> <span class="mf">39.0983</span><span class="p">,</span> <span class="mf">40.078</span><span class="p">,</span>
+    <span class="mf">44.955910</span><span class="p">,</span> <span class="mf">47.867</span><span class="p">,</span> <span class="mf">50.9415</span><span class="p">,</span> <span class="mf">51.9961</span><span class="p">,</span> <span class="mf">54.938049</span><span class="p">,</span>
+    <span class="mf">55.845</span><span class="p">,</span> <span class="mf">58.933200</span><span class="p">,</span> <span class="mf">58.6934</span><span class="p">,</span> <span class="mf">63.546</span><span class="p">,</span> <span class="mf">65.409</span>
+<span class="p">])</span>
+
+<span class="n">ELEMENT_DATA</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'atomicNumber'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'H'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'He'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'Li'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'Be'</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s1">'C'</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">'N'</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span> <span class="s1">'O'</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span> <span class="s1">'Ne'</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s1">'Na'</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span> <span class="s1">'Mg'</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">'Al'</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span> <span class="s1">'Si'</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="s1">'P'</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s1">'S'</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="s1">'Cl'</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span> <span class="s1">'Ar'</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="s1">'Ca'</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+        <span class="s1">'Sc'</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s1">'Cr'</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span> <span class="s1">'Mn'</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="s1">'Fe'</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="s1">'Co'</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s1">'Ni'</span><span class="p">:</span> <span class="mi">28</span><span class="p">,</span> <span class="s1">'Cu'</span><span class="p">:</span> <span class="mi">29</span><span class="p">,</span> <span class="s1">'Zn'</span><span class="p">:</span> <span class="mi">30</span>
+    <span class="p">},</span>
+    <span class="s1">'atomicName'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">'H'</span><span class="p">:</span> <span class="s1">'Hydrogen'</span><span class="p">,</span> <span class="s1">'He'</span><span class="p">:</span> <span class="s1">'Helium'</span><span class="p">,</span> <span class="s1">'Li'</span><span class="p">:</span> <span class="s1">'Lithium'</span><span class="p">,</span> <span class="s1">'Be'</span><span class="p">:</span> <span class="s1">'Beryllium'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">:</span> <span class="s1">'Boron'</span><span class="p">,</span>
+        <span class="s1">'C'</span><span class="p">:</span> <span class="s1">'Carbon'</span><span class="p">,</span> <span class="s1">'N'</span><span class="p">:</span> <span class="s1">'Nitrogen'</span><span class="p">,</span> <span class="s1">'O'</span><span class="p">:</span> <span class="s1">'Oxygen'</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">:</span> <span class="s1">'Fluorine'</span><span class="p">,</span> <span class="s1">'Ne'</span><span class="p">:</span> <span class="s1">'Neon'</span><span class="p">,</span>
+        <span class="s1">'Na'</span><span class="p">:</span> <span class="s1">'Sodium'</span><span class="p">,</span> <span class="s1">'Mg'</span><span class="p">:</span> <span class="s1">'Magnesium'</span><span class="p">,</span> <span class="s1">'Al'</span><span class="p">:</span> <span class="s1">'Aluminium'</span><span class="p">,</span> <span class="s1">'Si'</span><span class="p">:</span> <span class="s1">'Silicon'</span><span class="p">,</span> <span class="s1">'P'</span><span class="p">:</span> <span class="s1">'Phosphorus'</span><span class="p">,</span>
+        <span class="s1">'S'</span><span class="p">:</span> <span class="s1">'Sulphur'</span><span class="p">,</span> <span class="s1">'Cl'</span><span class="p">:</span> <span class="s1">'Chlorine'</span><span class="p">,</span> <span class="s1">'Ar'</span><span class="p">:</span> <span class="s1">'Argon'</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">:</span> <span class="s1">'Potassium'</span><span class="p">,</span> <span class="s1">'Ca'</span><span class="p">:</span> <span class="s1">'Calcium'</span><span class="p">,</span>
+        <span class="s1">'Sc'</span><span class="p">:</span> <span class="s1">'Scandium'</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">:</span> <span class="s1">'Titanium'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">:</span> <span class="s1">'Vanadium'</span><span class="p">,</span> <span class="s1">'Cr'</span><span class="p">:</span> <span class="s1">'Chromium'</span><span class="p">,</span> <span class="s1">'Mn'</span><span class="p">:</span> <span class="s1">'Manganese'</span><span class="p">,</span>
+        <span class="s1">'Fe'</span><span class="p">:</span> <span class="s1">'Iron'</span><span class="p">,</span> <span class="s1">'Co'</span><span class="p">:</span> <span class="s1">'Cobalt'</span><span class="p">,</span> <span class="s1">'Ni'</span><span class="p">:</span> <span class="s1">'Nickel'</span><span class="p">,</span> <span class="s1">'Cu'</span><span class="p">:</span> <span class="s1">'Copper'</span><span class="p">,</span> <span class="s1">'Zn'</span><span class="p">:</span> <span class="s1">'Zinc'</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="CloudyExecutionError">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.CloudyExecutionError">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CloudyExecutionError</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Custom exception for failures during Cloudy subprocess execution.</span>
+<span class="sd">    """</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="setup_worker_logging">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.setup_worker_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_worker_logging</span><span class="p">(</span><span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Configure logging for a worker process.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rank : int | None, optional</span>
+<span class="sd">        The MPI rank ID. If provided, it is included in the log format.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'[Rank-</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1">] %(levelname)s - %(message)s'</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log_fmt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'[Worker-%(process)d] %(levelname)s - %(message)s'</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">,</span>
+        <span class="n">handlers</span><span class="o">=</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)],</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="initialize_worker">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.initialize_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">initialize_worker</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">rank</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Initialize the worker process with configuration and logging.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : Config</span>
+<span class="sd">        Parsed configuration object.</span>
+<span class="sd">    rank : int | None, optional</span>
+<span class="sd">        MPI rank of this worker</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">WORKER_CONFIG</span>
+    <span class="n">WORKER_CONFIG</span> <span class="o">=</span> <span class="n">config</span>
+    <span class="n">setup_worker_logging</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span></div>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+
+<div class="viewcode-block" id="execute_task">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.execute_task">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">execute_task</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">TaskDef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Execute a single task.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    task : TaskDef</span>
+<span class="sd">        Task dictionary containing run parameters</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    TaskResult</span>
+<span class="sd">        Dictionary summarizing the success or failure of the run.</span>
+<span class="sd">    """</span>
+    <span class="k">global</span> <span class="n">WORKER_CONFIG</span>
+
+    <span class="k">if</span> <span class="n">WORKER_CONFIG</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'run_index'</span><span class="p">:</span> <span class="n">task</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'run_index'</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="s1">'status'</span><span class="p">:</span> <span class="s1">'failed'</span><span class="p">,</span>
+            <span class="s1">'error'</span><span class="p">:</span> <span class="s1">'Worker not initialized'</span>
+        <span class="p">}</span>
+
+    <span class="n">run_index</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">'run_index'</span><span class="p">]</span>
+    <span class="n">run_mode</span>  <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">'run_mode'</span><span class="p">])</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">run_index</span><span class="si">}</span><span class="s1"> STARTED.'</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">run_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">heatingcooling</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">WORKER_CONFIG</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">run_mode</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">ionfractions</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">WORKER_CONFIG</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Unsupported run mode: </span><span class="si">{</span><span class="n">run_mode</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">run_index</span><span class="si">}</span><span class="s1"> FINISHED in </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> s.'</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'run_index'</span><span class="p">:</span> <span class="n">run_index</span><span class="p">,</span>
+            <span class="s1">'status'</span><span class="p">:</span> <span class="s1">'success'</span><span class="p">,</span>
+            <span class="s1">'error'</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="p">}</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">run_index</span><span class="si">}</span><span class="s1"> FAILED'</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">'run_index'</span><span class="p">:</span> <span class="n">run_index</span><span class="p">,</span>
+            <span class="s1">'status'</span><span class="p">:</span> <span class="s1">'failed'</span><span class="p">,</span>
+            <span class="s1">'error'</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="run_subprocess">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.run_subprocess">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_subprocess</span><span class="p">(</span><span class="n">commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">infile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">outfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">cloudy_exe</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write input commands to file and execute Cloudy via subprocess.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    commands : list[str]</span>
+<span class="sd">        List of Cloudy commands to write to the input file.</span>
+<span class="sd">    infile : Path</span>
+<span class="sd">        Path to the input file.</span>
+<span class="sd">    outfile : Path</span>
+<span class="sd">        Path to the output file.</span>
+<span class="sd">    cloudy_exe : str</span>
+<span class="sd">        Path for the Cloudy executable.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if Cloudy crashed or exited with error, False otherwise.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    IOError</span>
+<span class="sd">        If file writing fails.</span>
+<span class="sd">    CloudyExecutionError</span>
+<span class="sd">        If the subprocess fails to launch.</span>
+<span class="sd">    """</span>
+    <span class="c1"># 1. Input file</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to write input file </span><span class="si">{</span><span class="n">infile</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="c1"># 2. Execute Cloudy</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">cloudy_exe</span><span class="p">],</span>
+                <span class="n">stdin</span><span class="o">=</span><span class="n">f_in</span><span class="p">,</span>
+                <span class="n">stdout</span><span class="o">=</span><span class="n">f_out</span><span class="p">,</span>
+                <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">check</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Cloudy executable not found at: </span><span class="si">{</span><span class="n">cloudy_exe</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CloudyExecutionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Subprocess failed to launch: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'IO error during subprocess execution: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="c1"># 3. Check crashes/errors</span>
+    <span class="n">crashed</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">outfile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">lines</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="s1">'Cloudy exited OK'</span> <span class="ow">in</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]):</span>
+                    <span class="n">crashed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">crashed</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Cloudy reported an error or crashed for </span><span class="si">{</span><span class="n">infile</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Cloudy stderr: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="c1"># ---------------------------------------------------------------------</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_temperature_loop</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Calculate the temperature points for the inner loop.</span>
+<span class="sd">    """</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">params</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tmin</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">par</span><span class="p">[</span><span class="s1">'coolingMapTmin'</span><span class="p">])</span>
+        <span class="n">tmax</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">par</span><span class="p">[</span><span class="s1">'coolingMapTmax'</span><span class="p">])</span>
+
+        <span class="n">tpts</span> <span class="o">=</span> <span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'coolingMapTpoints'</span><span class="p">)</span>
+        <span class="n">tlog</span> <span class="o">=</span> <span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'coolingMapdLogT'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">tpts</span> <span class="ow">and</span> <span class="n">tlog</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'coolingMapTpoints and coolingMapdLogT cannot both be set'</span><span class="p">)</span>
+        
+        <span class="n">temperatures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">tpts</span><span class="p">:</span>
+            <span class="n">points</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">tpts</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">points</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">tmin</span><span class="p">]</span>
+            <span class="n">logtmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">tmin</span><span class="p">)</span>
+            <span class="n">logtmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">tmax</span><span class="p">)</span>
+            <span class="n">dlogT</span> <span class="o">=</span> <span class="p">(</span><span class="n">logtmax</span> <span class="o">-</span> <span class="n">logtmin</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">points</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+                <span class="n">temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">logtmin</span> <span class="o">+</span> <span class="n">i</span> <span class="o">*</span> <span class="n">dlogT</span><span class="p">))</span>
+
+        <span class="k">elif</span> <span class="n">tlog</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">tlog</span><span class="p">)</span>
+            <span class="n">current_t</span> <span class="o">=</span> <span class="n">tmin</span>
+            <span class="k">while</span> <span class="n">current_t</span> <span class="o">&lt;=</span> <span class="n">tmax</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">):</span>
+                <span class="n">temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_t</span><span class="p">)</span>
+                <span class="n">current_t</span> <span class="o">*=</span> <span class="mi">10</span><span class="o">**</span><span class="n">step</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'Must specify either coolingMapTpoints or coolingMapdLogT'</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">temperatures</span>
+    
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Error initializing temperature loop: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_loops</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">TaskDef</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Extract specific loop command strings used in this task.</span>
+<span class="sd">    """</span>
+    <span class="n">loops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">loop_keys</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">item</span><span class="p">[</span><span class="s1">'command'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">loops_cmd</span> <span class="k">if</span> <span class="s1">'command'</span> <span class="ow">in</span> <span class="n">item</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">task</span><span class="p">[</span><span class="s1">'base_commands'</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">loop_keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cmd</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                <span class="n">loops</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">loops</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_physical_conditions</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Parse H density (hden) and electron density (eden)</span>
+<span class="sd">    from physical conditions file.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+        <span class="n">last_line</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">last_line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">hden</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">eden</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">hden</span><span class="p">,</span> <span class="n">eden</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+    
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_cooling</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Parse heating and cooling rates from cooling file.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'#'</span><span class="p">):</span>
+                <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'No valid data line found.'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_mmw</span><span class="p">(</span><span class="n">abunfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ionsfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Calculate Mean Molecular Weight (MMW).</span>
+<span class="sd">    """</span>
+    <span class="n">rel_abund</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abunfile</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">if</span> <span class="n">l</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">l</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'#'</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="n">lines</span><span class="p">:</span>
+                <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+                <span class="k">if</span> <span class="n">vals</span><span class="p">:</span>
+                    <span class="n">hval</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">rel_abund</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">hval</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
+
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_abund</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="n">num_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[+-]?\d+\.\d+(?:[Ee][+-]?\d+)?'</span><span class="p">)</span>
+
+    <span class="n">total_mass</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">total_particles</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">procs</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ionsfile</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to parse ionisation file.'</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">'Hydrogen'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">procs</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">procs</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">'^\s*[a-zA-Z]'</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+                <span class="n">logfracs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">num_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ATOMIC_MASSES</span><span class="p">)</span> <span class="ow">and</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">rel_abund</span><span class="p">):</span>
+                    <span class="n">z</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">fracs</span> <span class="o">=</span> <span class="n">logfracs</span><span class="p">[:</span><span class="n">z</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+                    
+                    <span class="n">abund</span> <span class="o">=</span> <span class="n">rel_abund</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                    <span class="n">mass</span> <span class="o">=</span> <span class="n">ATOMIC_MASSES</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+                    <span class="n">total_mass</span> <span class="o">+=</span> <span class="n">abund</span> <span class="o">*</span> <span class="n">mass</span>
+
+                    <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">logfrac</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fracs</span><span class="p">):</span>
+                        <span class="n">linfrac</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">logfrac</span>
+                        <span class="n">total_particles</span> <span class="o">+=</span> <span class="n">abund</span> <span class="o">*</span> <span class="n">linfrac</span> <span class="o">*</span> <span class="p">(</span><span class="n">w</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                    <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+        <span class="k">if</span> <span class="n">total_particles</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        
+        <span class="k">return</span> <span class="n">total_mass</span> <span class="o">/</span> <span class="n">total_particles</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_ion_fraction</span><span class="p">(</span><span class="n">ionsfile</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">elements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Parse ionisation fractions for specific elements.</span>
+<span class="sd">    """</span>
+    <span class="n">name2symbol</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicName'</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">atomic_numbers</span> <span class="o">=</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicNumber'</span><span class="p">]</span>
+    <span class="n">elements_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">el</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">}</span>
+
+    <span class="n">num_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">'[+-]?\d+\.\d+(?:[Ee][+-]?\d+)?'</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ionsfile</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">'Hydrogen'</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">i</span>
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'No ionisation data block found'</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="n">idx</span><span class="p">:]:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">'^\s*([a-zA-Z]+)'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="n">element_name</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">symbol</span> <span class="o">=</span> <span class="n">name2symbol</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">elements_data</span><span class="p">:</span>
+                    <span class="n">vals</span> <span class="o">=</span> <span class="n">num_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="n">logfracs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">atomic_numbers</span><span class="p">:</span>
+                        <span class="n">z</span> <span class="o">=</span> <span class="n">atomic_numbers</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span>
+                        <span class="n">expected_ions</span> <span class="o">=</span> <span class="n">z</span> <span class="o">+</span> <span class="mi">1</span>
+
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">logfracs</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">expected_ions</span><span class="p">:</span>
+                            <span class="n">padding</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">30.0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">expected_ions</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">logfracs</span><span class="p">))</span>
+                            <span class="n">logfracs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
+
+                        <span class="n">elements_data</span><span class="p">[</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">logfracs</span><span class="p">[:</span><span class="n">expected_ions</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">symbol</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">elements_data</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+        <span class="k">return</span> <span class="n">elements_data</span>
+        
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to parse ion fractions from </span><span class="si">{</span><span class="n">ionsfile</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+<span class="c1"># -----------------------------------------------------------------------------------------</span>
+    
+<div class="viewcode-block" id="heatingcooling">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.heatingcooling">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">heatingcooling</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">TaskDef</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Execute Mode 1: Heating and Cooling Maps.</span>
+<span class="sd">    """</span>
+    <span class="n">key_name</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">'key_name'</span><span class="p">]</span>
+    <span class="n">datfile_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.dat'</span><span class="p">)</span>
+
+    <span class="n">temp_suffix</span>  <span class="o">=</span> <span class="s1">'.temp'</span>
+    <span class="n">temp_infile</span>  <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.cloudyIn</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.cloudyOut</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temp_heatfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.heating</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_coolfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.cooling</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temp_abunfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.abundance</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_ionsfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.ionization</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_physfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.physical</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temp_toclean</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">temp_infile</span><span class="p">,</span>
+        <span class="n">temp_outfile</span><span class="p">,</span>
+        <span class="n">temp_heatfile</span><span class="p">,</span>
+        <span class="n">temp_coolfile</span><span class="p">,</span>
+        <span class="n">temp_abunfile</span><span class="p">,</span>
+        <span class="n">temp_ionsfile</span><span class="p">,</span>
+        <span class="n">temp_physfile</span>
+    <span class="p">]</span>
+
+    <span class="n">loop_vals</span> <span class="o">=</span> <span class="n">_get_loops</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datfile_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# Cooling Map File</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# Loop values:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">loop_vals</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# Data Columns:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# 1: Te [K]</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# 2: Heating [erg s^-1 cm^3]</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# 3: Cooling [erg s^-1 cm^3]</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# 4: Mean Molecular Weight [amu]</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'#Te</span><span class="se">\t\t</span><span class="s1">Heating</span><span class="se">\t\t</span><span class="s1">Cooling</span><span class="se">\t\t</span><span class="s1">MMW</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temperatures</span> <span class="o">=</span> <span class="n">_get_temperature_loop</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'coolingScaleFactor'</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">temp</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">:</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">'base_commands'</span><span class="p">])</span>
+
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'constant temperature </span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1"> K linear'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last cooling file = "</span><span class="si">{</span><span class="n">temp_coolfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last heating file = "</span><span class="si">{</span><span class="n">temp_heatfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last abundance file = "</span><span class="si">{</span><span class="n">temp_abunfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last ionization means file = "</span><span class="si">{</span><span class="n">temp_ionsfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last physical conditions file = "</span><span class="si">{</span><span class="n">temp_physfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+
+        <span class="n">crashed</span> <span class="o">=</span> <span class="n">run_subprocess</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">temp_infile</span><span class="p">,</span> <span class="n">temp_outfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">'cloudyExe'</span><span class="p">]))</span>
+
+        <span class="n">heating</span><span class="p">,</span> <span class="n">cooling</span><span class="p">,</span> <span class="n">mmw</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">crashed</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">"run_index"</span><span class="p">]</span><span class="si">}</span><span class="s1">, T=</span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> K: Cloudy crashed. Writing zeros ... '</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">hden</span><span class="p">,</span> <span class="n">eden</span> <span class="o">=</span> <span class="n">_get_physical_conditions</span><span class="p">(</span><span class="n">temp_physfile</span><span class="p">)</span>
+                <span class="n">heating</span><span class="p">,</span> <span class="n">cooling</span> <span class="o">=</span> <span class="n">_get_cooling</span><span class="p">(</span><span class="n">temp_coolfile</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">scale_factor</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">factor</span> <span class="o">=</span> <span class="n">hden</span> <span class="o">*</span> <span class="n">hden</span>
+                <span class="k">elif</span> <span class="n">scale_factor</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">factor</span> <span class="o">=</span> <span class="n">hden</span> <span class="o">*</span> <span class="n">eden</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Invalid coolingScaleFactor: </span><span class="si">{</span><span class="n">scale_factor</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">factor</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">heating</span> <span class="o">/=</span> <span class="n">factor</span>
+                    <span class="n">cooling</span> <span class="o">/=</span> <span class="n">factor</span>
+
+                <span class="n">mmw</span> <span class="o">=</span> <span class="n">_get_mmw</span><span class="p">(</span><span class="n">temp_abunfile</span><span class="p">,</span> <span class="n">temp_ionsfile</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">"run_index"</span><span class="p">]</span><span class="si">}</span><span class="s1">, T=</span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> K: Post-processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datfile_path</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">heating</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">cooling</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="se">\t</span><span class="si">{</span><span class="n">mmw</span><span class="si">:</span><span class="s1">.6f</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">temp_toclean</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ionfractions">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.runner.ionfractions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">ionfractions</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">TaskDef</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Execute Mode 3: Ionisation Fraction Maps.</span>
+<span class="sd">    """</span>
+    <span class="n">key_name</span> <span class="o">=</span> <span class="n">task</span><span class="p">[</span><span class="s1">'key_name'</span><span class="p">]</span>
+
+    <span class="n">elements</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'ionFractionElements'</span><span class="p">,</span> <span class="s1">''</span><span class="p">))</span>
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'ionFractionElements not specified'</span><span class="p">)</span>
+
+    <span class="n">temp_suffix</span>  <span class="o">=</span> <span class="s1">'.temp'</span>
+    <span class="n">temp_infile</span>  <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.cloudyIn</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_outfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.cloudyOut</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+    <span class="n">temp_ionsfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">.ionization</span><span class="si">{</span><span class="n">temp_suffix</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temp_toclean</span> <span class="o">=</span> <span class="p">[</span><span class="n">temp_infile</span><span class="p">,</span> <span class="n">temp_outfile</span><span class="p">,</span> <span class="n">temp_ionsfile</span><span class="p">]</span>
+
+    <span class="n">loop_vals</span> <span class="o">=</span> <span class="n">_get_loops</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+
+    <span class="n">dat_files</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">el</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicNumber'</span><span class="p">]:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">"run_index"</span><span class="p">]</span><span class="si">}</span><span class="s1">: Skipping unknown element "</span><span class="si">{</span><span class="n">el</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">datfile_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">key_name</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">el</span><span class="si">}</span><span class="s1">.dat'</span><span class="p">)</span>
+        <span class="n">dat_files</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="n">datfile_path</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datfile_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# Element: </span><span class="si">{</span><span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s2">"atomicName"</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="p">,</span><span class="w"> </span><span class="n">el</span><span class="p">)</span><span class="si">}</span><span class="s1"> Ion Fraction File</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# Loop values:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">loop_vals</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# Data Columns:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# log(Te [K])</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# log(Ion Fractions)</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+            <span class="n">num_ions</span> <span class="o">=</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicNumber'</span><span class="p">][</span><span class="n">el</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">ion_cols</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_ions</span><span class="p">)]</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'#Te</span><span class="se">\t</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">ion_cols</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="n">temperatures</span> <span class="o">=</span> <span class="n">_get_temperature_loop</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">temp</span> <span class="ow">in</span> <span class="n">temperatures</span><span class="p">:</span>
+        <span class="n">commands</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="s1">'base_commands'</span><span class="p">])</span>
+
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'constant temperature </span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.6e</span><span class="si">}</span><span class="s1"> K linear'</span><span class="p">)</span>
+        <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'punch last ionization means file = "</span><span class="si">{</span><span class="n">temp_ionsfile</span><span class="si">}</span><span class="s1">"'</span><span class="p">)</span>
+
+        <span class="n">crashed</span> <span class="o">=</span> <span class="n">run_subprocess</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">temp_infile</span><span class="p">,</span> <span class="n">temp_outfile</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">'cloudyExe'</span><span class="p">]))</span>
+
+        <span class="n">all_ion_fractions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">crashed</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">"run_index"</span><span class="p">]</span><span class="si">}</span><span class="s1">, T=</span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> K: Cloudy crashed'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dat_files</span><span class="p">:</span>
+                <span class="n">num_ions</span> <span class="o">=</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicNumber'</span><span class="p">][</span><span class="n">el</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">all_ion_fractions</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">30.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_ions</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">all_ion_fractions</span> <span class="o">=</span> <span class="n">_get_ion_fraction</span><span class="p">(</span><span class="n">temp_ionsfile</span><span class="p">,</span> <span class="n">elements</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Run </span><span class="si">{</span><span class="n">task</span><span class="p">[</span><span class="s2">"run_index"</span><span class="p">]</span><span class="si">}</span><span class="s1">, T=</span><span class="si">{</span><span class="n">temp</span><span class="si">:</span><span class="s1">.2e</span><span class="si">}</span><span class="s1"> K: Ion fraction parsing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">dat_files</span><span class="p">:</span>
+                    <span class="n">num_ions</span> <span class="o">=</span> <span class="n">ELEMENT_DATA</span><span class="p">[</span><span class="s1">'atomicNumber'</span><span class="p">][</span><span class="n">el</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">all_ion_fractions</span><span class="p">[</span><span class="n">el</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">30.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">num_ions</span>
+
+        <span class="n">log_temp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">el</span><span class="p">,</span> <span class="n">f_path</span> <span class="ow">in</span> <span class="n">dat_files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">fractions</span> <span class="o">=</span> <span class="n">all_ion_fractions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">el</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_path</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">fracs</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">frac</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">'</span> <span class="k">for</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">fractions</span><span class="p">]</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">log_temp</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\t</span><span class="s1">'</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fracs</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">temp_toclean</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

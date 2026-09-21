@@ -1,15 +1,20 @@
-The py4radiation Module
-===========
+py4radiation package
+====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   py4radiation.data
+   py4radiation.pyciao
+   py4radiation.radiation
+
+Module contents
+---------------
 
 .. automodule:: py4radiation
    :members:
-   :undoc-members:
    :show-inheritance:
-
-Simload
------------
-
-.. automodule:: py4radiation.simload
-   :members:
    :undoc-members:
-   :show-inheritance:

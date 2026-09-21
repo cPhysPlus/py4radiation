@@ -7,7 +7,7 @@ import itertools
 from numpy.typing import NDArray
 from typing import Iterator, Any, TypedDict, cast
 
-from parser import Config
+from .parser import Config
 
 class TaskDef(TypedDict):
     run_index: int

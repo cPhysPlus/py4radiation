@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py4radiation.radiation.parfiles &mdash; py4radiation 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            py4radiation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">py4radiation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">py4radiation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">py4radiation.radiation.parfiles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for py4radiation.radiation.parfiles</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="n">ResolutionType</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">'LOW'</span><span class="p">,</span> <span class="s1">'HIGH'</span><span class="p">]</span>
+
+<div class="viewcode-block" id="ParameterFiles">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.parfiles.ParameterFiles">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParameterFiles</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Generates parameter (.par) files for CIAOLoop.</span>
+
+<span class="sd">    Handles configuration for Ion Fraction maps (ib) and</span>
+<span class="sd">    Heating &amp; Cooling maps (hc)</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">cloudy_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+        <span class="n">run_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">elements</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">redshift</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'0.0000e+00'</span><span class="p">,</span>
+        <span class="n">resolution</span><span class="p">:</span> <span class="n">ResolutionType</span> <span class="o">=</span> <span class="s1">'LOW'</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialise the parameter generator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cloudy_path : str | Path</span>
+<span class="sd">            Path to the Cloudy executable.</span>
+<span class="sd">        run_name : str</span>
+<span class="sd">            Name for the current CIAOLoop run.</span>
+<span class="sd">        elements : str</span>
+<span class="sd">            String of elements for ion fraction calculation (e.g., 'H C N O').</span>
+<span class="sd">        resolution : {'LOW', 'HIGH'}, optional</span>
+<span class="sd">            LOW: 81 log T points, 27 log hden points (coarse grid).</span>
+<span class="sd">            HIGH: 321 log T points, 105 log hden points (fine grid).</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloudy_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cloudy_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_name</span> <span class="o">=</span> <span class="n">run_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elements</span> <span class="o">=</span> <span class="n">elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="n">redshift</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span>
+
+        <span class="k">match</span> <span class="n">resolution</span><span class="p">:</span>
+            <span class="k">case</span> <span class="s1">'LOW'</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tpoints</span> <span class="o">=</span> <span class="mi">81</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hden_step</span> <span class="o">=</span> <span class="mf">0.5</span>
+            <span class="k">case</span> <span class="s1">'HIGH'</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tpoints</span> <span class="o">=</span> <span class="mi">321</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hden_step</span> <span class="o">=</span> <span class="mf">0.05</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Resolution must be "LOW" or "HIGH". Got </span><span class="si">{</span><span class="n">resolution</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_subdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">run_mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate the header lines shared by both parameter files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_subdit : str</span>
+<span class="sd">            Output directory for selected mode.</span>
+<span class="sd">        run_mode : {1, 3}</span>
+<span class="sd">            Run (1) Heating &amp; Cooling map or (3) Ion Fraction map.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[str]</span>
+<span class="sd">            Header of parameter file.</span>
+<span class="sd">        """</span>
+        <span class="n">outdir_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">output_subdir</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">"#####################################################"</span><span class="p">,</span>
+            <span class="s2">"################## RUN  PARAMETERS ##################"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# path to CLOUDY executable"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"cloudyExe              = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cloudy_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# save raw output from CLOUDY"</span><span class="p">,</span>
+            <span class="s2">"saveCloudyOutputFiles   = 0"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# exit if CLOUDY crashes"</span><span class="p">,</span>
+            <span class="s2">"exitOnCrash             = 1"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# run name"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"outputFilePrefix       = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# output path"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"outputDir              = </span><span class="si">{</span><span class="n">outdir_path</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# index of first run"</span><span class="p">,</span>
+            <span class="s2">"runStartIndex           = 1"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# TEST"</span><span class="p">,</span>
+            <span class="s2">"test                    = 0"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# run mode"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"cloudyRunMode          = </span><span class="si">{</span><span class="n">run_mode</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_loops</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">is_ib</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate the loop commands section.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        is_ib : bool</span>
+<span class="sd">            Add a parameter for Ion Fraction maps.</span>
+<span class="sd">        """</span>
+        <span class="n">sed_pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s2">_z*.out"</span>
+
+        <span class="k">if</span> <span class="n">is_ib</span><span class="p">:</span>
+            <span class="n">init_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'loop [init "</span><span class="si">{</span><span class="n">sed_pattern</span><span class="si">}</span><span class="s1">"] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="si">}</span><span class="s1"> 0.0001e+00'</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">init_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'loop [init "</span><span class="si">{</span><span class="n">sed_pattern</span><span class="si">}</span><span class="s1">"] </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="si">}</span><span class="s1">'</span>
+
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">"#####################################################"</span><span class="p">,</span>
+            <span class="s2">"####################### LOOPS #######################"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"command stop zone 1"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"command iterate to convergence"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"loop [hden] (-9;4;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">hden_step</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="n">init_cmd</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="ParameterFiles.hc_parfile">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.parfiles.ParameterFiles.hc_parfile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hc_parfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate and write the CIAOLoop parameter file for heating &amp; cooling.</span>
+<span class="sd">        """</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s1">_hc.par'</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">filename</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_header</span><span class="p">(</span><span class="n">output_subdir</span><span class="o">=</span><span class="s2">"hc"</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s2">"#####################################################"</span><span class="p">,</span>
+            <span class="s2">"########## HEATING &amp; COOLING MAP PARAMETERS #########"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# min T"</span><span class="p">,</span>
+            <span class="s2">"coolingMapTmin = 1e1"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# max T"</span><span class="p">,</span>
+            <span class="s2">"coolingMapTmax = 1e9"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# T resolution (log points)"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"coolingMapTpoints = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tpoints</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# scale factor (1 - n_H^2, 2 - n_H * n_e)"</span><span class="p">,</span>
+            <span class="s2">"coolingScaleFactor = 1"</span><span class="p">,</span>
+            <span class="s2">""</span>
+        <span class="p">])</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_loops</span><span class="p">(</span><span class="n">is_ib</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">file_path</span></div>
+
+
+<div class="viewcode-block" id="ParameterFiles.ib_parfile">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.parfiles.ParameterFiles.ib_parfile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ib_parfile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate and write the CIAOLoop parameter file for ion fractions.</span>
+<span class="sd">        """</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s1">_ib.par'</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">/</span> <span class="n">filename</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_header</span><span class="p">(</span><span class="n">output_subdir</span><span class="o">=</span><span class="s1">'ib'</span><span class="p">,</span> <span class="n">run_mode</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="s2">"#####################################################"</span><span class="p">,</span>
+            <span class="s2">"############ ION FRACTION MAP PARAMETERS ############"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# min T"</span><span class="p">,</span>
+            <span class="s2">"coolingMapTmin = 1e1"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# max T"</span><span class="p">,</span>
+            <span class="s2">"coolingMapTmax = 1e9"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# T resolution (log points)"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"coolingMapTpoints = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tpoints</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span><span class="p">,</span>
+            <span class="s2">"# elements"</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"ionFractionElements = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="s2">""</span>
+        <span class="p">])</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_loops</span><span class="p">(</span><span class="n">is_ib</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">'utf-8'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">file_path</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

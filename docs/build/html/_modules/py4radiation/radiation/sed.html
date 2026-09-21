@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py4radiation.radiation.sed &mdash; py4radiation 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            py4radiation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">py4radiation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">py4radiation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">py4radiation.radiation.sed</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for py4radiation.radiation.sed</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextIO</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span>
+
+<span class="c1"># --- Physics Constants ---</span>
+<span class="n">SPEED_OF_LIGHT</span> <span class="o">=</span> <span class="mf">2.99792458e10</span>   <span class="c1"># cm/s</span>
+<span class="n">PLANCK_EV</span>      <span class="o">=</span> <span class="mf">4.135667696e-15</span> <span class="c1"># eV s</span>
+<span class="n">RYDBERG_EV</span>     <span class="o">=</span> <span class="mf">13.605693</span>       <span class="c1"># eV (1 Ryd)</span>
+<span class="n">PARSEC_TO_CM</span>   <span class="o">=</span> <span class="mf">3.08567758e18</span>   <span class="c1"># cm</span>
+<span class="n">ANGSTROM_TO_CM</span> <span class="o">=</span> <span class="mf">1.0e-8</span>          <span class="c1"># cm</span>
+
+<div class="viewcode-block" id="SED">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.sed.SED">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SED</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A class to load, process and format SEDs for astrophysical codes.</span>
+
+<span class="sd">    This class handles the conversion of Leitherer et al. (1999) style</span>
+<span class="sd">    SED tables into Cloudy-readable formats.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    run_name : str</span>
+<span class="sd">        Name of the run, used for output filenames.</span>
+<span class="sd">    distance_cm : float</span>
+<span class="sd">        Luminosity distance to the source in cm.</span>
+<span class="sd">    data_table : npt.NDArray[np.float64]</span>
+<span class="sd">        Raw loaded SED data table.</span>
+<span class="sd">    redshift : float</span>
+<span class="sd">        Redshift (z) of the source.</span>
+<span class="sd">        For this version, only consider near Universe (z=0.0000e+00).</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">run_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">custom_table</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">table_id</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">TableID</span> <span class="o">=</span> <span class="s1">'fig2a'</span><span class="p">,</span>
+        <span class="n">table</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">distance_kpc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">age_myr</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialise the SED processor.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_name : str</span>
+<span class="sd">            A unique identifier for this run.</span>
+<span class="sd">        custom_table : bool, optional</span>
+<span class="sd">            If a custom table (outside the Sb99 tables) is used.</span>
+<span class="sd">            Default is False.</span>
+<span class="sd">        table_id : data.TableID, optional</span>
+<span class="sd">            The identifier of the bundled SED table to load.</span>
+<span class="sd">            Default is 'fig2a'.</span>
+<span class="sd">        table : str | Path</span>
+<span class="sd">            The path to a custom table with only two columns:</span>
+<span class="sd">            [wavelength (in Angstroms)] [Log10 Luminosity (in erg/s/Angstrom)].</span>
+<span class="sd">        distance_kpc : float</span>
+<span class="sd">            Distance to the radiation source in kiloparsecs (kpc).</span>
+<span class="sd">        age_myr : int, optional</span>
+<span class="sd">            Age of the starburst in Myr. Used to select the specific column</span>
+<span class="sd">            in the time-evolution SB99 SED table. Default is 3.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_name</span> <span class="o">=</span> <span class="n">run_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redshift</span> <span class="o">=</span> <span class="s1">'0.0000e+00'</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_cm</span> <span class="o">=</span> <span class="n">distance_kpc</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">*</span> <span class="n">PARSEC_TO_CM</span>
+
+        <span class="k">if</span> <span class="n">custom_table</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_table</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_age_column_idx</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_table</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">load_table</span><span class="p">(</span><span class="n">table_id</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_age_column_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_map_age</span><span class="p">(</span><span class="n">age_myr</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">age_myr</span> <span class="o">=</span> <span class="n">age_myr</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_map_age</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">age</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Map the starburst age (Myr) to the specific column index.</span>
+
+<span class="sd">        Logic follows the specific format of Leitherer et al. tables.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="mi">30</span> <span class="o">&lt;=</span> <span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">age</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span> <span class="o">+</span> <span class="mi">18</span>
+        <span class="k">elif</span> <span class="mi">200</span> <span class="o">&lt;=</span> <span class="n">age</span> <span class="o">&lt;=</span> <span class="mi">900</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">age</span> <span class="o">//</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="mi">27</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">age</span>
+
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">'Calculated column index </span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1"> for age </span><span class="si">{</span><span class="n">age</span><span class="si">}</span><span class="s1"> Myr '</span>
+                <span class="sa">f</span><span class="s1">'exceeds table dimensions (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s1"> columns).'</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SED.get_sed">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.sed.SED.get_sed">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_sed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Calculates Energy (Ryd) and Flux (F_nu).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        energy_ryd : np.ndarray</span>
+<span class="sd">            Photon energies in Rydbergs.</span>
+<span class="sd">        F_nu : np.ndarray</span>
+<span class="sd">            Flux F_nu in erg s^-1 cm^-2 Hz^-1</span>
+<span class="sd">        """</span>
+
+        <span class="n">wavelength_angstrom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">wavelength_cm</span> <span class="o">=</span> <span class="n">wavelength_angstrom</span> <span class="o">*</span> <span class="n">ANGSTROM_TO_CM</span>
+
+        <span class="n">frequency</span> <span class="o">=</span> <span class="n">SPEED_OF_LIGHT</span> <span class="o">/</span> <span class="n">wavelength_cm</span>
+        <span class="n">energy_ryd</span> <span class="o">=</span> <span class="p">(</span><span class="n">frequency</span> <span class="o">*</span> <span class="n">PLANCK_EV</span><span class="p">)</span> <span class="o">/</span> <span class="n">RYDBERG_EV</span>
+
+        <span class="n">log_luminosity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_table</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_age_column_idx</span><span class="p">]</span>
+        <span class="n">luminosity_lambda</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">log_luminosity</span>
+
+        <span class="n">c_angstrom_s</span> <span class="o">=</span> <span class="n">SPEED_OF_LIGHT</span> <span class="o">*</span> <span class="mf">1e8</span>
+        <span class="n">luminosity_nu</span> <span class="o">=</span> <span class="n">luminosity_lambda</span> <span class="o">*</span> <span class="p">(</span><span class="n">wavelength_angstrom</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">c_angstrom_s</span>
+        <span class="n">f_nu</span> <span class="o">=</span> <span class="n">luminosity_nu</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_cm</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">energy_ryd</span><span class="p">,</span> <span class="n">f_nu</span></div>
+
+
+<div class="viewcode-block" id="SED.write_outfile">
+<a class="viewcode-back" href="../../../py4radiation.radiation.html#py4radiation.radiation.sed.SED.write_outfile">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_outfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="s1">'.'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Write a Cloudy-readable input file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        output_dir : str or Path</span>
+<span class="sd">            Directory where the output file will be saved.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            The path to the generated file.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If SED coverage does not include 1 Ryd.</span>
+<span class="sd">        """</span>
+        <span class="n">energy</span><span class="p">,</span> <span class="n">f_nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sed</span><span class="p">()</span>
+        <span class="n">log_f_nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">f_nu</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">energy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">energy</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">log_f_nu</span> <span class="o">=</span> <span class="n">log_f_nu</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">idx_1ryd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">energy</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mf">0.99</span> <span class="o">&lt;=</span> <span class="n">energy</span><span class="p">[</span><span class="n">idx_1ryd</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">1.01</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">'SED coverage does not include 1 Ryd (closest: </span><span class="si">{</span><span class="n">energy</span><span class="p">[</span><span class="n">idx_1ryd</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">).'</span><span class="p">)</span>
+
+        <span class="n">norm_val</span> <span class="o">=</span> <span class="n">log_f_nu</span><span class="p">[</span><span class="n">idx_1ryd</span><span class="p">]</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">run_name</span><span class="si">}</span><span class="s1">_z</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="si">}</span><span class="s1">.out'</span>
+        <span class="n">outpath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s1">'# SED profile at </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">age_myr</span><span class="si">}</span><span class="s1"> Myr'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'# z = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">redshift</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s1">'# E [Ryd] log10 (F_nu)'</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">energy</span><span class="p">)):</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="s1">'interpolate'</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="s1">'continue'</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">energy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s1">.10f</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">log_f_nu</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s1">.10f</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'f(nu) = </span><span class="si">{</span><span class="n">norm_val</span><span class="si">:</span><span class="s1">.14f</span><span class="si">}</span><span class="s1"> at </span><span class="si">{</span><span class="n">energy</span><span class="p">[</span><span class="n">idx_1ryd</span><span class="p">]</span><span class="si">:</span><span class="s1">.10f</span><span class="si">}</span><span class="s1"> Ryd'</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outpath</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">outpath</span></div>
+</div>
+
+        
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

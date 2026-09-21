@@ -8,7 +8,7 @@ version = "0.1.0"
 authors = [
   { name="Daniel Villarruel-Yanez", email="daniel.villarruel@yachaytech.edu.ec" },
 ]
-description = "A package to prepare radiative heating/cooling/ion fractions for HD/MHD codes."
+description = "A package to prepare radiative heating/cooling/ion fractions tables for HD/MHD codes."
 readme = "README.md"
 requires-python = ">=3.11"
 
@@ -20,7 +20,7 @@ classifiers = [
 
 dependencies = [
     "requests>=2.31.0",
-    "numpy>=2.5.0",
+    "numpy>=2.4.6",
     "mpi4py >= 4.1.2",
     "h5py >= 3.16.0"
 ]

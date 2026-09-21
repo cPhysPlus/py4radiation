@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py4radiation.pyciao.tasks &mdash; py4radiation 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            py4radiation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">py4radiation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">py4radiation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">py4radiation.pyciao.tasks</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for py4radiation.pyciao.tasks</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+
+<div class="viewcode-block" id="TaskDef">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskDef">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskDef</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">run_index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">key_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">base_commands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">run_mode</span><span class="p">:</span> <span class="nb">int</span></div>
+
+
+<div class="viewcode-block" id="TaskManager">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Generates execution tasks based on the parsed configuration.</span>
+
+<span class="sd">    This class handles the combinatorial logic of creating unique Cloudy</span>
+<span class="sd">    run configurations by iterating over the specified loops and combining</span>
+<span class="sd">    them with constant commands.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : Config</span>
+<span class="sd">        Configuration object containing parsed parameters and commands.</span>
+<span class="sd">    start_idx : int</span>
+<span class="sd">        The starting index for run numbering. Default is 1.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initialize the TaskManager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : Config</span>
+<span class="sd">            A valid, parsed Config object.</span>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'runStartIndex'</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">loops_cmd</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">TaskDef</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Create a single task dictionary for a worker to execute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_idx : int</span>
+<span class="sd">            Unique identifier for this run.</span>
+<span class="sd">        loops_cmd : list[str]</span>
+<span class="sd">            Specific list of loop commands for this run.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        TaskDef</span>
+<span class="sd">            Dictionary containing all necessary information to execute the task.</span>
+<span class="sd">        """</span>
+        <span class="n">outdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputDir'</span><span class="p">,</span> <span class="s1">''</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputFilePrefix'</span><span class="p">,</span> <span class="s1">'ciaorun'</span><span class="p">)</span>
+
+        <span class="n">key_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outdir</span><span class="si">}{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">_run</span><span class="si">{</span><span class="n">run_idx</span><span class="si">}</span><span class="s1">'</span>
+
+        <span class="n">final_cmd</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">const_cmd</span><span class="p">)</span>
+        <span class="n">final_cmd</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">loops_cmd</span><span class="p">)</span>
+
+        <span class="n">run</span><span class="p">:</span> <span class="n">TaskDef</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'run_index'</span><span class="p">:</span> <span class="n">run_idx</span><span class="p">,</span>
+            <span class="s1">'key_name'</span><span class="p">:</span> <span class="n">key_name</span><span class="p">,</span>
+            <span class="s1">'base_commands'</span><span class="p">:</span> <span class="n">final_cmd</span><span class="p">,</span>
+            <span class="s1">'run_mode'</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">'cloudyRunMode'</span><span class="p">])</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">run</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Format a Cloudy command string with a specific value.</span>
+
+<span class="sd">        If the template contains '*', replace it with the value.</span>
+<span class="sd">        Otherwise, append the value to the template.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        template : str</span>
+<span class="sd">            Command template.</span>
+<span class="sd">        value : float | str | NDArray[np.float64]</span>
+<span class="sd">            Value to insert into the command.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Formatted command string.</span>
+<span class="sd">        """</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">'*'</span> <span class="ow">in</span> <span class="n">template</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'*'</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">template</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">'</span>
+
+<div class="viewcode-block" id="TaskManager.gen_tasks">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager.gen_tasks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gen_tasks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">TaskDef</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Generate a stream of tasks by iterating over all configured loops.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        Iterator[TaskDef]</span>
+<span class="sd">            An iterator yielding task dictionaries.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; manager = TaskManager(config)</span>
+<span class="sd">        &gt;&gt;&gt; for task in manager.gen_tasks():</span>
+<span class="sd">        ...     print(task['run_index])</span>
+<span class="sd">        """</span>
+        <span class="n">loop_iter</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">loop_item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">loops_cmd</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">loop_item</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'single'</span><span class="p">:</span>
+                <span class="n">cmd</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">loop_item</span><span class="p">[</span><span class="s1">'command'</span><span class="p">])</span>
+                <span class="n">raw_vals</span> <span class="o">=</span> <span class="n">loop_item</span><span class="p">[</span><span class="s1">'values'</span><span class="p">]</span>
+
+                <span class="n">iterable</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_vals</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">vals_arr</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">],</span> <span class="n">raw_vals</span><span class="p">)</span>
+                    <span class="n">iterable</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_cmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">val</span><span class="p">),)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals_arr</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">iterable</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_cmd</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">val</span><span class="p">),)</span> <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">raw_vals</span><span class="p">]</span>
+
+                <span class="n">loop_iter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">iterable</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">loop_item</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'set'</span><span class="p">:</span>
+                <span class="c1"># Future implementation.</span>
+                <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">loop_iter</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'No loop commands found. Generating a single task.'</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start_idx</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">return</span>
+
+        <span class="n">run_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_idx</span>
+
+        <span class="k">for</span> <span class="n">task_cmd</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">loop_iter</span><span class="p">):</span>
+            <span class="n">loops_cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">task_cmd</span><span class="p">]</span>
+
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_task</span><span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">loops_cmd</span><span class="p">)</span>
+            <span class="n">run_idx</span> <span class="o">+=</span> <span class="mi">1</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

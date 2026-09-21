@@ -1,2 +1,2 @@
-# Required for Read the Docs theme
+sphinx
 sphinx-rtd-theme

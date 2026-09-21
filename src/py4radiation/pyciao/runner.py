@@ -12,8 +12,8 @@ from pathlib import Path
 from numpy.typing import NDArray
 from typing import TypedDict, Any, Final, Optional
 
-from parser import Config
-from tasks import TaskDef
+from .parser import Config
+from .tasks import TaskDef
 
 class TaskResult(TypedDict):
     """

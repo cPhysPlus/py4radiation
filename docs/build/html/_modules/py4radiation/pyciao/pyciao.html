@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py4radiation.pyciao.pyciao &mdash; py4radiation 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            py4radiation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">py4radiation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">py4radiation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">py4radiation.pyciao.pyciao</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for py4radiation.pyciao.pyciao</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Any</span>
+
+<span class="n">MPI_AVAILABLE</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+    <span class="n">MPI_AVAILABLE</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.tasks</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManager</span><span class="p">,</span> <span class="n">TaskDef</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">execute_task</span><span class="p">,</span> <span class="n">initialize_worker</span><span class="p">,</span> <span class="n">TaskResult</span>
+
+<div class="viewcode-block" id="setup_main_logging">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.pyciao.setup_main_logging">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_main_logging</span><span class="p">(</span><span class="n">outdir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Set up the main log file for Rank 0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    outdir : str</span>
+<span class="sd">        Directory to save the log file.</span>
+<span class="sd">    prefix : str</span>
+<span class="sd">        Prefix for the log filename.</span>
+<span class="sd">    """</span>
+    <span class="n">logfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.log'</span>
+    <span class="k">if</span> <span class="n">outdir</span><span class="p">:</span>
+        <span class="n">logfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outdir</span><span class="si">}{</span><span class="n">logfile</span><span class="si">}</span><span class="s1">'</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+        <span class="nb">format</span><span class="o">=</span><span class="s1">'</span><span class="si">%(asctime)s</span><span class="s1"> - </span><span class="si">%(levelname)s</span><span class="s1"> - </span><span class="si">%(message)s</span><span class="s1">'</span><span class="p">,</span>
+        <span class="n">handlers</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">FileHandler</span><span class="p">(</span><span class="n">logfile</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'w'</span><span class="p">),</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">force</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Log file initialized at </span><span class="si">{</span><span class="n">logfile</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="write_runfile">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.pyciao.write_runfile">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_runfile</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Write the summary .run file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : Config</span>
+<span class="sd">        Configuration object.</span>
+<span class="sd">    """</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">params</span>
+
+    <span class="n">outdir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputDir'</span><span class="p">,</span> <span class="s1">''</span><span class="p">))</span>
+    <span class="n">prefix</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputFilePrefix'</span><span class="p">,</span> <span class="s1">'ciaorun'</span><span class="p">))</span>
+
+    <span class="n">runfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outdir</span><span class="si">}{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">.run'</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Writing run file: </span><span class="si">{</span><span class="n">runfile</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">runfile</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# Run started </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span><span class="si">}</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# cloudyRunMode = </span><span class="si">{</span><span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cloudyRunMode"</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# outputFilePrefix = </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# outputDir = </span><span class="si">{</span><span class="n">outdir</span><span class="si">}</span><span class="se">\n</span><span class="s1">#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'# Commands to be executed everytime:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">const_cmd</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'#</span><span class="se">\n</span><span class="s1"># Loop commands and values:</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'#run'</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">loops_cmd</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'single'</span><span class="p">:</span>
+                    <span class="n">cmd_name</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="s1">'command'</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> <span class="s1">' '</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s1">'# </span><span class="si">{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">item</span><span class="p">[</span><span class="s2">"values"</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+                    <span class="n">headers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cmd_name</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">item</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'set'</span><span class="p">:</span>
+                    <span class="c1"># Future implementation.</span>
+                    <span class="k">continue</span>
+
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'#</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+            <span class="n">loop_items</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">item</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">loops_cmd</span>
+                <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'single'</span>
+            <span class="p">]</span>
+
+            <span class="n">loop_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="s1">'values'</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">loop_items</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">loop_values</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                    <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">loop_values</span><span class="p">),</span>
+                    <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">),</span> <span class="o">*</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)]</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'</span><span class="se">\t</span><span class="s1">'</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'1</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed to write runfile </span><span class="si">{</span><span class="n">runfile</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">.'</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_mpi">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.pyciao.run_mpi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_mpi</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskDef</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskResult</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Execute tasks using MPI.</span>
+<span class="sd">    """</span>
+    <span class="n">COMM</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+    <span class="n">RANK</span> <span class="o">=</span> <span class="n">COMM</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+    <span class="n">SIZE</span> <span class="o">=</span> <span class="n">COMM</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span>
+
+    <span class="n">config</span> <span class="o">=</span> <span class="n">COMM</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">tasks</span>  <span class="o">=</span> <span class="n">COMM</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">initialize_worker</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">RANK</span><span class="p">)</span>
+    
+    <span class="n">my_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[</span><span class="n">RANK</span><span class="p">::</span><span class="n">SIZE</span><span class="p">]</span>
+    <span class="n">local_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">execute_task</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">my_tasks</span><span class="p">]</span>
+    
+    <span class="n">all_results</span> <span class="o">=</span> <span class="n">COMM</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">local_results</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">final_results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">RANK</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">all_results</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">rlist</span> <span class="ow">in</span> <span class="n">all_results</span><span class="p">:</span>
+            <span class="n">final_results</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rlist</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">final_results</span></div>
+
+
+<div class="viewcode-block" id="run_multiprocessing">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.pyciao.run_multiprocessing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_multiprocessing</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">Config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskDef</span><span class="p">],</span> <span class="n">nproc</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskResult</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Execute tasks using multiprocessing.</span>
+<span class="sd">    """</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Starting multiprocessing pool with </span><span class="si">{</span><span class="n">nproc</span><span class="si">}</span><span class="s1"> processes.'</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">nproc</span><span class="p">,</span> <span class="n">initializer</span><span class="o">=</span><span class="n">initialize_worker</span><span class="p">,</span> <span class="n">initargs</span><span class="o">=</span><span class="p">(</span><span class="n">config</span><span class="p">,))</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+        <span class="n">results_iter</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">imap_unordered</span><span class="p">(</span><span class="n">execute_task</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+
+        <span class="n">final_results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">res</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">results_iter</span><span class="p">):</span>
+            <span class="n">final_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">10</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Progress: </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span><span class="si">}</span><span class="s1"> tasks completed.'</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_results</span></div>
+
+
+<div class="viewcode-block" id="main">
+<a class="viewcode-back" href="../../../py4radiation.pyciao.html#py4radiation.pyciao.pyciao.main">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Main Execution Routine.</span>
+<span class="sd">    """</span>
+    <span class="n">is_mpi</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">MPI_AVAILABLE</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">is_mpi</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">rank</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+
+    <span class="n">config</span><span class="p">:</span> <span class="n">Config</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tasks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">TaskDef</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">'pyCIAO: Hybrid MPI/multiprocessing implementation of CIAOLoop'</span>
+        <span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'parfile'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'Path to parameter file (.par).'</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">'--nproc'</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">'Number of processes for multiprocessing (ignored if using MPI).'</span><span class="p">)</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">parfile</span><span class="p">)</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">parse</span><span class="p">()</span>
+
+            <span class="n">par</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">params</span>
+            <span class="n">setup_main_logging</span><span class="p">(</span><span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputDir'</span><span class="p">,</span> <span class="s1">''</span><span class="p">),</span> <span class="n">par</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'outputFilePrefix'</span><span class="p">,</span> <span class="s1">'ciaorun'</span><span class="p">))</span>
+
+            <span class="n">mode_str</span> <span class="o">=</span> <span class="s1">'MPI'</span> <span class="k">if</span> <span class="n">is_mpi</span> <span class="k">else</span> <span class="s1">'Multiprocessing'</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'--- pyCIAO </span><span class="si">{</span><span class="n">mode_str</span><span class="si">}</span><span class="s1"> Run Started ---'</span><span class="p">)</span>
+
+            <span class="n">task_manager</span> <span class="o">=</span> <span class="n">TaskManager</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">tasks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">task_manager</span><span class="o">.</span><span class="n">gen_tasks</span><span class="p">())</span>
+
+            <span class="n">total_tasks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Generated </span><span class="si">{</span><span class="n">total_tasks</span><span class="si">}</span><span class="s1"> Cloudy tasks.'</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">total_tasks</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">'No tasks were generated. Exiting...'</span><span class="p">)</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">write_runfile</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Rank 0 initialization failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">final_results</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">is_mpi</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">run_mpi</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">final_results</span> <span class="o">=</span> <span class="n">run_mpi</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">final_results</span> <span class="o">=</span> <span class="n">run_multiprocessing</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tasks</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">nproc</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">final_results</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">'run_index'</span><span class="p">])</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">final_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'success'</span><span class="p">)</span>
+        <span class="n">fail</span>    <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">final_results</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'failed'</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">res</span> <span class="ow">in</span> <span class="n">final_results</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span><span class="p">[</span><span class="s1">'status'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'failed'</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Run </span><span class="si">{</span><span class="n">res</span><span class="p">[</span><span class="s1">'run_index'</span><span class="p">]</span><span class="si">}</span><span class="s2"> FAILED: </span><span class="si">{</span><span class="n">res</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'error'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">'--- Run Finished ---'</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Total tasks: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Successful:  </span><span class="si">{</span><span class="n">success</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Failed:      </span><span class="si">{</span><span class="n">fail</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Total execution time: </span><span class="si">{</span><span class="n">end_time</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds'</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'--------------------------------------------------'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'All Runs Finished at </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'--------------------------------------------------'</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

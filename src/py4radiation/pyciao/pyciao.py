@@ -17,9 +17,9 @@ try:
 except ImportError:
     pass
 
-from parser import Config
-from tasks import TaskManager, TaskDef
-from runner import execute_task, initialize_worker, TaskResult
+from .parser import Config
+from .tasks import TaskManager, TaskDef
+from .runner import execute_task, initialize_worker, TaskResult
 
 def setup_main_logging(outdir: str, prefix: str) -> None:
     """
