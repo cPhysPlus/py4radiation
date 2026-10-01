@@ -4,7 +4,9 @@
 ![Python](https://img.shields.io/badge/python->=3.11-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-A modern, modular Python toolkit designed to process and format outputs from pyCIAO simulations. This package provides streamlined pipelines for generating Spectral Energy Distributions (SEDs), Heating/Cooling tables, and Ion Fraction maps for astrophysical HD/MHD codes.
+D. Villarruel-Yanez, W.E. Banda-Barragan & B. Casavecchia (in prep.)
+
+A modern, modular Python toolkit designed to generate radiative heating and cooling rates and ion fractions from spectral energy distributions.. This package provides streamlined pipelines for producing tables ready to couple to astrophysical HD/MHD codes.
 
 ## Installation
 
