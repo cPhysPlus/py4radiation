@@ -5,4 +5,4 @@ Welcome to py4radiation's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   api
+   modules

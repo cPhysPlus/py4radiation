@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 
-import numpy as np
-
-import re
 import logging
+import re
 from pathlib import Path
 from typing import Any, Final
+
+import numpy as np
 from numpy.typing import NDArray
 
-RE_FOR: Final[re.Pattern] = re.compile(r'\((-?\d*\.?\d*)\;(-?\d*\.?\d*)\;(-?\d*\.?\d*)\)')
-RE_CMD: Final[re.Pattern] = re.compile(r'\[(.+?)\](.+)')
-RE_SET: Final[re.Pattern] = re.compile(r'loop\s*\{')
-RE_PAR: Final[re.Pattern] = re.compile(r'^([a-zA-Z0-9_]+)\s*[=\s]\s*(.+)')
+RE_FOR: Final[re.Pattern] = re.compile(
+    r"\((-?\d*\.?\d*)\;(-?\d*\.?\d*)\;(-?\d*\.?\d*)\)"
+)
+RE_CMD: Final[re.Pattern] = re.compile(r"\[(.+?)\](.+)")
+RE_SET: Final[re.Pattern] = re.compile(r"loop\s*\{")
+RE_PAR: Final[re.Pattern] = re.compile(r"^([a-zA-Z0-9_]+)\s*[=\s]\s*(.+)")
+
 
 class Config:
     """
-    Parses the parameter file to configure pyCIAOLoop and Cloudy execution.
+    Parses the parameter file to configure pyCIAO and Cloudy execution.
 
     Attributes
     ----------
@@ -39,7 +42,7 @@ class Config:
         ----------
         parfile : str | Path
             Path to the input parameter file (.par).
-        
+
         Raises
         ------
         FileNotFoundError
@@ -48,16 +51,13 @@ class Config:
         self.parfile = Path(parfile)
 
         if not self.parfile.exists():
-            raise FileNotFoundError(f'Parameter file not found: {self.parfile}.')
+            raise FileNotFoundError(f"Parameter file not found: {self.parfile}.")
 
         self.params: dict[str, Any] = {}
         self.const_cmd: list[str] = []
         self.loops_cmd: list[dict[str, Any]] = []
 
-        self.modes: dict[int, str] = {
-            1: 'HeatingCoolingMap',
-            3: 'IonFractionMap'
-        }
+        self.modes: dict[int, str] = {1: "HeatingCoolingMap", 3: "IonFractionMap"}
 
     def _parse_loops(self, val: str) -> NDArray[np.float64]:
         """
@@ -88,22 +88,22 @@ class Config:
         if match:
             try:
                 start = float(match.group(1))
-                end   = float(match.group(2))
-                step  = float(match.group(3))
+                end = float(match.group(2))
+                step = float(match.group(3))
             except ValueError as err:
-                raise ValueError(f'Invalid for loop parameter: {val}.') from err
+                raise ValueError(f"Invalid for loop parameter: {val}.") from err
 
             if step == 0:
-                raise ValueError(f'Invalid step (0) in loop: {val}.')
+                raise ValueError(f"Invalid step (0) in loop: {val}.")
 
             if (end - start) * step < 0 and step > 0:
-                raise ValueError(f'Infinite loop detected: {val}.')
+                raise ValueError(f"Infinite loop detected: {val}.")
             if (end - start) * step > 0 and step < 0:
-                raise ValueError(f'Infinite loop detected: {val}.')
+                raise ValueError(f"Infinite loop detected: {val}.")
 
             return np.arange(start, end + step, step)
 
-        return val.replace(',', ' ').split()
+        return val.replace(",", " ").split()
 
     def _validate_config(self) -> None:
         """
@@ -118,45 +118,52 @@ class Config:
             If required parameters are missing or invalid.
         """
         try:
-            mode = int(self.params['cloudyRunMode'])
+            mode = int(self.params["cloudyRunMode"])
             if mode not in self.modes:
                 raise ValueError(
-                    f'Unsupported cloudyRunMode: {mode}. '
-                    f'Supported modes: {self.modes}.'
+                    f"Unsupported cloudyRunMode: {mode}. Supported modes: {self.modes}."
                 )
 
         except (ValueError, KeyError) as err:
-            raise ValueError('Invalid or missing cloudyRunMode. Must be an integer.') from err
+            raise ValueError(
+                "Invalid or missing cloudyRunMode. Must be an integer."
+            ) from err
 
-        if 'cloudyExe' not in self.params:
-            raise ValueError('cloudyExe must be specified in the parameter file.')
+        if "cloudyExe" not in self.params:
+            raise ValueError("cloudyExe must be specified in the parameter file.")
 
-        outdir = self.params.get('outputDir', '.')
-        if outdir == '.':
-            logging.warning('Output directory not set, defaulting to current directory.')
-            self.params['outputDir'] = ''
+        outdir = self.params.get("outputDir", ".")
+        if outdir == ".":
+            logging.warning(
+                "Output directory not set, defaulting to current directory."
+            )
+            self.params["outputDir"] = ""
         else:
             path_out = Path(outdir)
             path_out.mkdir(parents=True, exist_ok=True)
-            self.params['outputDir'] = f'{path_out}/'
+            self.params["outputDir"] = f"{path_out}/"
 
-        if 'outputFilePrefix' not in self.params:
+        if "outputFilePrefix" not in self.params:
             logging.warning('outputFilePrefix not set, defaulting to "ciaorun".')
-            self.params['outputFilePrefix'] = 'ciaorun'
+            self.params["outputFilePrefix"] = "ciaorun"
 
-        mode_int = int(self.params['cloudyRunMode'])
+        mode_int = int(self.params["cloudyRunMode"])
 
         if mode_int == 1:
-            if not all(k in self.params for k in ['coolingMapTmin', 'coolingMapTmax']):
-                raise ValueError('Heating/Cooling rates requires "coolingMapTmin" and "coolingMapTmax".')
+            if not all(k in self.params for k in ["coolingMapTmin", "coolingMapTmax"]):
+                raise ValueError(
+                    'Heating/Cooling rates requires "coolingMapTmin" and "coolingMapTmax".'
+                )
 
         if mode_int == 3:
-            if not all(k in self.params for k in ['coolingMapTmin', 'coolingMapTmax']):
-                raise ValueError('Ion Fraction maps requires "coolingMapTmin" and "coolingMapTmax".')
+            if not all(k in self.params for k in ["coolingMapTmin", "coolingMapTmax"]):
+                raise ValueError(
+                    'Ion Fraction maps requires "coolingMapTmin" and "coolingMapTmax".'
+                )
 
-            if 'ionFractionElements' not in self.params:
+            if "ionFractionElements" not in self.params:
                 logging.warning('ionFractionElements not set, defaulting to "H C N O".')
-                self.params['ionFractionElements'] = 'H C N O'
+                self.params["ionFractionElements"] = "H C N O"
 
     def parse(self) -> None:
         """
@@ -169,17 +176,17 @@ class Config:
         IOError
             If file reading fails.
         """
-        logging.info(f'Parsing parameter file: {self.parfile}.')
+        logging.info(f"Parsing parameter file: {self.parfile}.")
 
         try:
-            with open(self.parfile, 'r') as f:
+            with open(self.parfile, "r") as f:
                 lines = f.readlines()
 
         except IOError as e:
-            raise IOError(f'Failed to read parameter file {self.parfile}: {e}.')
+            raise IOError(f"Failed to read parameter file {self.parfile}: {e}.")
 
         for n, line in enumerate(lines, 1):
-            rline = line.strip().split('#', 1)[0].strip()
+            rline = line.strip().split("#", 1)[0].strip()
 
             if not rline:
                 continue
@@ -187,27 +194,25 @@ class Config:
             low = rline.lower()
 
             try:
-                if low.startswith('command'):
+                if low.startswith("command"):
                     cmd = rline.split(maxsplit=1)
                     if len(cmd) > 1:
                         self.const_cmd.append(cmd[1])
                     else:
-                        logging.warning(f'Line {n}: Empty command ignored.')
+                        logging.warning(f"Line {n}: Empty command ignored.")
 
-                elif low.startswith('loop'):
+                elif low.startswith("loop"):
                     match = RE_CMD.search(rline)
                     if not match:
-                        raise ValueError(f'Invalid loop syntax: {line}.')
+                        raise ValueError(f"Invalid loop syntax: {line}.")
 
                     cmd = match.group(1).strip()
                     val = match.group(2).strip()
                     val = self._parse_loops(val)
 
-                    self.loops_cmd.append({
-                        'type': 'single',
-                        'command': cmd,
-                        'values': val
-                    })
+                    self.loops_cmd.append(
+                        {"type": "single", "command": cmd, "values": val}
+                    )
                 else:
                     match = RE_PAR.match(rline)
                     if match:
@@ -215,10 +220,12 @@ class Config:
                         val = match.group(2).strip()
                         self.params[key] = val
                     else:
-                        logging.debug(f"Line {n}: Unrecognized format, skipping: {line_content}")
+                        logging.debug(
+                            f"Line {n}: Unrecognized format, skipping: {line_content}"
+                        )
                         continue
             except Exception as e:
                 logging.error(f'Error parsing line {n}: "{rline}" -> {e}.')
 
         self._validate_config()
-        logging.info('Configuration parsed succesfully.')
+        logging.info("Configuration parsed succesfully.")

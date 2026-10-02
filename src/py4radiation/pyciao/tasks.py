@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 
-import numpy as np
-
-import logging
 import itertools
+import logging
+from collections.abc import Iterator
+from typing import TypedDict, cast
+
+import numpy as np
 from numpy.typing import NDArray
-from typing import Iterator, Any, TypedDict, cast
 
 from .parser import Config
+
 
 class TaskDef(TypedDict):
     run_index: int
     key_name: str
     base_commands: list[str]
     run_mode: int
+
 
 class TaskManager:
     """
@@ -41,7 +44,7 @@ class TaskManager:
             A valid, parsed Config object.
         """
         self.config = config
-        self.start_idx = int(config.params.get('runStartIndex', 1))
+        self.start_idx = int(config.params.get("runStartIndex", 1))
 
     def _create_task(self, run_idx: int, loops_cmd: list[str]) -> TaskDef:
         """
@@ -59,24 +62,26 @@ class TaskManager:
         TaskDef
             Dictionary containing all necessary information to execute the task.
         """
-        outdir = self.config.params.get('outputDir', '')
-        prefix = self.config.params.get('outputFilePrefix', 'ciaorun')
+        outdir = self.config.params.get("outputDir", "")
+        prefix = self.config.params.get("outputFilePrefix", "ciaorun")
 
-        key_name = f'{outdir}{prefix}_run{run_idx}'
+        key_name = f"{outdir}{prefix}_run{run_idx}"
 
         final_cmd = list(self.config.const_cmd)
         final_cmd.extend(loops_cmd)
 
         run: TaskDef = {
-            'run_index': run_idx,
-            'key_name': key_name,
-            'base_commands': final_cmd,
-            'run_mode': int(self.config.params['cloudyRunMode'])
+            "run_index": run_idx,
+            "key_name": key_name,
+            "base_commands": final_cmd,
+            "run_mode": int(self.config.params["cloudyRunMode"]),
         }
 
         return run
 
-    def _format_cmd(self, template: str, value: float | str | NDArray[np.float64]) -> str:
+    def _format_cmd(
+        self, template: str, value: float | str | NDArray[np.float64]
+    ) -> str:
         """
         Format a Cloudy command string with a specific value.
 
@@ -96,10 +101,10 @@ class TaskManager:
             Formatted command string.
         """
         val = str(value)
-        if '*' in template:
-            return template.replace('*', val)
+        if "*" in template:
+            return template.replace("*", val)
         else:
-            return f'{template} {val}'
+            return f"{template} {val}"
 
     def gen_tasks(self) -> Iterator[TaskDef]:
         """
@@ -119,9 +124,9 @@ class TaskManager:
         loop_iter = []
 
         for loop_item in self.config.loops_cmd:
-            if loop_item['type'] == 'single':
-                cmd = str(loop_item['command'])
-                raw_vals = loop_item['values']
+            if loop_item["type"] == "single":
+                cmd = str(loop_item["command"])
+                raw_vals = loop_item["values"]
 
                 iterable = []
                 if isinstance(raw_vals, np.ndarray):
@@ -132,12 +137,12 @@ class TaskManager:
 
                 loop_iter.append(iterable)
 
-            elif loop_item['type'] == 'set':
+            elif loop_item["type"] == "set":
                 # Future implementation.
                 continue
 
         if not loop_iter:
-            logging.info('No loop commands found. Generating a single task.')
+            logging.info("No loop commands found. Generating a single task.")
             yield self._create_task(self.start_idx, [])
             return
 
