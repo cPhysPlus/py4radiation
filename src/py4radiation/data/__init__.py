@@ -1,26 +1,46 @@
 #!/usr/bin/env python3
 
-import numpy as np
-
-from pathlib import Path
-import numpy.typing as npt
-from typing import Literal, Any
 from importlib.resources import files
+from pathlib import Path
+from typing import Any, Literal
 
-TableID = Literal['fig2a', 'fig2b', 'fig4a', 'fig4b', 'fig6a', 'fig6b']
+import numpy as np
+import numpy.typing as npt
+
+TableID = Literal[
+    "fig1a",
+    "fig1b",
+    "fig2a",
+    "fig2b",
+    "fig3a",
+    "fig3b",
+    "fig4a",
+    "fig4b",
+    "fig5a",
+    "fig5b",
+    "fig6a",
+    "fig6b",
+]
 
 SB99_TABLES: dict[TableID, str] = {
-    'fig2a': 'fig2a.dat',
-    'fig2b': 'fig2b.dat',
-    'fig4a': 'fig4a.dat',
-    'fig4b': 'fig4b.dat',
-    'fig6a': 'fig6a.dat',
-    'fig6b': 'fig6b.dat',
+    "fig1a": "fig1a.dat",
+    "fig1b": "fig1a.dat",
+    "fig2a": "fig2a.dat",
+    "fig2b": "fig2b.dat",
+    "fig3a": "fig3a.dat",
+    "fig3b": "fig3a.dat",
+    "fig4a": "fig4a.dat",
+    "fig4b": "fig4b.dat",
+    "fig5a": "fig5a.dat",
+    "fig5b": "fig5a.dat",
+    "fig6a": "fig6a.dat",
+    "fig6b": "fig6b.dat",
 }
+
 
 def _get_path(table_name: TableID) -> Path:
     """
-    Internal helper to resolve the full path of a Starburst99 SED table.
+    Internal helper to resolve the path of a Starburst99 SED table.
 
     Parameters
     ----------
@@ -38,12 +58,15 @@ def _get_path(table_name: TableID) -> Path:
         If table_name is not one of the available Starburst99 tables.
     """
     if table_name not in SB99_TABLES:
-        valid_keys = ', '.join(SB99_TABLES.keys())
-        raise ValueError(f'Unknown table "{table_name}". Available tables: {valid_keys}.')
+        valid_keys = ", ".join(SB99_TABLES.keys())
+        raise ValueError(
+            f'Unknown table "{table_name}". Available tables: {valid_keys}.'
+        )
 
     filename = SB99_TABLES[table_name]
-    
+
     return files(__name__).joinpath(filename)
+
 
 def load_table(table_name: TableID, **kwargs: Any) -> npt.NDArray[np.float64]:
     """
@@ -59,8 +82,8 @@ def load_table(table_name: TableID, **kwargs: Any) -> npt.NDArray[np.float64]:
 
     Returns
     -------
-    npt.NDArray[np.float64]
-        The data loaded from the file as a standard numpy array.
+    np.NDArray[np.float64]
+        The data loaded from the file as a numpy array.
 
     Raises
     ------
@@ -68,7 +91,7 @@ def load_table(table_name: TableID, **kwargs: Any) -> npt.NDArray[np.float64]:
         If the data file is missing from the package installation.
     ValueError
         If `table_name` is invalid.
-    
+
     Examples
     --------
     >>> # Load table fig2a skipping first wavelength row
@@ -79,9 +102,10 @@ def load_table(table_name: TableID, **kwargs: Any) -> npt.NDArray[np.float64]:
     file_path = _get_path(table_name)
 
     if not file_path.is_file():
-        raise FileNotFoundError(f'Data file missing: {file_path}')
+        raise FileNotFoundError(f"Data file missing: {file_path}")
 
     return np.loadtxt(str(file_path), **kwargs)
+
 
 def get_path(table_name: TableID) -> str:
     """
@@ -89,9 +113,9 @@ def get_path(table_name: TableID) -> str:
 
     Parameters
     ----------
-    table_name : Literal['fig2a', 'fig2b', 'fig4a', 'fig4b', 'fig6a', 'fig6b']
+    table_name : Literal
         Identifier for the Starburst99 available table.
-    
+
     Returns
     -------
     str

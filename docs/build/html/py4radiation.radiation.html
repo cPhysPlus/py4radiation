@@ -9,6 +9,7 @@
   <title>py4radiation.radiation package &mdash; py4radiation 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=a53c5cc0" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -43,17 +44,22 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">py4radiation</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="py4radiation.html">py4radiation package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="py4radiation.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html">py4radiation.pyciao package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">py4radiation.radiation package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.pyciao.html">py4radiation.pyciao package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">py4radiation.radiation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.radiation.hc_tables">py4radiation.radiation.hc_tables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.radiation.ib_tables">py4radiation.radiation.ib_tables module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.radiation.parfiles">py4radiation.radiation.parfiles module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.radiation.sed">py4radiation.radiation.sed module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.radiation">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="py4radiation.html#module-py4radiation">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-py4radiation">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -72,8 +78,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">py4radiation</a></li>
-          <li class="breadcrumb-item"><a href="py4radiation.html">py4radiation package</a></li>
+          <li class="breadcrumb-item"><a href="api.html">API Reference</a></li>
       <li class="breadcrumb-item active">py4radiation.radiation package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/py4radiation.radiation.rst.txt" rel="nofollow"> View page source</a>
@@ -93,33 +98,21 @@
 <span id="py4radiation-radiation-hc-tables-module"></span><h2>py4radiation.radiation.hc_tables module<a class="headerlink" href="#module-py4radiation.radiation.hc_tables" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.HeatingCoolingTables">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">HeatingCoolingTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.radiation.hc_tables.LoopColumn" title="py4radiation.radiation.hc_tables.LoopColumn"><span class="pre">LoopColumn</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/hc_tables.html#HeatingCoolingTables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">HeatingCoolingTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Process and format heating and cooling tables for HD/MHD codes.</p>
 <p>This class reads the outputs of pyCIAO to generate a single table
 containing temperature, mean molecular weight, heating, and cooling.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.HeatingCoolingTables.run_dir">
-<span class="sig-name descname"><span class="pre">run_dir</span></span><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables.run_dir" title="Link to this definition"></a></dt>
-<dd><p>Directory containing the pyCIAO run file and data maps.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_dir</strong><span class="classifier">Path</span></dt><dd><p>Directory containing the pyCIAO run file and data maps.</p>
+</dd>
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier (stem) of the pyCIAO run.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.HeatingCoolingTables.run_name">
-<span class="sig-name descname"><span class="pre">run_name</span></span><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables.run_name" title="Link to this definition"></a></dt>
-<dd><p>The common identifier (stem) of the pyCIAO run.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS">
 <span class="sig-name descname"><span class="pre">DEFAULT_LOOP_COLUMNS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.radiation.hc_tables.LoopColumn" title="py4radiation.radiation.hc_tables.LoopColumn"><span class="pre">LoopColumn</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(LoopColumn(command='hden',</span> <span class="pre">output_header='HDEN[cm^-3]',</span> <span class="pre">input_scale='log10',</span> <span class="pre">factor=1.0),)</span></span><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS" title="Link to this definition"></a></dt>
@@ -127,23 +120,25 @@ containing temperature, mean molecular weight, heating, and cooling.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.HeatingCoolingTables.write_table">
-<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/hc_tables.html#HeatingCoolingTables.write_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables.write_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.hc_tables.HeatingCoolingTables.write_table" title="Link to this definition"></a></dt>
 <dd><p>Write the heating/cooling rates table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>outdir</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Directory where the table will be saved.
-Defaults to ‘.’ (current directory).</p></li>
-<li><p><strong>outfile</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the output file.
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir</strong><span class="classifier">str or Path, optional</span></dt><dd><p>Directory where the table will be saved.
+Defaults to ‘.’ (current directory).</p>
+</dd>
+<dt><strong>outfile</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the output file.
 If None, defaults to ‘{run_name}_cooltable.dat’.
-This file is saved in the current directory.</p></li>
-</ul>
+This file is saved in the current directory.</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The full path to the generated table.</p>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd><p>The full path to the generated table.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -152,9 +147,11 @@ This file is saved in the current directory.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.LoopColumn">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">LoopColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'linear'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log10'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/hc_tables.html#LoopColumn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.hc_tables.LoopColumn" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">LoopColumn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_header</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.hc_tables.LoopColumn" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Describe one loop parameter from the pyCIAO <cite>.run</cite> file.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.LoopColumn.command">
 <span class="sig-name descname"><span class="pre">command</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#py4radiation.radiation.hc_tables.LoopColumn.command" title="Link to this definition"></a></dt>
@@ -179,9 +176,11 @@ This file is saved in the current directory.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.RunRecord">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">RunRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/hc_tables.html#RunRecord"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.hc_tables.RunRecord" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.hc_tables.</span></span><span class="sig-name descname"><span class="pre">RunRecord</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.hc_tables.RunRecord" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>One data row parsed from the pyCIAO <cite>.run</cite> file.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="py4radiation.radiation.hc_tables.RunRecord.parameters">
 <span class="sig-name descname"><span class="pre">parameters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#py4radiation.radiation.hc_tables.RunRecord.parameters" title="Link to this definition"></a></dt>
@@ -199,38 +198,28 @@ This file is saved in the current directory.</p></li>
 <span id="py4radiation-radiation-ib-tables-module"></span><h2>py4radiation.radiation.ib_tables module<a class="headerlink" href="#module-py4radiation.radiation.ib_tables" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.ib_tables.IonTables">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.ib_tables.</span></span><span class="sig-name descname"><span class="pre">IonTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/ib_tables.html#IonTables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.ib_tables.</span></span><span class="sig-name descname"><span class="pre">IonTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to generate ion fraction tables from pyCIAO output files.</p>
 <p>This class parses a simulation run configuration, loads distributed
 ion fraction maps, and consolidates them into a single HDF5 file
 suitable for astrophysical HD/MHD codes.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.ib_tables.IonTables.run_dir">
-<span class="sig-name descname"><span class="pre">run_dir</span></span><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables.run_dir" title="Link to this definition"></a></dt>
-<dd><p>Directory containing the pyCIAO run file and data maps.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_dir</strong><span class="classifier">Path</span></dt><dd><p>Directory containing the pyCIAO run file and data maps.</p>
+</dd>
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier (stem) of the pyCIAO run.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.ib_tables.IonTables.run_name">
-<span class="sig-name descname"><span class="pre">run_name</span></span><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables.run_name" title="Link to this definition"></a></dt>
-<dd><p>The common identifier (stem) of the pyCIAO run.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.ib_tables.IonTables.write_table">
-<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/ib_tables.html#IonTables.write_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables.write_table" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables.write_table" title="Link to this definition"></a></dt>
 <dd><p>Write the ion fractions table.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -240,21 +229,27 @@ suitable for astrophysical HD/MHD codes.</p>
 <span id="py4radiation-radiation-parfiles-module"></span><h2>py4radiation.radiation.parfiles module<a class="headerlink" href="#module-py4radiation.radiation.parfiles" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.parfiles.ParameterFiles">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.parfiles.</span></span><span class="sig-name descname"><span class="pre">ParameterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloudy_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'0.0000e+00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'LOW'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'HIGH'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'LOW'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/parfiles.html#ParameterFiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.parfiles.</span></span><span class="sig-name descname"><span class="pre">ParameterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloudy_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0000e+00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LOW'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates parameter (.par) files for CIAOLoop.</p>
 <p>Handles configuration for Ion Fraction maps (ib) and
 Heating &amp; Cooling maps (hc)</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.parfiles.ParameterFiles.hc_parfile">
-<span class="sig-name descname"><span class="pre">hc_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/parfiles.html#ParameterFiles.hc_parfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles.hc_parfile" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">hc_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles.hc_parfile" title="Link to this definition"></a></dt>
 <dd><p>Generate and write the CIAOLoop parameter file for heating &amp; cooling.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.parfiles.ParameterFiles.ib_parfile">
-<span class="sig-name descname"><span class="pre">ib_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/parfiles.html#ParameterFiles.ib_parfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles.ib_parfile" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ib_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles.ib_parfile" title="Link to this definition"></a></dt>
 <dd><p>Generate and write the CIAOLoop parameter file for ion fractions.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -264,87 +259,64 @@ Heating &amp; Cooling maps (hc)</p>
 <span id="py4radiation-radiation-sed-module"></span><h2>py4radiation.radiation.sed module<a class="headerlink" href="#module-py4radiation.radiation.sed" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.sed.</span></span><span class="sig-name descname"><span class="pre">SED</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'fig2a'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fig2b'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fig4a'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fig4b'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fig6a'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'fig6b'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fig2a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_kpc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_myr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/radiation/sed.html#SED"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.sed.SED" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.sed.</span></span><span class="sig-name descname"><span class="pre">SED</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fig2a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_myr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A class to load, process and format SEDs for astrophysical codes.</p>
 <p>This class handles the conversion of Leitherer et al. (1999) style
 SED tables into Cloudy-readable formats.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.run_name">
-<span class="sig-name descname"><span class="pre">run_name</span></span><a class="headerlink" href="#py4radiation.radiation.sed.SED.run_name" title="Link to this definition"></a></dt>
-<dd><p>Name of the run, used for output filenames.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>Name of the run, used for output filenames.</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.distance_cm">
-<span class="sig-name descname"><span class="pre">distance_cm</span></span><a class="headerlink" href="#py4radiation.radiation.sed.SED.distance_cm" title="Link to this definition"></a></dt>
-<dd><p>Luminosity distance to the source in cm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
+<dt><strong>distance_cm</strong><span class="classifier">float</span></dt><dd><p>Luminosity distance to the source in cm.</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.data_table">
-<span class="sig-name descname"><span class="pre">data_table</span></span><a class="headerlink" href="#py4radiation.radiation.sed.SED.data_table" title="Link to this definition"></a></dt>
-<dd><p>Raw loaded SED data table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>npt.NDArray[np.float64]</p>
+<dt><strong>data_table</strong><span class="classifier">npt.NDArray[np.float64]</span></dt><dd><p>Raw loaded SED data table.</p>
 </dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.redshift">
-<span class="sig-name descname"><span class="pre">redshift</span></span><a class="headerlink" href="#py4radiation.radiation.sed.SED.redshift" title="Link to this definition"></a></dt>
-<dd><p>Redshift (z) of the source.
+<dt><strong>redshift</strong><span class="classifier">float</span></dt><dd><p>Redshift (z) of the source.
 For this version, only consider near Universe (z=0.0000e+00).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
 </dd>
 </dl>
-</dd></dl>
-
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.get_sed">
-<span class="sig-name descname"><span class="pre">get_sed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/sed.html#SED.get_sed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.sed.SED.get_sed" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_sed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED.get_sed" title="Link to this definition"></a></dt>
 <dd><p>Calculates Energy (Ryd) and Flux (F_nu).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>energy_ryd</strong> (<em>np.ndarray</em>) – Photon energies in Rydbergs.</p></li>
-<li><p><strong>F_nu</strong> (<em>np.ndarray</em>) – Flux F_nu in erg s^-1 cm^-2 Hz^-1</p></li>
-</ul>
-</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_ryd</strong><span class="classifier">np.ndarray</span></dt><dd><p>Photon energies in Rydbergs.</p>
+</dd>
+<dt><strong>F_nu</strong><span class="classifier">np.ndarray</span></dt><dd><p>Flux F_nu in erg s^-1 cm^-2 Hz^-1</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.write_outfile">
-<span class="sig-name descname"><span class="pre">write_outfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/py4radiation/radiation/sed.html#SED.write_outfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.radiation.sed.SED.write_outfile" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_outfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED.write_outfile" title="Link to this definition"></a></dt>
 <dd><p>Write a Cloudy-readable input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>output_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – Directory where the output file will be saved.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_dir</strong><span class="classifier">str or Path</span></dt><dd><p>Directory where the output file will be saved.</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The path to the generated file.</p>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd><p>The path to the generated file.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+</dl>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If SED coverage does not include 1 Ryd.</p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If SED coverage does not include 1 Ryd.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>

@@ -9,6 +9,7 @@
   <title>py4radiation.pyciao package &mdash; py4radiation 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=a53c5cc0" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -44,17 +45,22 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">py4radiation</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="py4radiation.html">py4radiation package</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="py4radiation.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">py4radiation.pyciao package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html">py4radiation.radiation package</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">py4radiation.pyciao package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.pyciao.parser">py4radiation.pyciao.parser module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.pyciao.pyciao">py4radiation.pyciao.pyciao module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.pyciao.runner">py4radiation.pyciao.runner module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.pyciao.tasks">py4radiation.pyciao.tasks module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-py4radiation.pyciao">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="py4radiation.html#module-py4radiation">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.radiation.html">py4radiation.radiation package</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#module-py4radiation">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -73,8 +79,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">py4radiation</a></li>
-          <li class="breadcrumb-item"><a href="py4radiation.html">py4radiation package</a></li>
+          <li class="breadcrumb-item"><a href="api.html">API Reference</a></li>
       <li class="breadcrumb-item active">py4radiation.pyciao package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/py4radiation.pyciao.rst.txt" rel="nofollow"> View page source</a>
@@ -94,74 +99,37 @@
 <span id="py4radiation-pyciao-parser-module"></span><h2>py4radiation.pyciao.parser module<a class="headerlink" href="#module-py4radiation.pyciao.parser" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.parser.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/pyciao/parser.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.parser.Config" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.parser.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.parser.Config" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Parses the parameter file to configure pyCIAOLoop and Cloudy execution.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.parfile">
-<span class="sig-name descname"><span class="pre">parfile</span></span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.parfile" title="Link to this definition"></a></dt>
-<dd><p>Path to the parameter file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parfile</strong><span class="classifier">Path</span></dt><dd><p>Path to the parameter file.</p>
+</dd>
+<dt><strong>params</strong><span class="classifier">dict[str, Any]</span></dt><dd><p>General configuration parameters.</p>
+</dd>
+<dt><strong>const_cmd</strong><span class="classifier">list[str]</span></dt><dd><p>Cloudy commands to be executed in every run.</p>
+</dd>
+<dt><strong>loops_cmd</strong><span class="classifier">list[str]</span></dt><dd><p>Loop parameters and values</p>
+</dd>
+<dt><strong>modes</strong><span class="classifier">dict[int, str]</span></dt><dd><p>Supported run modes.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.params">
-<span class="sig-name descname"><span class="pre">params</span></span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.params" title="Link to this definition"></a></dt>
-<dd><p>General configuration parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[str, Any]</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.const_cmd">
-<span class="sig-name descname"><span class="pre">const_cmd</span></span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.const_cmd" title="Link to this definition"></a></dt>
-<dd><p>Cloudy commands to be executed in every run.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.loops_cmd">
-<span class="sig-name descname"><span class="pre">loops_cmd</span></span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.loops_cmd" title="Link to this definition"></a></dt>
-<dd><p>Loop parameters and values</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.modes">
-<span class="sig-name descname"><span class="pre">modes</span></span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.modes" title="Link to this definition"></a></dt>
-<dd><p>Supported run modes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict[int, str]</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.parse">
-<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/parser.html#Config.parse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.parser.Config.parse" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.parse" title="Link to this definition"></a></dt>
 <dd><p>Read and parse the parameter file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ValueError</strong> – If line syntax is incorrect.</p></li>
-<li><p><strong>IOError</strong> – If file reading fails.</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If line syntax is incorrect.</p>
+</dd>
+<dt>IOError</dt><dd><p>If file reading fails.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -173,43 +141,54 @@
 <span id="py4radiation-pyciao-pyciao-module"></span><h2>py4radiation.pyciao.pyciao module<a class="headerlink" href="#module-py4radiation.pyciao.pyciao" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.main">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/pyciao.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.pyciao.main" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.main" title="Link to this definition"></a></dt>
 <dd><p>Main Execution Routine.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.run_mpi">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_mpi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.pyciao.runner.TaskResult" title="py4radiation.pyciao.runner.TaskResult"><span class="pre">TaskResult</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/pyciao.html#run_mpi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_mpi" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_mpi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_mpi" title="Link to this definition"></a></dt>
 <dd><p>Execute tasks using MPI.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.run_multiprocessing">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_multiprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.pyciao.runner.TaskResult" title="py4radiation.pyciao.runner.TaskResult"><span class="pre">TaskResult</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/pyciao.html#run_multiprocessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_multiprocessing" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_multiprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_multiprocessing" title="Link to this definition"></a></dt>
 <dd><p>Execute tasks using multiprocessing.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.setup_main_logging">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">setup_main_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/pyciao.html#setup_main_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.pyciao.setup_main_logging" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">setup_main_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.setup_main_logging" title="Link to this definition"></a></dt>
 <dd><p>Set up the main log file for Rank 0.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>outdir</strong> (<em>str</em>) – Directory to save the log file.</p></li>
-<li><p><strong>prefix</strong> (<em>str</em>) – Prefix for the log filename.</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir</strong><span class="classifier">str</span></dt><dd><p>Directory to save the log file.</p>
+</dd>
+<dt><strong>prefix</strong><span class="classifier">str</span></dt><dd><p>Prefix for the log filename.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.write_runfile">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">write_runfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/pyciao.html#write_runfile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.pyciao.write_runfile" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">write_runfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.write_runfile" title="Link to this definition"></a></dt>
 <dd><p>Write the summary .run file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><em>Config</em></a>) – Configuration object.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Configuration object.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -219,14 +198,14 @@
 <span id="py4radiation-pyciao-runner-module"></span><h2>py4radiation.pyciao.runner module<a class="headerlink" href="#module-py4radiation.pyciao.runner" title="Link to this heading"></a></h2>
 <dl class="py exception">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.CloudyExecutionError">
-<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">CloudyExecutionError</span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#CloudyExecutionError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.CloudyExecutionError" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">CloudyExecutionError</span></span><a class="headerlink" href="#py4radiation.pyciao.runner.CloudyExecutionError" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
 <p>Custom exception for failures during Cloudy subprocess execution.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.TaskResult">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">TaskResult</span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#TaskResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.TaskResult" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">TaskResult</span></span><a class="headerlink" href="#py4radiation.pyciao.runner.TaskResult" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
 <p>Structure for the result returned by a worker task.</p>
 <dl class="py attribute">
@@ -248,82 +227,100 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.execute_task">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">execute_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#py4radiation.pyciao.runner.TaskResult" title="py4radiation.pyciao.runner.TaskResult"><span class="pre">TaskResult</span></a></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#execute_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.execute_task" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">execute_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.execute_task" title="Link to this definition"></a></dt>
 <dd><p>Execute a single task.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>task</strong> (<a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><em>TaskDef</em></a>) – Task dictionary containing run parameters</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>task</strong><span class="classifier">TaskDef</span></dt><dd><p>Task dictionary containing run parameters</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary summarizing the success or failure of the run.</p>
+<dd class="field-even"><dl class="simple">
+<dt>TaskResult</dt><dd><p>Dictionary summarizing the success or failure of the run.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#py4radiation.pyciao.runner.TaskResult" title="py4radiation.pyciao.runner.TaskResult">TaskResult</a></p>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.heatingcooling">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">heatingcooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#heatingcooling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.heatingcooling" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">heatingcooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.heatingcooling" title="Link to this definition"></a></dt>
 <dd><p>Execute Mode 1: Heating and Cooling Maps.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.initialize_worker">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">initialize_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#initialize_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.initialize_worker" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">initialize_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.initialize_worker" title="Link to this definition"></a></dt>
 <dd><p>Initialize the worker process with configuration and logging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><em>Config</em></a>) – Parsed configuration object.</p></li>
-<li><p><strong>rank</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – MPI rank of this worker</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Parsed configuration object.</p>
+</dd>
+<dt><strong>rank</strong><span class="classifier">int | None, optional</span></dt><dd><p>MPI rank of this worker</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.ionfractions">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">ionfractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#ionfractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.ionfractions" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">ionfractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.ionfractions" title="Link to this definition"></a></dt>
 <dd><p>Execute Mode 3: Ionisation Fraction Maps.</p>
+<dl class="field-list simple">
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.run_subprocess">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">run_subprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudy_exe</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#run_subprocess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.run_subprocess" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">run_subprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudy_exe</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.run_subprocess" title="Link to this definition"></a></dt>
 <dd><p>Write input commands to file and execute Cloudy via subprocess.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>commands</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of Cloudy commands to write to the input file.</p></li>
-<li><p><strong>infile</strong> (<em>Path</em>) – Path to the input file.</p></li>
-<li><p><strong>outfile</strong> (<em>Path</em>) – Path to the output file.</p></li>
-<li><p><strong>cloudy_exe</strong> (<em>str</em>) – Path for the Cloudy executable.</p></li>
-</ul>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>commands</strong><span class="classifier">list[str]</span></dt><dd><p>List of Cloudy commands to write to the input file.</p>
+</dd>
+<dt><strong>infile</strong><span class="classifier">Path</span></dt><dd><p>Path to the input file.</p>
+</dd>
+<dt><strong>outfile</strong><span class="classifier">Path</span></dt><dd><p>Path to the output file.</p>
+</dd>
+<dt><strong>cloudy_exe</strong><span class="classifier">str</span></dt><dd><p>Path for the Cloudy executable.</p>
+</dd>
+</dl>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if Cloudy crashed or exited with error, False otherwise.</p>
+<dd class="field-even"><dl class="simple">
+<dt>bool</dt><dd><p>True if Cloudy crashed or exited with error, False otherwise.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
+</dl>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>IOError</strong> – If file writing fails.</p></li>
-<li><p><a class="reference internal" href="#py4radiation.pyciao.runner.CloudyExecutionError" title="py4radiation.pyciao.runner.CloudyExecutionError"><strong>CloudyExecutionError</strong></a> – If the subprocess fails to launch.</p></li>
-</ul>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>IOError</dt><dd><p>If file writing fails.</p>
+</dd>
+<dt>CloudyExecutionError</dt><dd><p>If the subprocess fails to launch.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="py4radiation.pyciao.runner.setup_worker_logging">
-<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">setup_worker_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/runner.html#setup_worker_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.runner.setup_worker_logging" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">setup_worker_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.setup_worker_logging" title="Link to this definition"></a></dt>
 <dd><p>Configure logging for a worker process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>rank</strong> (<em>int</em><em> | </em><em>None</em><em>, </em><em>optional</em>) – The MPI rank ID. If provided, it is included in the log format.</p>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rank</strong><span class="classifier">int | None, optional</span></dt><dd><p>The MPI rank ID. If provided, it is included in the log format.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -333,7 +330,7 @@
 <span id="py4radiation-pyciao-tasks-module"></span><h2>py4radiation.pyciao.tasks module<a class="headerlink" href="#module-py4radiation.pyciao.tasks" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskDef">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.tasks.</span></span><span class="sig-name descname"><span class="pre">TaskDef</span></span><a class="reference internal" href="_modules/py4radiation/pyciao/tasks.html#TaskDef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskDef" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.tasks.</span></span><span class="sig-name descname"><span class="pre">TaskDef</span></span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskDef" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskDef.base_commands">
@@ -359,41 +356,32 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.tasks.</span></span><span class="sig-name descname"><span class="pre">TaskManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config"><span class="pre">Config</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/py4radiation/pyciao/tasks.html#TaskManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.tasks.</span></span><span class="sig-name descname"><span class="pre">TaskManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Generates execution tasks based on the parsed configuration.</p>
 <p>This class handles the combinatorial logic of creating unique Cloudy
 run configurations by iterating over the specified loops and combining
 them with constant commands.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager.config">
-<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager.config" title="Link to this definition"></a></dt>
-<dd><p>Configuration object containing parsed parameters and commands.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#py4radiation.pyciao.parser.Config" title="py4radiation.pyciao.parser.Config">Config</a></p>
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Configuration object containing parsed parameters and commands.</p>
+</dd>
+<dt><strong>start_idx</strong><span class="classifier">int</span></dt><dd><p>The starting index for run numbering. Default is 1.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager.start_idx">
-<span class="sig-name descname"><span class="pre">start_idx</span></span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager.start_idx" title="Link to this definition"></a></dt>
-<dd><p>The starting index for run numbering. Default is 1.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
 </dd>
 </dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager.gen_tasks">
-<span class="sig-name descname"><span class="pre">gen_tasks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskDef" title="py4radiation.pyciao.tasks.TaskDef"><span class="pre">TaskDef</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/py4radiation/pyciao/tasks.html#TaskManager.gen_tasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager.gen_tasks" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">gen_tasks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager.gen_tasks" title="Link to this definition"></a></dt>
 <dd><p>Generate a stream of tasks by iterating over all configured loops.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Yields<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Iterator[TaskDef]</em> – An iterator yielding task dictionaries.</p>
+<dd class="field-odd"><dl class="simple">
+<dt>Iterator[TaskDef]</dt><dd><p>An iterator yielding task dictionaries.</p>
+</dd>
+</dl>
 </dd>
 </dl>
 <p class="rubric">Examples</p>

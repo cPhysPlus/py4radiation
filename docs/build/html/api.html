@@ -6,9 +6,10 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>py4radiation package &mdash; py4radiation 0.1.0 documentation</title>
+  <title>API Reference &mdash; py4radiation 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=a53c5cc0" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
@@ -20,7 +21,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="py4radiation.data package" href="py4radiation.data.html" />
-    <link rel="prev" title="py4radiation" href="modules.html" /> 
+    <link rel="prev" title="Welcome to py4radiation’s documentation!" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,15 +45,33 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">py4radiation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">py4radiation package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html">py4radiation.pyciao package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html">py4radiation.radiation package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.data.html">py4radiation.data package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.pyciao.html">py4radiation.pyciao package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="py4radiation.radiation.html">py4radiation.radiation package</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-py4radiation">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-py4radiation">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#py4radiation.HeatingCoolingTables"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.DEFAULT_LOOP_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.HeatingCoolingTables.write_table"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.write_table()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#py4radiation.IonTables"><code class="docutils literal notranslate"><span class="pre">IonTables</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.IonTables.write_table"><code class="docutils literal notranslate"><span class="pre">IonTables.write_table()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#py4radiation.ParameterFiles"><code class="docutils literal notranslate"><span class="pre">ParameterFiles</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.ParameterFiles.hc_parfile"><code class="docutils literal notranslate"><span class="pre">ParameterFiles.hc_parfile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.ParameterFiles.ib_parfile"><code class="docutils literal notranslate"><span class="pre">ParameterFiles.ib_parfile()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#py4radiation.SED"><code class="docutils literal notranslate"><span class="pre">SED</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.SED.get_sed"><code class="docutils literal notranslate"><span class="pre">SED.get_sed()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#py4radiation.SED.write_outfile"><code class="docutils literal notranslate"><span class="pre">SED.write_outfile()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -73,10 +92,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">py4radiation</a></li>
-      <li class="breadcrumb-item active">py4radiation package</li>
+      <li class="breadcrumb-item active">API Reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/py4radiation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -84,8 +102,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="py4radiation-package">
-<h1>py4radiation package<a class="headerlink" href="#py4radiation-package" title="Link to this heading"></a></h1>
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h1>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
@@ -102,11 +120,6 @@
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.pyciao.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.pyciao.html#module-py4radiation.pyciao.parser">py4radiation.pyciao.parser module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.parfile"><code class="docutils literal notranslate"><span class="pre">Config.parfile</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.params"><code class="docutils literal notranslate"><span class="pre">Config.params</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.const_cmd"><code class="docutils literal notranslate"><span class="pre">Config.const_cmd</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.loops_cmd"><code class="docutils literal notranslate"><span class="pre">Config.loops_cmd</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.modes"><code class="docutils literal notranslate"><span class="pre">Config.modes</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.parser.Config.parse"><code class="docutils literal notranslate"><span class="pre">Config.parse()</span></code></a></li>
 </ul>
 </li>
@@ -145,8 +158,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager"><code class="docutils literal notranslate"><span class="pre">TaskManager</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager.config"><code class="docutils literal notranslate"><span class="pre">TaskManager.config</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager.start_idx"><code class="docutils literal notranslate"><span class="pre">TaskManager.start_idx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.pyciao.html#py4radiation.pyciao.tasks.TaskManager.gen_tasks"><code class="docutils literal notranslate"><span class="pre">TaskManager.gen_tasks()</span></code></a></li>
 </ul>
 </li>
@@ -159,8 +170,6 @@
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html#module-py4radiation.radiation.hc_tables">py4radiation.radiation.hc_tables module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.HeatingCoolingTables"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.HeatingCoolingTables.run_dir"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.run_dir</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.HeatingCoolingTables.run_name"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.run_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.DEFAULT_LOOP_COLUMNS</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.HeatingCoolingTables.write_table"><code class="docutils literal notranslate"><span class="pre">HeatingCoolingTables.write_table()</span></code></a></li>
 </ul>
@@ -181,8 +190,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html#module-py4radiation.radiation.ib_tables">py4radiation.radiation.ib_tables module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.ib_tables.IonTables"><code class="docutils literal notranslate"><span class="pre">IonTables</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.ib_tables.IonTables.run_dir"><code class="docutils literal notranslate"><span class="pre">IonTables.run_dir</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.ib_tables.IonTables.run_name"><code class="docutils literal notranslate"><span class="pre">IonTables.run_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.ib_tables.IonTables.write_table"><code class="docutils literal notranslate"><span class="pre">IonTables.write_table()</span></code></a></li>
 </ul>
 </li>
@@ -198,10 +205,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html#module-py4radiation.radiation.sed">py4radiation.radiation.sed module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED"><code class="docutils literal notranslate"><span class="pre">SED</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.run_name"><code class="docutils literal notranslate"><span class="pre">SED.run_name</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.distance_cm"><code class="docutils literal notranslate"><span class="pre">SED.distance_cm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.data_table"><code class="docutils literal notranslate"><span class="pre">SED.data_table</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.redshift"><code class="docutils literal notranslate"><span class="pre">SED.redshift</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.get_sed"><code class="docutils literal notranslate"><span class="pre">SED.get_sed()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED.write_outfile"><code class="docutils literal notranslate"><span class="pre">SED.write_outfile()</span></code></a></li>
 </ul>
@@ -216,6 +219,176 @@
 </section>
 <section id="module-py4radiation">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-py4radiation" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.HeatingCoolingTables">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.</span></span><span class="sig-name descname"><span class="pre">HeatingCoolingTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop_columns</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.HeatingCoolingTables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Process and format heating and cooling tables for HD/MHD codes.</p>
+<p>This class reads the outputs of pyCIAO to generate a single table
+containing temperature, mean molecular weight, heating, and cooling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_dir</strong><span class="classifier">Path</span></dt><dd><p>Directory containing the pyCIAO run file and data maps.</p>
+</dd>
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier (stem) of the pyCIAO run.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="py4radiation.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS">
+<span class="sig-name descname"><span class="pre">DEFAULT_LOOP_COLUMNS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.hc_tables.LoopColumn" title="py4radiation.radiation.hc_tables.LoopColumn"><span class="pre">LoopColumn</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(LoopColumn(command='hden',</span> <span class="pre">output_header='HDEN[cm^-3]',</span> <span class="pre">input_scale='log10',</span> <span class="pre">factor=1.0),)</span></span><a class="headerlink" href="#py4radiation.HeatingCoolingTables.DEFAULT_LOOP_COLUMNS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.HeatingCoolingTables.write_table">
+<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.HeatingCoolingTables.write_table" title="Link to this definition"></a></dt>
+<dd><p>Write the heating/cooling rates table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir</strong><span class="classifier">str or Path, optional</span></dt><dd><p>Directory where the table will be saved.
+Defaults to ‘.’ (current directory).</p>
+</dd>
+<dt><strong>outfile</strong><span class="classifier">str, optional</span></dt><dd><p>Name of the output file.
+If None, defaults to ‘{run_name}_cooltable.dat’.
+This file is saved in the current directory.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd><p>The full path to the generated table.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.IonTables">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.</span></span><span class="sig-name descname"><span class="pre">IonTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.IonTables" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to generate ion fraction tables from pyCIAO output files.</p>
+<p>This class parses a simulation run configuration, loads distributed
+ion fraction maps, and consolidates them into a single HDF5 file
+suitable for astrophysical HD/MHD codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_dir</strong><span class="classifier">Path</span></dt><dd><p>Directory containing the pyCIAO run file and data maps.</p>
+</dd>
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier (stem) of the pyCIAO run.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.IonTables.write_table">
+<span class="sig-name descname"><span class="pre">write_table</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.IonTables.write_table" title="Link to this definition"></a></dt>
+<dd><p>Write the ion fractions table.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.ParameterFiles">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.</span></span><span class="sig-name descname"><span class="pre">ParameterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloudy_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0000e+00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LOW'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.ParameterFiles" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates parameter (.par) files for CIAOLoop.</p>
+<p>Handles configuration for Ion Fraction maps (ib) and
+Heating &amp; Cooling maps (hc)</p>
+<dl class="field-list simple">
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.ParameterFiles.hc_parfile">
+<span class="sig-name descname"><span class="pre">hc_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.ParameterFiles.hc_parfile" title="Link to this definition"></a></dt>
+<dd><p>Generate and write the CIAOLoop parameter file for heating &amp; cooling.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.ParameterFiles.ib_parfile">
+<span class="sig-name descname"><span class="pre">ib_parfile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.ParameterFiles.ib_parfile" title="Link to this definition"></a></dt>
+<dd><p>Generate and write the CIAOLoop parameter file for ion fractions.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.SED">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.</span></span><span class="sig-name descname"><span class="pre">SED</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fig2a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_myr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.SED" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class to load, process and format SEDs for astrophysical codes.</p>
+<p>This class handles the conversion of Leitherer et al. (1999) style
+SED tables into Cloudy-readable formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>Name of the run, used for output filenames.</p>
+</dd>
+<dt><strong>distance_cm</strong><span class="classifier">float</span></dt><dd><p>Luminosity distance to the source in cm.</p>
+</dd>
+<dt><strong>data_table</strong><span class="classifier">npt.NDArray[np.float64]</span></dt><dd><p>Raw loaded SED data table.</p>
+</dd>
+<dt><strong>redshift</strong><span class="classifier">float</span></dt><dd><p>Redshift (z) of the source.
+For this version, only consider near Universe (z=0.0000e+00).</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.SED.get_sed">
+<span class="sig-name descname"><span class="pre">get_sed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.SED.get_sed" title="Link to this definition"></a></dt>
+<dd><p>Calculates Energy (Ryd) and Flux (F_nu).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_ryd</strong><span class="classifier">np.ndarray</span></dt><dd><p>Photon energies in Rydbergs.</p>
+</dd>
+<dt><strong>F_nu</strong><span class="classifier">np.ndarray</span></dt><dd><p>Flux F_nu in erg s^-1 cm^-2 Hz^-1</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.SED.write_outfile">
+<span class="sig-name descname"><span class="pre">write_outfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.SED.write_outfile" title="Link to this definition"></a></dt>
+<dd><p>Write a Cloudy-readable input file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>output_dir</strong><span class="classifier">str or Path</span></dt><dd><p>Directory where the output file will be saved.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>Path</dt><dd><p>The path to the generated file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If SED coverage does not include 1 Ryd.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -223,7 +396,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="modules.html" class="btn btn-neutral float-left" title="py4radiation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to py4radiation’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="py4radiation.data.html" class="btn btn-neutral float-right" title="py4radiation.data package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

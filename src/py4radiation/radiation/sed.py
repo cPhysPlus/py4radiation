@@ -1,73 +1,77 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+
 import numpy as np
 import numpy.typing as npt
 
-from pathlib import Path
-from typing import TextIO
-
 from py4radiation import data
 
-# --- Physics Constants ---
-SPEED_OF_LIGHT = 2.99792458e10   # cm/s
-PLANCK_EV      = 4.135667696e-15 # eV s
-RYDBERG_EV     = 13.605693       # eV (1 Ryd)
-PARSEC_TO_CM   = 3.08567758e18   # cm
-ANGSTROM_TO_CM = 1.0e-8          # cm
+# Physical constants
+SPEED_OF_LIGHT = 2.99792458e10  # cm/s
+PLANCK_EV = 4.135667696e-15  # eV s
+RYDBERG_EV = 13.605693  # eV (1 Ryd)
+PARSEC_TO_CM = 3.08567758e18  # cm
+ANGSTROM_TO_CM = 1.0e-8  # cm
+
 
 class SED:
     """
-    A class to load, process and format SEDs for astrophysical codes.
+    A class to load, process and format SEDs for pyCIAO.
 
     This class handles the conversion of Leitherer et al. (1999) style
-    SED tables into Cloudy-readable formats.
+    SED tables into pyCIAO/Cloudy-readable formats.
+
+    For scaling, consider an object of interest located at a user-specified
+    distance from the radiation source.
 
     Attributes
     ----------
     run_name : str
         Name of the run, used for output filenames.
     distance_cm : float
-        Luminosity distance to the source in cm.
-    data_table : npt.NDArray[np.float64]
+        Distance of the object of interest to the source in cm.
+    data_table : np.NDArray[np.float64]
         Raw loaded SED data table.
     redshift : float
         Redshift (z) of the source.
-        For this version, only consider near Universe (z=0.0000e+00).
+        For this version, only consider the near Universe (z=0.0000e+00).
     """
 
     def __init__(
         self,
         run_name: str,
         custom_table: bool = False,
-        table_id: data.TableID = 'fig2a',
-        table: str | Path = None,
+        table_id: data.TableID = "fig2a",
+        table: str | Path | None = None,
         distance_kpc: float = 1,
-        age_myr: int = 3 ) -> None:
+        age_myr: int = 3,
+    ) -> None:
         """
         Initialise the SED processor.
 
         Parameters
         ----------
         run_name : str
-            A unique identifier for this run.
+            A unique identifier for the run.
         custom_table : bool, optional
             If a custom table (outside the Sb99 tables) is used.
             Default is False.
         table_id : data.TableID, optional
-            The identifier of the bundled SED table to load.
+            The identifier of a Starburst99 SED table to load.
             Default is 'fig2a'.
         table : str | Path
             The path to a custom table with only two columns:
             [wavelength (in Angstroms)] [Log10 Luminosity (in erg/s/Angstrom)].
         distance_kpc : float
-            Distance to the radiation source in kiloparsecs (kpc).
+            Distance to the radiation source in kiloparsecs (1 kpc = 3.086e+21 cm).
         age_myr : int, optional
             Age of the starburst in Myr. Used to select the specific column
             in the time-evolution SB99 SED table. Default is 3.
         """
         self.run_name = run_name
-        self.redshift = '0.0000e+00'
-        
+        self.redshift = "0.0000e+00"
+
         self.distance_cm = distance_kpc * 1000 * PARSEC_TO_CM
 
         if custom_table:
@@ -76,14 +80,14 @@ class SED:
         else:
             self.data_table = data.load_table(table_id)
             self._age_column_idx = self._map_age(age_myr)
-        
+
         self.age_myr = age_myr
 
     def _map_age(self, age: int) -> int:
         """
         Map the starburst age (Myr) to the specific column index.
 
-        Logic follows the specific format of Leitherer et al. tables.
+        Logic follows the specific format of Leitherer et al. (1999) tables.
         """
         if 30 <= age <= 100:
             idx = (age // 10) + 18
@@ -94,22 +98,22 @@ class SED:
 
         if idx >= self.data_table.shape[1]:
             raise ValueError(
-                f'Calculated column index {idx} for age {age} Myr '
-                f'exceeds table dimensions ({self.data_table.shape[1]} columns).'
+                f"Calculated column index {idx} for age {age} Myr "
+                f"exceeds table dimensions ({self.data_table.shape[1]} columns)."
             )
 
         return int(idx)
 
     def get_sed(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """
-        Calculates Energy (Ryd) and Flux (F_nu).
+        Calculates Energy (Ryd) and Specific flux (F_nu).
 
         Returns
         -------
         energy_ryd : np.ndarray
             Photon energies in Rydbergs.
         F_nu : np.ndarray
-            Flux F_nu in erg s^-1 cm^-2 Hz^-1
+            Specific flux F_nu in erg s^-1 cm^-2 Hz^-1
         """
 
         wavelength_angstrom = self.data_table[:, 0]
@@ -127,9 +131,9 @@ class SED:
 
         return energy_ryd, f_nu
 
-    def write_outfile(self, output_dir: str | Path = '.') -> Path:
+    def write_outfile(self, output_dir: str | Path = ".") -> Path:
         """
-        Write a Cloudy-readable input file.
+        Write a pyCIAO/Cloudy-readable input file.
 
         Parameters
         ----------
@@ -156,28 +160,29 @@ class SED:
         idx_1ryd = np.argmin(np.abs(energy - 1.0))
 
         if not (0.99 <= energy[idx_1ryd] <= 1.01):
-            raise ValueError(f'SED coverage does not include 1 Ryd (closest: {energy[idx_1ryd]:.4f}).')
+            raise ValueError(
+                f"SED coverage does not include 1 Ryd (closest: {energy[idx_1ryd]:.4f})."
+            )
 
         norm_val = log_f_nu[idx_1ryd]
 
-        filename = f'{self.run_name}_z{self.redshift}.out'
+        filename = f"{self.run_name}_z{self.redshift}.out"
         outpath = Path(output_dir) / filename
 
         lines = [
-            f'# SED profile at {self.age_myr} Myr',
-            f'# z = {self.redshift}',
-            f'# E [Ryd] log10 (F_nu)'
+            f"# SED profile at {self.age_myr} Myr",
+            f"# z = {self.redshift}",
+            "# E [Ryd] log10 (F_nu)",
         ]
 
         for i in range(len(energy)):
-            command = 'interpolate' if i == 0 else 'continue'
-            lines.append(f'{command} ({energy[i]:.10f} {log_f_nu[i]:.10f})')
+            command = "interpolate" if i == 0 else "continue"
+            lines.append(f"{command} ({energy[i]:.10f} {log_f_nu[i]:.10f})")
 
-        lines.append(f'f(nu) = {norm_val:.14f} at {energy[idx_1ryd]:.10f} Ryd')
-        lines.append('')
+        lines.append(f"f(nu) = {norm_val:.14f} at {energy[idx_1ryd]:.10f} Ryd")
+        lines.append("")
 
-        with open(outpath, 'w') as f:
-            f.write('\n'.join(lines))
+        with open(outpath, "w") as f:
+            f.write("\n".join(lines))
 
         return outpath
-        

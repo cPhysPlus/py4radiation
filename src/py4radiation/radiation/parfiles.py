@@ -3,11 +3,14 @@
 from pathlib import Path
 from typing import Literal
 
-ResolutionType = Literal['LOW', 'HIGH']
+import numpy as np
+
+ResolutionType = Literal["LOW", "HIGH"]
+
 
 class ParameterFiles:
     """
-    Generates parameter (.par) files for CIAOLoop.
+    Generates parameter (.par) files for pyCIAO/CIAOLoop.
 
     Handles configuration for Ion Fraction maps (ib) and
     Heating & Cooling maps (hc)
@@ -18,8 +21,11 @@ class ParameterFiles:
         cloudy_path: str | Path,
         run_name: str,
         elements: str,
-        redshift: str = '0.0000e+00',
-        resolution: ResolutionType = 'LOW'
+        redshift: str = "0.0000e+00",
+        n_limits: tuple = (-6, 4),
+        T_limits: tuple = (2, 8),
+        n_points: int = 201,
+        T_points: int = 201,
     ) -> None:
         """
         Initialise the parameter generator.
@@ -32,9 +38,21 @@ class ParameterFiles:
             Name for the current CIAOLoop run.
         elements : str
             String of elements for ion fraction calculation (e.g., 'H C N O').
-        resolution : {'LOW', 'HIGH'}, optional
-            LOW: 81 log T points, 27 log hden points (coarse grid).
-            HIGH: 321 log T points, 105 log hden points (fine grid).
+        redshift : str
+            Redshift (currently only the near Universe z=0 is supported).
+            Default is 0.0000e+00.
+        n_limits : tuple
+            Limits of the hydrogen number density range in logspace (cm^-3).
+            Default is (-6, 4).
+        T_limits : tuple
+            Limits of the temperature range in logspace (K).
+            Default is (2, 8).
+        n_points : int
+            Number of points for hydrogen number density in logspace.
+            Default is 201.
+        T_points : int
+            Number of points for temperature in logspace.
+            Default is 201.
         """
         self.cloudy_path = str(cloudy_path)
         self.run_name = run_name
@@ -43,15 +61,12 @@ class ParameterFiles:
 
         self.root_dir = Path.cwd()
 
-        match resolution:
-            case 'LOW':
-                self.tpoints = 81
-                self.hden_step = 0.5
-            case 'HIGH':
-                self.tpoints = 321
-                self.hden_step = 0.05
-            case _:
-                raise ValueError(f'Resolution must be "LOW" or "HIGH". Got {resolution}.')
+        self.n_lo, self.n_hi = n_limits
+        self.T_lo, self.T_hi = T_limits
+
+        spacing = np.linspace(self.n_lo, self.n_hi, n_points)
+        self.n_spacing = np.round(spacing, decimals=2)
+        self.T_points = T_points
 
     def _get_header(self, output_subdir: str, run_mode: Literal[1, 3]) -> list[str]:
         """
@@ -98,7 +113,7 @@ class ParameterFiles:
             "",
             "# run mode",
             f"cloudyRunMode          = {run_mode}",
-            ""
+            "",
         ]
 
     def _get_loops(self, is_ib: bool) -> list[str]:
@@ -125,77 +140,81 @@ class ParameterFiles:
             "",
             "command iterate to convergence",
             "",
-            f"loop [hden] (-9;4;{self.hden_step})",
+            f"loop [hden] ({self.n_lo};{self.n_hi};{self.n_spacing})",
             "",
-            init_cmd
+            init_cmd,
         ]
 
     def hc_parfile(self) -> Path:
         """
         Generate and write the CIAOLoop parameter file for heating & cooling.
         """
-        filename = f'{self.run_name}_hc.par'
+        filename = f"{self.run_name}_hc.par"
         file_path = self.root_dir / filename
 
         lines = self._get_header(output_subdir="hc", run_mode=1)
 
-        lines.extend([
-            "#####################################################",
-            "########## HEATING & COOLING MAP PARAMETERS #########",
-            "",
-            "# min T",
-            "coolingMapTmin = 1e1",
-            "",
-            "# max T",
-            "coolingMapTmax = 1e9",
-            "",
-            "# T resolution (log points)",
-            f"coolingMapTpoints = {self.tpoints}",
-            "",
-            "# scale factor (1 - n_H^2, 2 - n_H * n_e)",
-            "coolingScaleFactor = 1",
-            ""
-        ])
+        lines.extend(
+            [
+                "#####################################################",
+                "########## HEATING & COOLING MAP PARAMETERS #########",
+                "",
+                "# min T",
+                f"coolingMapTmin = 1e{self.T_lo}",
+                "",
+                "# max T",
+                f"coolingMapTmax = 1e{self.T_hi}",
+                "",
+                "# T resolution (log points)",
+                f"coolingMapTpoints = {self.T_points}",
+                "",
+                "# scale factor (1 - n_H^2, 2 - n_H * n_e)",
+                "coolingScaleFactor = 1",
+                "",
+            ]
+        )
 
         lines.extend(self._get_loops(is_ib=False))
 
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines))
-            f.write('\n')
-            
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+            f.write("\n")
+
         return file_path
 
     def ib_parfile(self) -> Path:
         """
         Generate and write the CIAOLoop parameter file for ion fractions.
         """
-        filename = f'{self.run_name}_ib.par'
+        filename = f"{self.run_name}_ib.par"
         file_path = self.root_dir / filename
 
-        lines = self._get_header(output_subdir='ib', run_mode=3)
+        lines = self._get_header(output_subdir="ib", run_mode=3)
 
-        lines.extend([
-            "#####################################################",
-            "############ ION FRACTION MAP PARAMETERS ############",
-            "",
-            "# min T",
-            "coolingMapTmin = 1e1",
-            "",
-            "# max T",
-            "coolingMapTmax = 1e9",
-            "",
-            "# T resolution (log points)",
-            f"coolingMapTpoints = {self.tpoints}",
-            "",
-            "# elements",
-            f"ionFractionElements = {self.elements}",
-            ""
-        ])
+        lines.extend(
+            [
+                "#####################################################",
+                "############ ION FRACTION MAP PARAMETERS ############",
+                "",
+                "# min T",
+                f"coolingMapTmin = 1e{self.T_lo}",
+                "",
+                "# max T",
+                f"coolingMapTmax = 1e{self.T_hi}",
+                "",
+                "# T resolution (log points)",
+                f"coolingMapTpoints = {self.T_points}",
+                "",
+                "# elements",
+                f"ionFractionElements = {self.elements}",
+                "",
+            ]
+        )
 
         lines.extend(self._get_loops(is_ib=True))
 
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(lines))
-            f.write('\n')
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
+            f.write("\n")
 
         return file_path
