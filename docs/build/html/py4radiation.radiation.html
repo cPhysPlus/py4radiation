@@ -102,7 +102,8 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Process and format heating and cooling tables for HD/MHD codes.</p>
 <p>This class reads the outputs of pyCIAO to generate a single table
-containing temperature, mean molecular weight, heating, and cooling.</p>
+containing hydrogen number density, temperature, heating
+and cooling rates and mean molecular weight.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -200,16 +201,16 @@ This file is saved in the current directory.</p>
 <dt class="sig sig-object py" id="py4radiation.radiation.ib_tables.IonTables">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.ib_tables.</span></span><span class="sig-name descname"><span class="pre">IonTables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.ib_tables.IonTables" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class to generate ion fraction tables from pyCIAO output files.</p>
+<p>A class to generate ion fraction tables from pyCIAO/Cloudy output files.</p>
 <p>This class parses a simulation run configuration, loads distributed
-ion fraction maps, and consolidates them into a single HDF5 file
-suitable for astrophysical HD/MHD codes.</p>
+ion fraction maps, and generates a single HDF5 file suitable for
+astrophysical codes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>run_dir</strong><span class="classifier">Path</span></dt><dd><p>Directory containing the pyCIAO run file and data maps.</p>
 </dd>
-<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier (stem) of the pyCIAO run.</p>
+<dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>The common identifier of the pyCIAO run.</p>
 </dd>
 </dl>
 </dd>
@@ -229,9 +230,9 @@ suitable for astrophysical HD/MHD codes.</p>
 <span id="py4radiation-radiation-parfiles-module"></span><h2>py4radiation.radiation.parfiles module<a class="headerlink" href="#module-py4radiation.radiation.parfiles" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="py4radiation.radiation.parfiles.ParameterFiles">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.parfiles.</span></span><span class="sig-name descname"><span class="pre">ParameterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloudy_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0000e+00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LOW'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.parfiles.</span></span><span class="sig-name descname"><span class="pre">ParameterFiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cloudy_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">redshift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'0.0000e+00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-6,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(2,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">201</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">T_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">201</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.parfiles.ParameterFiles" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Generates parameter (.par) files for CIAOLoop.</p>
+<p>Generates parameter (.par) files for pyCIAO/CIAOLoop.</p>
 <p>Handles configuration for Ion Fraction maps (ib) and
 Heating &amp; Cooling maps (hc)</p>
 <dl class="field-list simple">
@@ -261,20 +262,22 @@ Heating &amp; Cooling maps (hc)</p>
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.radiation.sed.</span></span><span class="sig-name descname"><span class="pre">SED</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">custom_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fig2a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_kpc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">age_myr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A class to load, process and format SEDs for astrophysical codes.</p>
+<p>A class to load, process and format SEDs for pyCIAO.</p>
 <p>This class handles the conversion of Leitherer et al. (1999) style
-SED tables into Cloudy-readable formats.</p>
+SED tables into pyCIAO/Cloudy-readable formats.</p>
+<p>For scaling, consider an object of interest located at a user-specified
+distance from the radiation source.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>run_name</strong><span class="classifier">str</span></dt><dd><p>Name of the run, used for output filenames.</p>
 </dd>
-<dt><strong>distance_cm</strong><span class="classifier">float</span></dt><dd><p>Luminosity distance to the source in cm.</p>
+<dt><strong>distance_cm</strong><span class="classifier">float</span></dt><dd><p>Distance of the object of interest to the source in cm.</p>
 </dd>
-<dt><strong>data_table</strong><span class="classifier">npt.NDArray[np.float64]</span></dt><dd><p>Raw loaded SED data table.</p>
+<dt><strong>data_table</strong><span class="classifier">np.NDArray[np.float64]</span></dt><dd><p>Raw loaded SED data table.</p>
 </dd>
 <dt><strong>redshift</strong><span class="classifier">float</span></dt><dd><p>Redshift (z) of the source.
-For this version, only consider near Universe (z=0.0000e+00).</p>
+For this version, only consider the near Universe (z=0.0000e+00).</p>
 </dd>
 </dl>
 </dd>
@@ -282,13 +285,13 @@ For this version, only consider near Universe (z=0.0000e+00).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.get_sed">
 <span class="sig-name descname"><span class="pre">get_sed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED.get_sed" title="Link to this definition"></a></dt>
-<dd><p>Calculates Energy (Ryd) and Flux (F_nu).</p>
+<dd><p>Calculates Energy (Ryd) and Specific flux (F_nu).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>energy_ryd</strong><span class="classifier">np.ndarray</span></dt><dd><p>Photon energies in Rydbergs.</p>
 </dd>
-<dt><strong>F_nu</strong><span class="classifier">np.ndarray</span></dt><dd><p>Flux F_nu in erg s^-1 cm^-2 Hz^-1</p>
+<dt><strong>F_nu</strong><span class="classifier">np.ndarray</span></dt><dd><p>Specific flux F_nu in erg s^-1 cm^-2 Hz^-1</p>
 </dd>
 </dl>
 </dd>
@@ -298,7 +301,7 @@ For this version, only consider near Universe (z=0.0000e+00).</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="py4radiation.radiation.sed.SED.write_outfile">
 <span class="sig-name descname"><span class="pre">write_outfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.radiation.sed.SED.write_outfile" title="Link to this definition"></a></dt>
-<dd><p>Write a Cloudy-readable input file.</p>
+<dd><p>Write a pyCIAO/Cloudy-readable input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
