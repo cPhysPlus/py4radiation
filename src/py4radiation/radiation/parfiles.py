@@ -24,8 +24,8 @@ class ParameterFiles:
         redshift: str = "0.0000e+00",
         n_limits: tuple = (-6, 4),
         T_limits: tuple = (2, 8),
-        n_points: int = 201,
-        T_points: int = 201,
+        n_points: int = 256,
+        T_points: int = 256,
     ) -> None:
         """
         Initialise the parameter generator.
@@ -49,10 +49,10 @@ class ParameterFiles:
             Default is (2, 8).
         n_points : int
             Number of points for hydrogen number density in logspace.
-            Default is 201.
+            Default is 256.
         T_points : int
             Number of points for temperature in logspace.
-            Default is 201.
+            Default is 256.
         """
         self.cloudy_path = str(cloudy_path)
         self.run_name = run_name
@@ -65,7 +65,7 @@ class ParameterFiles:
         self.T_lo, self.T_hi = T_limits
 
         spacing = np.linspace(self.n_lo, self.n_hi, n_points)
-        self.n_spacing = np.round(spacing, decimals=2)
+        self.n_spacing = np.round(spacing[1] - spacing[2], decimals=2)
         self.T_points = T_points
 
     def _get_header(self, output_subdir: str, run_mode: Literal[1, 3]) -> list[str]:
