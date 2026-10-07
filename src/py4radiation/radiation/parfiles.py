@@ -5,8 +5,6 @@ from typing import Literal
 
 import numpy as np
 
-ResolutionType = Literal["LOW", "HIGH"]
-
 
 class ParameterFiles:
     """
@@ -65,7 +63,7 @@ class ParameterFiles:
         self.T_lo, self.T_hi = T_limits
 
         spacing = np.linspace(self.n_lo, self.n_hi, n_points)
-        self.n_spacing = np.round(spacing[1] - spacing[2], decimals=2)
+        self.n_spacing = np.round(spacing[1] - spacing[0], decimals=2)
         self.T_points = T_points
 
     def _get_header(self, output_subdir: str, run_mode: Literal[1, 3]) -> list[str]:
