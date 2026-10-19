@@ -20,9 +20,10 @@ class ParameterFiles:
         run_name: str,
         elements: str,
         redshift: str = "0.0000e+00",
-        n_limits: tuple = (-6, 4),
+        n_limits: tuple = (-6, 4.2),
         T_limits: tuple = (2, 8),
-        n_points: int = 256,
+        n_spacing: float = 0.05,
+        n_points: int | None = None,
         T_points: int = 256,
     ) -> None:
         """
@@ -41,16 +42,19 @@ class ParameterFiles:
             Default is 0.0000e+00.
         n_limits : tuple
             Limits of the hydrogen number density range in logspace (cm^-3).
-            Default is (-6, 4).
+            Default is (-6, 4.2).
         T_limits : tuple
             Limits of the temperature range in logspace (K).
             Default is (2, 8).
+        n_spacing: float
+            Spacing for hydrogen number density in logspace.
+            Default is 0.05.
         n_points : int
             Number of points for hydrogen number density in logspace.
-            Default is 256.
+            Default is None.
         T_points : int
             Number of points for temperature in logspace.
-            Default is 256.
+            Default is 321.
         """
         self.cloudy_path = str(cloudy_path)
         self.run_name = run_name
@@ -62,8 +66,16 @@ class ParameterFiles:
         self.n_lo, self.n_hi = n_limits
         self.T_lo, self.T_hi = T_limits
 
-        spacing = np.linspace(self.n_lo, self.n_hi, n_points)
-        self.n_spacing = np.round(spacing[1] - spacing[0], decimals=2)
+        if n_spacing is not None and n_points is not None:
+            print("Both n_spacing and n_points were provided. Using n_spacing...")
+            n_points = None
+
+        if n_spacing is not None:
+            self.n_spacing = n_spacing
+        elif n_points is not None:
+            spacing = np.linspace(self.n_lo, self.n_hi, n_points)
+            self.n_spacing = np.abs(spacing[1] - spacing[0])
+
         self.T_points = T_points
 
     def _get_header(self, output_subdir: str, run_mode: Literal[1, 3]) -> list[str]:

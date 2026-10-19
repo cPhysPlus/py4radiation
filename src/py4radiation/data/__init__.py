@@ -24,15 +24,15 @@ TableID = Literal[
 
 SB99_TABLES: dict[TableID, str] = {
     "fig1a": "fig1a.dat",
-    "fig1b": "fig1a.dat",
+    "fig1b": "fig1b.dat",
     "fig2a": "fig2a.dat",
     "fig2b": "fig2b.dat",
     "fig3a": "fig3a.dat",
-    "fig3b": "fig3a.dat",
+    "fig3b": "fig3b.dat",
     "fig4a": "fig4a.dat",
     "fig4b": "fig4b.dat",
     "fig5a": "fig5a.dat",
-    "fig5b": "fig5a.dat",
+    "fig5b": "fig5b.dat",
     "fig6a": "fig6a.dat",
     "fig6b": "fig6b.dat",
 }
@@ -74,7 +74,7 @@ def load_table(table_name: TableID, **kwargs: Any) -> npt.NDArray[np.float64]:
 
     Parameters
     ----------
-    table_name : Literal['fig2a', 'fig2b', 'fig4a', 'fig4b', 'fig6a', 'fig6b']
+    table_name : Literal['fig1a', 'fig1b', 'fig2a', 'fig2b', 'fig3a', 'fig3b', 'fig4a', 'fig4b', 'fig5a', 'fig5b', 'fig6a', 'fig6b']
         Identifier for the Starburst99 available table.
         Must be one of the specific figure IDs from Leitherer et al. (1999).
     **kwargs : Any

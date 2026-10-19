@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import logging
-from collections.abc import Iterable
 from pathlib import Path
 
 import h5py
@@ -27,9 +26,7 @@ class IonTables:
         The common identifier of the pyCIAO run.
     """
 
-    def __init__(
-        self, run_dir: str | Path, run_name: str, elements: Iterable[str]
-    ) -> None:
+    def __init__(self, run_dir: str | Path, run_name: str, elements: str) -> None:
         """
         Initialise the processor with the location and ID of the run.
 
@@ -46,7 +43,7 @@ class IonTables:
         """
         self.run_dir = Path(run_dir)
         self.run_name = run_name
-        self.elements = elements
+        self.elements = elements.split()
 
         clean_run = run_name.removesuffix(".run")
         self.runfile = Path(run_dir) / f"{clean_run}.run"
