@@ -6,7 +6,7 @@
 
 D. Villarruel-Yanez, W.E. Banda-Barragan & B. Casavecchia (in prep.)
 
-A modern, modular Python toolkit designed to generate radiative heating and cooling rates and ion fractions from spectral energy distributions.. This package provides streamlined pipelines for producing tables ready to couple to astrophysical HD/MHD codes.
+A modern, modular Python toolkit designed to generate radiative heating and cooling rates and ion fractions from spectral energy distributions. This package provides streamlined pipelines for producing tables ready to couple to astrophysical HD/MHD codes.
 
 ## Installation
 

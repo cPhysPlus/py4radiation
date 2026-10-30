@@ -22,7 +22,7 @@ html_css_files = ["custom.css"]
 
 autosummary_generate = True
 numpydoc_show_class_members = False
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
