@@ -11,7 +11,7 @@ py4radiation  is a modern, modular Python toolkit designed to generate radiative
    installation
    quickstart
    
-   .. toctree::
+.. toctree::
    :maxdepth: 2
    :caption: Reference
 
