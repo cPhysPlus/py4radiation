@@ -23,6 +23,7 @@ html_css_files = ["custom.css"]
 autosummary_generate = True
 numpydoc_show_class_members = False
 html_theme = "furo"
+html_title = "py4radiation"
 
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
