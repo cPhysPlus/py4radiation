@@ -173,7 +173,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -238,19 +238,83 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="documentation-for-py4radiation">
-<h1>Documentation for py4radiation<a class="headerlink" href="#documentation-for-py4radiation" title="Link to this heading">¶</a></h1>
-<p>py4radiation  is a modern, modular Python toolkit designed to generate radiative heating and cooling rates and ion fractions from spectral energy distributions. This package provides streamlined pipelines for producing tables ready to couple to astrophysical codes for hydro- and magnetohydrodynamics.</p>
+          <section id="welcome-to-py4radiation">
+<h1>Welcome to py4radiation<a class="headerlink" href="#welcome-to-py4radiation" title="Link to this heading">¶</a></h1>
+<p><strong>py4radiation</strong> is a modular Python framework for generating
+radiative heating and cooling rates and ionisation fractions
+from custom spectral energy distributions (SEDs).</p>
+<p>The package provides an integrated workflow for preparing radiation
+fields, executing photoionisation calculations with Cloudy, and
+processing the resulting data into tables suitable for coupling
+with astrophysical hydrodynamics (HD) and magnetohydrodynamics
+(MHD) codes.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The framework consists of three main components:</p>
+<ul class="simple">
+<li><p><strong>Radiation fields:</strong> Prepare Cloudy-compatible SEDs from
+Starburst99 stellar population models, the Haardt &amp; Madau
+(2012) UV/X-ray background, or user-provided SEDs.</p></li>
+<li><p><strong>Cloudy execution:</strong> Prepare parameter files and perform
+photoionisation calculations using pyCIAO, with support
+for Python multiprocessing and MPI.</p></li>
+<li><p><strong>Generation of tables:</strong> Combine Cloudy outputs into radiative
+heating/cooling tables and HDF5 ion fraction tables for
+astrophysical HD/MHD codes.</p></li>
+</ul>
+<p>The framework supports local input files and cached reference
+SEDs, allowing the preparation of radiation fields online and
+offline.</p>
+</section>
+<section id="scientific-considerations">
+<h2>Scientific considerations<a class="headerlink" href="#scientific-considerations" title="Link to this heading">¶</a></h2>
+<p>For stellar radiation fields, py4radiation uses the stellar-only
+spectra from Starburst99 Figures 7-12, following the
+recommendations of Leitherer et al. (1999) for photoionisation
+calculations.</p>
+<p>For the Haardt &amp; Madau (2012) ultraviolet background, the
+tabulated specific intensity is converted into the equivalent
+spectral quantity</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[F_{\nu,\mathrm{equiv}} = 4\pi J_\nu.\]</div>
+</div>
+<p>This convention allows the stellar and metagalactic radiation
+fields to be represented using the same spectral units.</p>
+<p>Here, <span class="math notranslate nohighlight">\(4\pi J_\nu\)</span> is the angle-integrated specific
+intensity, not the directional flux of an isotropic field.</p>
+<p>See the <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a> for a practical introduction.</p>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-py4radiation">Installing py4radiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#development-installation">Development installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#python-dependencies">Python dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-cloudy">Installing Cloudy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#optional-mpi-support">Optional MPI support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#offline-environments">Offline environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#building-the-documentation">Building the documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#preparing-a-radiation-field">1. Preparing a radiation field</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#generate-cloudy-parameter-files">2. Generate Cloudy parameter files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#execute-cloudy-with-pyciao">3. Execute Cloudy with pyCIAO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#process-heating-and-cooling-tables">4. Process heating and cooling tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#process-ionisation-fraction-tables">5. Process ionisation-fraction tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#alternative-radiation-fields">6. Alternative radiation fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next steps</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
@@ -261,9 +325,15 @@
 <li class="toctree-l2"><a class="reference internal" href="modules.html#module-py4radiation">Package interface</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#py4radiation">py4radiation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#scientific-references">Scientific references</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#software-licence">Software licence</a></li>
+</ul>
+</li>
 </ul>
 </div>
+</section>
 </section>
 
         </article>
@@ -299,8 +369,31 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Welcome to py4radiation</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#scientific-considerations">Scientific considerations</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a><ul>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -309,5 +402,6 @@
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>

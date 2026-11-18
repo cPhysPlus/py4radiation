@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Quickstart" href="quickstart.html"><link rel="prev" title="Documentation for py4radiation" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Quickstart" href="quickstart.html"><link rel="prev" title="Welcome to py4radiation" href="index.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>Installation - py4radiation</title>
@@ -173,7 +173,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -238,21 +238,141 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
-<p>It is highly recommended to install this package in editable mode during development.</p>
-<p>This ensures that any modifications to the source scripts are instantly available without requiring reinstallation.</p>
-<p>Run the following command from the repository root (where pyproject.toml is located):</p>
+<p>py4radiation requires Python 3.11 or newer.</p>
+<p>The package can be installed from source using pip.
+Cloudy is an external dependency required for executing
+photoionisation calculations.</p>
+<section id="installing-py4radiation">
+<h2>Installing py4radiation<a class="headerlink" href="#installing-py4radiation" title="Link to this heading">¶</a></h2>
+<p>Clone the repository and navigate to its root directory:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/cPhysPlus/py4radiation.git
 <span class="nb">cd</span><span class="w"> </span>py4radiation
-python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
+<p>Install the package:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="development-installation">
+<h2>Development installation<a class="headerlink" href="#development-installation" title="Link to this heading">¶</a></h2>
+<p>For development, an editable installation is recommended:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>With an editable installation, modifications to the Python
+source code become available without reinstalling the package.</p>
+</section>
+<section id="python-dependencies">
+<h2>Python dependencies<a class="headerlink" href="#python-dependencies" title="Link to this heading">¶</a></h2>
+<p>The principal Python dependencies are:</p>
+<ul class="simple">
+<li><p>NumPy for numerical calculations.</p></li>
+<li><p>Requests for downloading reference spectra.</p></li>
+<li><p>Platformdirs for managing cache directories.</p></li>
+<li><p>h5py for producing HDF5 ionisation tables.</p></li>
+</ul>
+<p>These dependencies are installed automatically by pip.</p>
+<p>MPI support is optional and requires mpi4py.</p>
+</section>
+<section id="installing-cloudy">
+<h2>Installing Cloudy<a class="headerlink" href="#installing-cloudy" title="Link to this heading">¶</a></h2>
+<p>py4radiation uses Cloudy to calculate the radiative heating,
+cooling and ionisation properties of astrophysical gas.</p>
+<p>Cloudy is not distributed with py4radiation and must be
+installed independently.</p>
+<p>We recommend Cloudy version C13.05 for compatibility with
+the current pyCIAO workflow.</p>
+<p>The Cloudy executable must be available on the system.
+Its location is supplied when generating the parameter files,
+through the <code class="docutils literal notranslate"><span class="pre">cloudy_path</span></code> argument of
+<a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.parfiles.ParameterFiles" title="py4radiation.radiation.parfiles.ParameterFiles"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterFiles</span></code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Cloudy is only required when executing photoionisation
+calculations. Existing Cloudy outputs can be processed
+without launching new calculations.</p>
+</div>
+</section>
+<section id="optional-mpi-support">
+<h2>Optional MPI support<a class="headerlink" href="#optional-mpi-support" title="Link to this heading">¶</a></h2>
+<p>pyCIAO supports both Python multiprocessing and MPI.</p>
+<p>To install py4radiation with MPI support, run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">".[mpi]"</span>
+</pre></div>
+</div>
+<p>For an editable installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[mpi]"</span>
+</pre></div>
+</div>
+<p>A compatible MPI implementation must also be installed
+and configured on the system.</p>
+<p>MPI support is particularly useful for distributing large
+sets of Cloudy calculations across multiple computing nodes.</p>
+<p>Without MPI, pyCIAO can still distribute calculations
+using Python multiprocessing.</p>
+</section>
+<section id="offline-environments">
+<h2>Offline environments<a class="headerlink" href="#offline-environments" title="Link to this heading">¶</a></h2>
+<p>py4radiation supports locally stored Starburst99 and HM2012
+tables, making it suitable for air-gapped high-performance
+computing (HPC) environments.</p>
+<p>By default, the package retrieves and caches the required
+reference spectra when they are first requested.</p>
+<p>Alternatively, users can supply existing files through
+the following arguments:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sb99_path</span></code> for Starburst99 tables.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hm12_path</span></code> for the Haardt &amp; Madau (2012) UV background.</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SED</span>
+
+<span class="n">sed</span> <span class="o">=</span> <span class="n">SED</span><span class="p">(</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"offline_model"</span><span class="p">,</span>
+    <span class="n">table_id</span><span class="o">=</span><span class="s2">"8b"</span><span class="p">,</span>
+    <span class="n">sb99_path</span><span class="o">=</span><span class="s2">"/path/to/fig8b.dat"</span><span class="p">,</span>
+    <span class="n">distance_kpc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">age_myr</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sed</span><span class="o">.</span><span class="n">write_outfile</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>No internet connection is required to load the reference
+spectrum when the corresponding local file is provided.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Offline access to reference spectra is separate from
+offline installation of Python dependencies. On an
+air-gapped system, the required Python packages must
+also be installed from locally available distributions.</p>
+</div>
+</section>
+<section id="building-the-documentation">
+<h2>Building the documentation<a class="headerlink" href="#building-the-documentation" title="Link to this heading">¶</a></h2>
+<p>The documentation is generated using Sphinx, Furo and Numpydoc.</p>
+<p>From the repository root, install the documentation
+dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>docs/requirements.txt
+</pre></div>
+</div>
+<p>Build the HTML documentation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>sphinx<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>docs/source<span class="w"> </span>docs/_build/html
+</pre></div>
+</div>
+<p>The generated documentation can be viewed by opening:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>docs/_build/html/index.html
+</pre></div>
+</div>
+</section>
 </section>
 
         </article>
@@ -298,8 +418,33 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#installing-py4radiation">Installing py4radiation</a></li>
+<li><a class="reference internal" href="#development-installation">Development installation</a></li>
+<li><a class="reference internal" href="#python-dependencies">Python dependencies</a></li>
+<li><a class="reference internal" href="#installing-cloudy">Installing Cloudy</a></li>
+<li><a class="reference internal" href="#optional-mpi-support">Optional MPI support</a></li>
+<li><a class="reference internal" href="#offline-environments">Offline environments</a></li>
+<li><a class="reference internal" href="#building-the-documentation">Building the documentation</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

@@ -173,7 +173,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
       </label>
     </div>
@@ -238,17 +238,283 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
           </label>
         </div>
         <article role="main" id="furo-main-content">
           <section id="quickstart">
 <h1>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading">¶</a></h1>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">py4radiation</span>
-<span class="c1"># add minimal example here</span>
+<p>This guide introduces the basic py4radiation workflow for
+generating radiative heating, cooling and ion fractionn tables
+from custom spectral energy distributions (SEDs).</p>
+<p>The examples use a continuous star-formation model from
+Starburst99, but the same workflow can be applied to other
+supported SEDs.</p>
+<section id="preparing-a-radiation-field">
+<h2>1. Preparing a radiation field<a class="headerlink" href="#preparing-a-radiation-field" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.sed.SED" title="py4radiation.radiation.sed.SED"><code class="xref py py-class docutils literal notranslate"><span class="pre">SED</span></code></a> class prepares
+the input SED into Cloudy-readable format.</p>
+<p>For example, consider a stellar population with:</p>
+<ul class="simple">
+<li><p>Continuous star formation.</p></li>
+<li><p>Star-formation rate of 5 solar masses per year.</p></li>
+<li><p>Stellar population age of 3 Myr.</p></li>
+<li><p>Distance of 1 kpc from the source.</p></li>
+</ul>
+<p>The corresponding SED can be generated using:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SED</span>
+
+<span class="n">sed</span> <span class="o">=</span> <span class="n">SED</span><span class="p">(</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"example"</span><span class="p">,</span>
+    <span class="n">table_id</span><span class="o">=</span><span class="s2">"8b"</span><span class="p">,</span>
+    <span class="n">sfr_msun_yr</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+    <span class="n">distance_kpc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">age_myr</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sed_path</span> <span class="o">=</span> <span class="n">sed</span><span class="o">.</span><span class="n">write_outfile</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">sed_path</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The generated Cloudy input file is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>example_z0.0000e+00.out
+</pre></div>
+</div>
+<p>The file contains the interpolated spectral shape and the
+absolute normalisation at 1 Ryd.</p>
+<section id="starburst99-normalisation">
+<h3>Starburst99 normalisation<a class="headerlink" href="#starburst99-normalisation" title="Link to this heading">¶</a></h3>
+<p>Starburst99 Figures 7-12 contain stellar-only spectra,
+without the nebular continuum included in Figures 1-6.</p>
+<p>The luminosity of continuous star-formation models
+(Figures 8, 10 and 12) scales with the star-formation rate.</p>
+<p>For instantaneous-burst models (Figures 7, 9 and 11),
+the luminosity scales with the initial stellar mass.</p>
+<p>The spectral flux density is calculated as</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[F_\nu = \frac{L_\nu}{4\pi d^2},\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(L_\nu\)</span> is the spectral luminosity and
+<span class="math notranslate nohighlight">\(d\)</span> is the distance from the source.</p>
+</section>
+</section>
+<section id="generate-cloudy-parameter-files">
+<h2>2. Generate Cloudy parameter files<a class="headerlink" href="#generate-cloudy-parameter-files" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="py4radiation.radiation.html#py4radiation.radiation.parfiles.ParameterFiles" title="py4radiation.radiation.parfiles.ParameterFiles"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParameterFiles</span></code></a>
+class generates the parameter files required by pyCIAO.</p>
+<p>The following example creates a small density-temperature
+grid for demonstration purposes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterFiles</span>
+
+<span class="n">par</span> <span class="o">=</span> <span class="n">ParameterFiles</span><span class="p">(</span>
+    <span class="n">cloudy_path</span><span class="o">=</span><span class="s2">"/path/to/cloudy.exe"</span><span class="p">,</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"example"</span><span class="p">,</span>
+    <span class="n">elements</span><span class="o">=</span><span class="s2">"H C N O"</span><span class="p">,</span>
+    <span class="n">n_limits</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">n_spacing</span><span class="o">=</span><span class="mf">0.125</span><span class="p">,</span>
+    <span class="n">T_limits</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+    <span class="n">T_points</span><span class="o">=</span><span class="mi">321</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">hc_parfile</span> <span class="o">=</span> <span class="n">par</span><span class="o">.</span><span class="n">hc_parfile</span><span class="p">()</span>
+<span class="n">ib_parfile</span> <span class="o">=</span> <span class="n">par</span><span class="o">.</span><span class="n">ib_parfile</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">hc_parfile</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ib_parfile</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The generated parameter files are:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>example_hc.par
+example_ib.par
+</pre></div>
+</div>
+<p>The first file configures heating and cooling calculations,
+while the second configures ionisation-fraction calculations.</p>
+<p>Both reference the radiation-field file generated in the
+previous step.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">/path/to/cloudy.exe</span></code> with the actual path
+to your Cloudy executable.</p>
+<p>Generate the SED and parameter files from the same
+working directory so that the generated radiation-field
+path is correctly referenced.</p>
+</div>
+</section>
+<section id="execute-cloudy-with-pyciao">
+<h2>3. Execute Cloudy with pyCIAO<a class="headerlink" href="#execute-cloudy-with-pyciao" title="Link to this heading">¶</a></h2>
+<p>pyCIAO provides a command-line interface for executing
+Cloudy calculations.</p>
+<p>Heating and cooling calculations can be started with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyciao<span class="w"> </span>example_hc.par<span class="w"> </span>--nproc<span class="w"> </span><span class="m">4</span>
+</pre></div>
+</div>
+<p>Ionisation-fraction calculations can be started with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pyciao<span class="w"> </span>example_ib.par<span class="w"> </span>--nproc<span class="w"> </span><span class="m">4</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--nproc</span></code> argument specifies the number of Python
+multiprocessing workers.</p>
+<p>Each worker executes a subset of the Cloudy calculations
+defined by the parameter file.</p>
+<p>The generated outputs are stored in the corresponding
+subdirectories:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>hc/
+ib/
+</pre></div>
+</div>
+<p>Each directory contains a master <code class="docutils literal notranslate"><span class="pre">.run</span></code> file and
+the numerical maps generated by Cloudy.</p>
+<p>The master <code class="docutils literal notranslate"><span class="pre">.run</span></code> file records the parameter combinations
+associated with the numbered calculations.</p>
+<section id="mpi-execution">
+<h3>MPI execution<a class="headerlink" href="#mpi-execution" title="Link to this heading">¶</a></h3>
+<p>If py4radiation was installed with MPI support and a
+compatible MPI environment is available, calculations
+can also be distributed across MPI ranks.</p>
+<p>For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mpiexec<span class="w"> </span>-n<span class="w"> </span><span class="m">4</span><span class="w"> </span>pyciao<span class="w"> </span>example_hc.par
+</pre></div>
+</div>
+<p>When multiple MPI ranks are detected, pyCIAO uses MPI
+instead of Python multiprocessing.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The examples in this section execute external Cloudy
+calculations. You need a working Cloudy installation and
+valid parameter files.</p>
+</div>
+</section>
+</section>
+<section id="process-heating-and-cooling-tables">
+<h2>4. Process heating and cooling tables<a class="headerlink" href="#process-heating-and-cooling-tables" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="py4radiation.utils.html#py4radiation.utils.hc_tables.HeatingCoolingTables" title="py4radiation.utils.hc_tables.HeatingCoolingTables"><code class="xref py py-class docutils literal notranslate"><span class="pre">HeatingCoolingTables</span></code></a>
+class combines the individual heating/cooling maps into a single table.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeatingCoolingTables</span>
+
+<span class="n">hc</span> <span class="o">=</span> <span class="n">HeatingCoolingTables</span><span class="p">(</span>
+    <span class="n">run_dir</span><span class="o">=</span><span class="s2">"hc"</span><span class="p">,</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"example"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">table_path</span> <span class="o">=</span> <span class="n">hc</span><span class="o">.</span><span class="n">write_table</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">table_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This generates:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>example_cooltable.dat
+</pre></div>
+</div>
+<p>The default table contains:</p>
+<ul class="simple">
+<li><p>Hydrogen number density in cm^-3.</p></li>
+<li><p>Temperature in K.</p></li>
+<li><p>Heating coefficient.</p></li>
+<li><p>Cooling coefficient.</p></li>
+<li><p>Mean molecular weight in atomic mass units.</p></li>
+</ul>
+<p>By default, the heating and cooling rates are normalised
+by the square of the hydrogen number density.</p>
+<p>The resulting coefficients have units of
+erg cm^3 s^-1 for this normalisation.</p>
+</section>
+<section id="process-ionisation-fraction-tables">
+<h2>5. Process ionisation-fraction tables<a class="headerlink" href="#process-ionisation-fraction-tables" title="Link to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="py4radiation.utils.html#py4radiation.utils.ib_tables.IonTables" title="py4radiation.utils.ib_tables.IonTables"><code class="xref py py-class docutils literal notranslate"><span class="pre">IonTables</span></code></a> class
+combines the individual ion fraction maps into an HDF5 file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">IonTables</span>
+
+<span class="n">ib</span> <span class="o">=</span> <span class="n">IonTables</span><span class="p">(</span>
+    <span class="n">run_dir</span><span class="o">=</span><span class="s2">"ib"</span><span class="p">,</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"example"</span><span class="p">,</span>
+    <span class="n">elements</span><span class="o">=</span><span class="s2">"H C O"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">ib</span><span class="o">.</span><span class="n">write_table</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This generates:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ib/example_iontable.h5
+</pre></div>
+</div>
+<p>The HDF5 file contains logarithmic ionisation fractions
+for the selected chemical elements.</p>
+<p>The dataset dimensions are ordered as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(ionisation stage, density, redshift, temperature)
+</pre></div>
+</div>
+<p>For calculations performed only at z=0, the data are
+duplicated at z=1e-4 to provide the redshift dimension
+required for Trident interpolation. This is not intended
+to show cosmological evolution, but a way to match with
+the expected table dimensions.</p>
+<p>This additional redshift slice does not represent a
+separate Cloudy calculation.</p>
+</section>
+<section id="alternative-radiation-fields">
+<h2>6. Alternative radiation fields<a class="headerlink" href="#alternative-radiation-fields" title="Link to this heading">¶</a></h2>
+<p>The same workflow can be applied to other radiation
+sources supported by py4radiation.</p>
+<section id="haardt-madau-2012-background">
+<h3>Haardt &amp; Madau (2012) background<a class="headerlink" href="#haardt-madau-2012-background" title="Link to this heading">¶</a></h3>
+<p>To generate the metagalactic ultraviolet background
+at z=0:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">py4radiation</span><span class="w"> </span><span class="kn">import</span> <span class="n">SED</span>
+
+<span class="n">sed</span> <span class="o">=</span> <span class="n">SED</span><span class="p">(</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"hm12_example"</span><span class="p">,</span>
+    <span class="n">table_id</span><span class="o">=</span><span class="s2">"HM12"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sed</span><span class="o">.</span><span class="n">write_outfile</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The original HM2012 tables provide the specific intensity <span class="math notranslate nohighlight">\(J_\nu\)</span>.</p>
+<p>py4radiation converts this quantity into</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[F_{\nu,\mathrm{equiv}} = 4\pi J_\nu,\]</div>
+</div>
+<p>in erg s^-1 cm^-2 Hz^-1.</p>
+<p>Unlike stellar radiation fields, HM2012 does not require
+distance, star-formation-rate or stellar-mass scaling.</p>
+<p>A local HM2012 table can also be supplied through the
+<code class="docutils literal notranslate"><span class="pre">hm12_path</span></code> argument.</p>
+</section>
+<section id="custom-spectral-energy-distributions">
+<h3>Custom spectral energy distributions<a class="headerlink" href="#custom-spectral-energy-distributions" title="Link to this heading">¶</a></h3>
+<p>Users can provide their own spectral luminosity tables.</p>
+<p>The input must contain two columns:</p>
+<ul class="simple">
+<li><p>Wavelength in Angstroms.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\log_{10}(L_\lambda)\)</span>, with <span class="math notranslate nohighlight">\(L_\lambda\)</span>
+in erg s^-1 Angstrom^-1.</p></li>
+</ul>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sed</span> <span class="o">=</span> <span class="n">SED</span><span class="p">(</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="s2">"custom_example"</span><span class="p">,</span>
+    <span class="n">table</span><span class="o">=</span><span class="s2">"custom_sed.dat"</span><span class="p">,</span>
+    <span class="n">distance_kpc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">sed</span><span class="o">.</span><span class="n">write_outfile</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The custom luminosity spectrum is converted to spectral
+flux density using the specified distance.</p>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">¶</a></h2>
+<p>For detailed information about the available classes,
+methods and parameters, see the <a class="reference internal" href="modules.html"><span class="doc">API Reference</span></a> reference.</p>
+<p>For installation instructions and optional MPI support,
+see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</p>
+</section>
 </section>
 
         </article>
@@ -294,8 +560,43 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Quickstart</a><ul>
+<li><a class="reference internal" href="#preparing-a-radiation-field">1. Preparing a radiation field</a><ul>
+<li><a class="reference internal" href="#starburst99-normalisation">Starburst99 normalisation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generate-cloudy-parameter-files">2. Generate Cloudy parameter files</a></li>
+<li><a class="reference internal" href="#execute-cloudy-with-pyciao">3. Execute Cloudy with pyCIAO</a><ul>
+<li><a class="reference internal" href="#mpi-execution">MPI execution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#process-heating-and-cooling-tables">4. Process heating and cooling tables</a></li>
+<li><a class="reference internal" href="#process-ionisation-fraction-tables">5. Process ionisation-fraction tables</a></li>
+<li><a class="reference internal" href="#alternative-radiation-fields">6. Alternative radiation fields</a><ul>
+<li><a class="reference internal" href="#haardt-madau-2012-background">Haardt &amp; Madau (2012) background</a></li>
+<li><a class="reference internal" href="#custom-spectral-energy-distributions">Custom spectral energy distributions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps">Next steps</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
@@ -304,5 +605,6 @@
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>
