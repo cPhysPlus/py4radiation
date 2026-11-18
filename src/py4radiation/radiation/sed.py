@@ -7,6 +7,7 @@ import numpy as np
 import numpy.typing as npt
 
 from py4radiation.utils.sb99_retrieve import SB99Table
+from py4radiation.utils.uvb_retrieve import HM2012Table
 
 # Physical constants
 SPEED_OF_LIGHT = 2.99792458e10  # cm/s
@@ -89,6 +90,7 @@ class SED:
         sfr_msun_yr: float | None = None,
         mass_msun: float | None = None,
         sb99_path: str | Path | None = None,
+        hm12_path: str | Path | None = None,
     ) -> None:
 
         if not run_name or "/" in run_name or "\\" in run_name:
@@ -99,6 +101,18 @@ class SED:
 
         if table is not None and sb99_path is not None:
             raise ValueError("Specify either a custom SED (table) or a local Starburst99 table (sb99_path), not both.")
+
+        self._hm12 = table is None and table_id.upper() == "HM12"
+
+        if self._hm12:
+            if sb99_path is not None:
+                raise ValueError("sb99_path cannot be used with H&M2012.")
+
+            if sfr_msun_yr is not None or mass_msun is not None:
+                raise ValueError("H&M2012 does not support SFR or mass scaling.")
+
+        elif hm12_path is not None:
+            raise ValueError("hm12_path requires table_id='HM12'.")
 
         self.run_name = run_name
         self.redshift = "0.0000e+00"
@@ -119,6 +133,9 @@ class SED:
                 raise ValueError("SFR and stellar mass scaling are only supported for Starburst99 models.")
 
             self.data_table = np.loadtxt(Path(table).expanduser(), ndmin=2)
+        elif self._hm12:
+            hm12 = HM2012Table(path=hm12_path)
+            self.data_table = hm12.load_uvbtable_z()
         else:
             match = re.fullmatch(r"(7|8|9|10|11|12)[a-e]", self.table_id)
 
@@ -164,7 +181,7 @@ class SED:
         if (self.data_table.ndim != 2 or self.data_table.shape[0] < 2 or self.data_table.shape[1] < 2):
             raise ValueError("SED tables must contain at least two rows and two columns.")
 
-        if self._custom_table:
+        if self._custom_table or self._hm12:
             if self.data_table.shape[1] != 2:
                 raise ValueError("Custom SED tables must contain exactly two columns: wavelength and log10 luminosity.")
 
@@ -173,13 +190,16 @@ class SED:
             self._age_column_idx = self._map_age(age_myr)
 
         wavelength = self.data_table[:, 0]
-        log_luminosity = self.data_table[:, self._age_column_idx]
+        spectrum = self.data_table[:, self._age_column_idx]
 
         if not np.all(np.isfinite(wavelength)) or np.any(wavelength <= 0):
             raise ValueError("SED wavelengths must be positive and finite")
 
-        if not np.all(np.isfinite(log_luminosity)):
+        if not np.all(np.isfinite(spectrum)):
             raise ValueError("SED log-luminosities must be finite.")
+
+        if self._hm12 and np.any(spectrum <= 0):
+            raise ValueError("H&M2012 intensities must be positive.")
 
     def _map_age(self, age: int) -> int:
         """
@@ -244,6 +264,11 @@ class SED:
         frequency = SPEED_OF_LIGHT / wavelength_cm
         energy_ryd = frequency * PLANCK_EV / RYDBERG_EV
 
+        if self._hm12:
+            j_nu = self.data_table[:, 1]
+
+            return energy_ryd, 4.0 * np.pi * j_nu
+
         log_luminosity = self.data_table[:, self._age_column_idx] + np.log10(self._luminosity_scale)
         luminosity_lambda = 10**log_luminosity
 
@@ -283,6 +308,10 @@ class SED:
         energy = energy[order]
         f_nu   = f_nu[order]
 
+        if self._hm12:
+            duplicates = np.flatnonzero(np.diff(energy) == 0)
+            energy[duplicates] *= 1.0 - 1.0e-6
+
         if np.any(np.diff(energy) <= 0):
             raise ValueError("SED photon energies must be strictly increasing.")
 
@@ -298,7 +327,10 @@ class SED:
         outpath = Path(output_dir).expanduser() / filename
         outpath.parent.mkdir(parents=True, exist_ok=True)
 
-        if self._custom_table:
+        if self._hm12:
+            source_description = "H&M2012 UV/X-Ray background at z=0"
+            normalisation_description = "# Quasars + galaxies"
+        elif self._custom_table:
             source_description = "Custom SED"
             normalisation_description = "# User-provided luminosity"
         else:
@@ -312,10 +344,15 @@ class SED:
         lines = [
             f"# {source_description}",
             normalisation_description,
-            f"# Distance = {self.distance_kpc} kpc",
-            f"# z = {self.redshift}",
-            "# E [Ryd] log10 (F_nu)",
         ]
+
+        if not self._hm12:
+            lines.append( f"# Distance = {self.distance_kpc} kpc")
+
+        lines.extend([
+             f"# z = {self.redshift}",
+            "# E [Ryd] log10 (F_nu)"
+        ])
 
         for idx, (e, log_flux) in enumerate(zip(energy, log_f_nu, strict=True)):
             command = "interpolate" if idx == 0 else "continue"
@@ -323,6 +360,8 @@ class SED:
             lines.append(f"{command} ({e:.10f} {log_flux:.10f})")
 
         lines.append(f"f(nu) = {norm_val:.14f} at 1.0 Ryd")
+        if self._hm12:
+            lines.append("illuminate isotropic")
         lines.append("")
 
         with open(outpath, "w") as f:
