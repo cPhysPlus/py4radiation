@@ -3,9 +3,9 @@ py4radiation
 
 D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.
 
-The package provides tools for generating radiation fields,
-preparing Cloudy calculations, and processing heating, cooling
-and ionisation-fraction tables.
+The package provides tools for preparing spectral energy distributions,
+preparing Cloudy calculations, and processing heating, cooling and
+ion fraction tables.
 
 The principal public classes are SED, ParameterFiles,
 IonTables and HeatingCoolingTables.
