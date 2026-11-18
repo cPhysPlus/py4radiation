@@ -119,7 +119,7 @@ class TaskManager:
         --------
         >>> manager = TaskManager(config)
         >>> for task in manager.gen_tasks():
-        ...     print(task['run_index])
+        ...     print(task['run_index]')
         """
         loop_iter = []
 

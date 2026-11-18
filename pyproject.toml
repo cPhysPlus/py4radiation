@@ -1,29 +1,66 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
 
 [project]
 name = "py4radiation"
 version = "0.1.0"
-authors = [
-  { name="Daniel Villarruel-Yanez", email="daniel.villarruel@yachaytech.edu.ec" },
-]
-description = "A package to prepare radiative heating/cooling/ion fractions tables for HD/MHD codes."
+
+description = "Generate radiative heating, cooling and ion-fraction tables for HD/MHD codes."
+
 readme = "README.md"
 requires-python = ">=3.11"
 
+license = "MIT"
+license-files = ["LICENSE"]
+
+authors = [
+  { name = "Daniel Villarruel-Yanez", email="daniel.villarruel@yachaytech.edu.ec" },
+  { name = "Wladimir E. Banda-Barragan" },
+  { name = "Benedetta Casavecchia" }
+]
+
+keywords = [
+    "astrophysics",
+    "radiative cooling",
+    "radiative heating",
+    "hydrodynamics",
+    "magnetohydrodynamics"
+]
+
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
 ]
 
 dependencies = [
     "requests>=2.31.0",
-    "numpy>=2.4.6",
-    "mpi4py >= 4.1.2",
-    "h5py >= 3.16.0"
+    "numpy>=2.0",
+    "h5py >= 3.16.0",
+    "platformdirs"
 ]
 
+[project.optional-dependencies]
+mpi = [
+    "mpi4py>=4.1.2"
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "ruff",
+    "build",
+    "twine"
+]
+
+[project.scripts]
+pyciao = "py4radiation.pyciao.pyciao:main"
+
 [project.urls]
-"Homepage" = "https://github.com/cphysplus/py4radiation"
+Homepage = "https://github.com/cphysplus/py4radiation"
+Repository = "https://github.com/cphysplus/py4radiation"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/py4radiation"]

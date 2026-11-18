@@ -8,10 +8,11 @@ import numpy as np
 
 class ParameterFiles:
     """
-    Generates parameter (.par) files for pyCIAO/CIAOLoop.
+    Generate CIAOLoop parameter files for pyCIAO.
 
-    Handles configuration for Ion Fraction maps (ib) and
-    Heating & Cooling maps (hc)
+    This class prepares configuration files for calculating
+    radiative heating and cooling maps (hc) and ionisation
+    fraction maps (ib) using Cloudy.
     """
 
     def __init__(
@@ -20,11 +21,11 @@ class ParameterFiles:
         run_name: str,
         elements: str,
         redshift: str = "0.0000e+00",
-        n_limits: tuple = (-6, 4.2),
-        T_limits: tuple = (2, 8),
-        n_spacing: float = 0.05,
+        n_limits: tuple = (-9, 4),
+        T_limits: tuple = (1, 9),
+        n_spacing: float = 0.125,
         n_points: int | None = None,
-        T_points: int = 256,
+        T_points: int = 321,
     ) -> None:
         """
         Initialise the parameter generator.
@@ -42,10 +43,10 @@ class ParameterFiles:
             Default is 0.0000e+00.
         n_limits : tuple
             Limits of the hydrogen number density range in logspace (cm^-3).
-            Default is (-6, 4.2).
+            Default is (-9, 4).
         T_limits : tuple
             Limits of the temperature range in logspace (K).
-            Default is (2, 8).
+            Default is (1, 9).
         n_spacing: float
             Spacing for hydrogen number density in logspace.
             Default is 0.05.
@@ -68,13 +69,21 @@ class ParameterFiles:
 
         if n_spacing is not None and n_points is not None:
             print("Both n_spacing and n_points were provided. Using n_spacing...")
-            n_points = None
 
         if n_spacing is not None:
+            if not np.isfinite(n_spacing) or n_spacing <= 0:
+                raise ValueError("n_spacing must be positive and finite.")
+
             self.n_spacing = n_spacing
+
         elif n_points is not None:
-            spacing = np.linspace(self.n_lo, self.n_hi, n_points)
-            self.n_spacing = np.abs(spacing[1] - spacing[0])
+            if n_points < 2:
+                raise ValueError("n_points must be at least 2.")
+
+            self.n_spacing = (self.n_hi - self.n_lo) / (n_points - 1)
+
+        else:
+            raise ValueError("Either n_spacing or n_points must be provided.")
 
         self.T_points = T_points
 
@@ -84,7 +93,7 @@ class ParameterFiles:
 
         Parameters
         ----------
-        output_subdit : str
+        output_subdir : str
             Output directory for selected mode.
         run_mode : {1, 3}
             Run (1) Heating & Cooling map or (3) Ion Fraction map.
@@ -126,7 +135,7 @@ class ParameterFiles:
             "",
         ]
 
-    def _get_loops(self, is_ib: bool) -> list[str]:
+    def _get_loops(self) -> list[str]:
         """
         Generate the loop commands section.
 
@@ -137,16 +146,15 @@ class ParameterFiles:
         """
         sed_pattern = self.root_dir / f"{self.run_name}_z*.out"
 
-        if is_ib:
-            init_cmd = f'loop [init "{sed_pattern}"] {self.redshift} 0.0001e+00'
-        else:
-            init_cmd = f'loop [init "{sed_pattern}"] {self.redshift}'
+        init_cmd = f'loop [init "{sed_pattern}"] {self.redshift}'
 
         return [
             "#####################################################",
             "####################### LOOPS #######################",
             "",
             "command stop zone 1",
+            "",
+            "command set dr 0",
             "",
             "command iterate to convergence",
             "",
@@ -184,7 +192,7 @@ class ParameterFiles:
             ]
         )
 
-        lines.extend(self._get_loops(is_ib=False))
+        lines.extend(self._get_loops())
 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
@@ -221,7 +229,7 @@ class ParameterFiles:
             ]
         )
 
-        lines.extend(self._get_loops(is_ib=True))
+        lines.extend(self._get_loops())
 
         with open(file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))

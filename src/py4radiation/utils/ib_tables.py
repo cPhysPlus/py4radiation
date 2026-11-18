@@ -42,12 +42,11 @@ class IonTables:
             List of elements for the ion fraction tables.
         """
         self.run_dir = Path(run_dir)
-        self.run_name = run_name
+        self.run_name = run_name.removesuffix(".run")
         self.elements = elements.split()
 
-        clean_run = run_name.removesuffix(".run")
-        self.runfile = Path(run_dir) / f"{clean_run}.run"
-        self.outfile = Path(run_dir) / f"{clean_run}_iontable.h5"
+        self.runfile = Path(run_dir) / f"{self.run_name}.run"
+        self.outfile = Path(run_dir) / f"{self.run_name}_iontable.h5"
 
         if not self.runfile.exists():
             raise FileNotFoundError(f"Master run file not found: {self.runfile}")
@@ -109,7 +108,7 @@ class IonTables:
         """
         logger.info(f"Processing element {element}...")
 
-        parameter_values, _, n_runs = self._parse_runfile()
+        parameter_values, parameter_names, n_runs = self._parse_runfile()
         grid_shape = [len(v) for v in parameter_values]
 
         temperature: NDArray[np.float64] | None = None
@@ -127,6 +126,13 @@ class IonTables:
                 shape = tuple(grid_shape) + ion_frac.shape
                 ion_grid = np.zeros(shape, dtype=np.float64)
 
+            else:
+                if not np.array_equal(temp, temperature):
+                    raise ValueError(f"Inconsistent temperature grid in {map_path}.")
+
+                if ion_frac.shape != ion_grid.shape[-2:]:
+                    raise ValueError(f"Inconsistent ion fraction dimension in {map_path}")
+
             idx = np.unravel_index(run_idx, grid_shape) if grid_shape else (run_idx,)
             ion_grid[idx] = ion_frac
 
@@ -134,8 +140,24 @@ class IonTables:
 
         ion_grid = np.rollaxis(ion_grid, -1)
 
+        if (len(parameter_values) != 2 or not parameter_names[1].startswith("init ")):
+            raise ValueError("Expected density and radiation-field loops for the Trident ionisation table.")
+
+        redshifts = parameter_values[1]
+
+        if len(redshifts) == 1:
+            if redshifts[0] != 0.0:
+                raise ValueError("Redshift duplication currently supports only z=0.")
+
+            ion_grid = np.repeat(ion_grid, repeats=2, axis=2)
+
+            parameter_values[1] = [0.0, 1.0e-4]
+
+            logger.info("Dubplicated the z=0 ionisation grid at z=1e-4 for Trident compatibility.")
+
         with h5py.File(self.outfile, "a") as f_out:
             ds = f_out.create_dataset(element, data=ion_grid)
+
             ds.attrs["Temperature"] = temperature
 
             for i, values in enumerate(parameter_values, start=1):

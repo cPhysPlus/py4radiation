@@ -17,7 +17,7 @@ except ImportError:
     pass
 
 from .parser import Config
-from .runner import TaskResult, execute_task, initialize_worker
+from .runner import TaskResult, execute_task, initialise_worker
 from .tasks import TaskDef, TaskManager
 
 
@@ -45,7 +45,7 @@ def setup_main_logging(outdir: str, prefix: str) -> None:
         ],
         force=True,
     )
-    logging.info(f"Log file initialized at {logfile}.")
+    logging.info(f"Log file initialised at {logfile}.")
 
 
 def write_runfile(config: Config) -> None:
@@ -124,7 +124,7 @@ def run_mpi(config: Config | None, tasks: list[TaskDef] | None) -> list[TaskResu
     if config is None or tasks is None:
         raise RuntimeError("MPI initialisation data was not received.")
 
-    initialize_worker(config, rank=RANK)
+    initialise_worker(config, rank=RANK, configure_logging=(RANK != 0))
 
     my_tasks = tasks[RANK::SIZE]
     local_results = [execute_task(t) for t in my_tasks]
@@ -148,7 +148,7 @@ def run_multiprocessing(
     logging.info(f"Starting multiprocessing pool with {nproc} processes.")
 
     with multiprocessing.Pool(
-        processes=nproc, initializer=initialize_worker, initargs=(config,)
+        processes=nproc, initializer=initialise_worker, initargs=(config,)
     ) as pool:
         results_iter = pool.imap_unordered(execute_task, tasks)
 
@@ -156,7 +156,7 @@ def run_multiprocessing(
         for i, result in enumerate(results_iter, start=1):
             final_results.append(result)
             if i % 10 == 0:
-                logging.info(f"Progress: {i + 1}/{len(tasks)} tasks completed.")
+                logging.info(f"Progress: {i}/{len(tasks)} tasks completed.")
 
     return final_results
 
@@ -191,6 +191,9 @@ def main() -> None:
         )
         args = parser.parse_args()
 
+        if args.nproc < 1:
+            raise ValueError("--nproc must be at least 1.")
+
         start_time = time.time()
 
         try:
@@ -212,12 +215,14 @@ def main() -> None:
             logging.info(f"Generated {total_tasks} Cloudy tasks.")
 
             if total_tasks == 0:
-                logging.warning("No tasks were generated. Exiting...")
-                sys.exit(0)
+                raise ValueError("No Cloudy tasks were generated.")
 
             write_runfile(config)
         except Exception as e:
-            logging.critical(f"Rank 0 initialization failed: {e}", exc_info=True)
+            logging.critical(f"Rank 0 initialisation failed: {e}", exc_info=True)
+            if is_mpi:
+                MPI.COMM_WORLD.Abort(1)
+
             sys.exit(1)
 
     final_results = []
@@ -251,6 +256,10 @@ def main() -> None:
         print("--------------------------------------------------")
         print(f"All Runs Finished at {time.asctime()}")
         print("--------------------------------------------------")
+
+        if fail > 0:
+            logging.error(f"puCIAO finished with {fail} failed task(s).")
+            sys.exit(1)
 
 
 if __name__ == "__main__":

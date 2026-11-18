@@ -383,7 +383,7 @@ class HeatingCoolingTables:
         ----------
         outdir : str or Path, optional
             Directory where the table will be saved.
-            Defaults to '.' (current directory).
+            Defaults in the directory specified by oudir.
         outfile : str, optional
             Name of the output file.
             If None, defaults to '{run_name}_cooltable.dat'.
@@ -424,15 +424,21 @@ class HeatingCoolingTables:
             with tmp_path.open("w", encoding="utf-8") as output:
                 output.write(f"{header}\n")
 
+                reference_temperatures = None
+
                 for record in records:
                     map_path = self.run_dir / f"{self.run_name}_run{record.run_id}.dat"
                     data = self._process_map(map_path, record)
-                    np.savetxt(
-                        output,
-                        data,
-                        fmt=formats,
-                        delimiter="  ",
-                    )
+
+                    temperature_col = len(self.loop_columns)
+                    temperatures = data[:, temperature_col]
+
+                    if reference_temperatures is None:
+                        reference_temperatures = temperatures.copy()
+                    elif not np.array_equal(temperatures, reference_temperatures):
+                        raise ValueError(f"Inconsistent temperature grid in {map_path}.")
+
+                    np.savetxt(output, data, fmt=formats, delimiter="  ")
 
             tmp_path.replace(outpath)
 

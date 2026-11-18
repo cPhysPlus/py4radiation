@@ -2,10 +2,11 @@
 
 from pathlib import Path
 
+import re
 import numpy as np
 import numpy.typing as npt
 
-from py4radiation import data
+from py4radiation.utils.sb99_retrieve import SB99Table
 
 # Physical constants
 SPEED_OF_LIGHT = 2.99792458e10  # cm/s
@@ -17,7 +18,7 @@ ANGSTROM_TO_CM = 1.0e-8  # cm
 
 class SED:
     """
-    A class to load, process and format SEDs for pyCIAO.
+    Load, process and format spectral energy distributions for pyCIAO.
 
     This class handles the conversion of Leitherer et al. (1999) style
     SED tables into pyCIAO/Cloudy-readable formats.
@@ -25,84 +26,205 @@ class SED:
     For scaling, consider an object of interest located at a user-specified
     distance from the radiation source.
 
+    Parameters
+    ----------
+    run_name : str
+        Identifier used for the output filename.
+    table_id : str, optional
+        Starburst99 figure identifier, e.g. '8b' or '10b'.
+        Ignored if custom table is provided.
+        Default is '8b'.
+    table : str, Path or None, optional
+        Path to a custom SED table containing two columns:
+        [1] wavelength in Angstroms
+        [2] log10 luminosity in erg s^-1 Angstrom^-1.
+        If None, retrieve the specified Starburst99 table.
+    distance_kpc : float, optional
+        Distance from the radiation source in kiloparsecs.
+        Default is 1.0.
+    age_myr : int, optional
+        Stellar population age in Myr. Used to select the
+        corresponding Starburst99 column. Ignored for custom
+        tables.
+        Default is 3.
+    sfr_msun_yr : float or None, optional
+        Star formation rate in solar masses per year,
+        this parameter scales the SED of continuous star
+        formation models.
+    mass_msun: float or None, optional
+        Initial mass in solar masses, this parameter
+        scales the SED of instantaneous star formation models.
+    sb99_path : string, Path or None, optional
+        Path to a locally stored Starburst99 model.
+
     Attributes
     ----------
     run_name : str
-        Name of the run, used for output filenames.
+        Identifier used for the output files.
+    table_id : str or None
+        Starburst99 figure identifier.
+    distance_kpc : float
+        Distance from the radiation source in kiloparsecs.
     distance_cm : float
-        Distance of the object of interest to the source in cm.
-    data_table : np.NDArray[np.float64]
-        Raw loaded SED data table.
-    redshift : float
-        Redshift (z) of the source.
-        For this version, only consider the near Universe (z=0.0000e+00).
+        Distance from the radiation source in centimetres.
+    data_table : numpy.ndarray
+        SED table with wavelengths in the first column.
+    age_myr : int
+        Requested stellar population age.
+    redshift : str
+        Redshift identifier, currently fixed at z = 0.
+
+    References
+    ----------
+    Leitherer, C., et al. (1999), ApJS, 123, 3.
     """
 
     def __init__(
         self,
         run_name: str,
-        custom_table: bool = False,
-        table_id: data.TableID = "fig2a",
+        table_id: str = "8b",
         table: str | Path | None = None,
-        distance_kpc: float = 1,
+        distance_kpc: float = 1.0,
         age_myr: int = 3,
+        sfr_msun_yr: float | None = None,
+        mass_msun: float | None = None,
+        sb99_path: str | Path | None = None,
     ) -> None:
-        """
-        Initialise the SED processor.
 
-        Parameters
-        ----------
-        run_name : str
-            A unique identifier for the run.
-        custom_table : bool, optional
-            If a custom table (outside the Sb99 tables) is used.
-            Default is False.
-        table_id : data.TableID, optional
-            The identifier of a Starburst99 SED table to load.
-            Default is 'fig2a'.
-        table : str | Path
-            The path to a custom table with only two columns:
-            [wavelength (in Angstroms)] [Log10 Luminosity (in erg/s/Angstrom)].
-        distance_kpc : float
-            Distance to the radiation source in kiloparsecs (1 kpc = 3.086e+21 cm).
-        age_myr : int, optional
-            Age of the starburst in Myr. Used to select the specific column
-            in the time-evolution SB99 SED table. Default is 3.
-        """
+        if not run_name or "/" in run_name or "\\" in run_name:
+            raise ValueError("run_name must be a non-empty filename identifier.")
+
+        if not np.isfinite(distance_kpc) or distance_kpc <= 0:
+            raise ValueError("distance_kpc must be a positive, finite number.")
+
+        if table is not None and sb99_path is not None:
+            raise ValueError("Specify either a custom SED (table) or a local Starburst99 table (sb99_path), not both.")
+
         self.run_name = run_name
         self.redshift = "0.0000e+00"
+        self.age_myr  = age_myr
 
-        self.distance_cm = distance_kpc * 1000 * PARSEC_TO_CM
+        self.distance_kpc = distance_kpc
+        self.distance_cm = distance_kpc * 1e3 * PARSEC_TO_CM
 
-        if custom_table:
-            self.data_table = np.loadtxt(str(table))
+        self._custom_table = table is not None
+        self.table_id = None if self._custom_table else table_id
+
+        self.sfr_msun_yr = None
+        self.mass_msun = None
+        self._luminosity_scale = 1.0
+
+        if self._custom_table:
+            if sfr_msun_yr is not None or mass_msun is not None:
+                raise ValueError("SFR and stellar mass scaling are only supported for Starburst99 models.")
+
+            self.data_table = np.loadtxt(Path(table).expanduser(), ndmin=2)
+        else:
+            match = re.fullmatch(r"(7|8|9|10|11|12)[a-e]", self.table_id)
+
+            if match is None:
+                raise ValueError(f"Unsupported Starburst99 table: {self.table_id}. Expected a stellar-only model from Figures 7-12.")
+
+            figure = int(match.group(1))
+
+            if figure in (8, 10, 12):
+                if mass_msun is not None:
+                    raise ValueError("Figure {figure} is a continuous star-formation model. Specify sfr_msun_yr instead of mass_msun.")
+
+                sfr = 1.0 if sfr_msun_yr is None else float(sfr_msun_yr)
+
+                if not np.isfinite(sfr) or sfr <= 0:
+                    raise ValueError("sfr_msun_yr must be positive and finite.")
+
+                self.sfr_msun_yr = sfr
+                self._luminosity_scale = sfr / 1.0
+
+            else:
+                if sfr_msun_yr is not None:
+                    raise ValueError("Figure {figure} is an instantaneous-burst model. Specify mass_msun instead of sfr_msun_yr.")
+
+                mass = 1e6 if mass_msun is None else float(mass_msun)
+
+                if not np.isfinite(mass) or mass <=0:
+                    raise ValueError("mass_msun must be positive and finite.")
+
+                self.mass_msun = mass
+
+                self._luminosity_scale = mass / 1e6
+
+            if sb99_path is not None:
+                sb99_path = Path(sb99_path).expanduser().resolve()
+
+                if not sb99_path.is_file():
+                    raise FileNotFoundError(f"Starburst99 table not found: {sb99_path}")
+
+            sb99 = SB99Table(figure=table_id, path=sb99_path)
+            self.data_table = sb99.load_sb99table()
+
+        if (self.data_table.ndim != 2 or self.data_table.shape[0] < 2 or self.data_table.shape[1] < 2):
+            raise ValueError("SED tables must contain at least two rows and two columns.")
+
+        if self._custom_table:
+            if self.data_table.shape[1] != 2:
+                raise ValueError("Custom SED tables must contain exactly two columns: wavelength and log10 luminosity.")
+
             self._age_column_idx = 1
         else:
-            self.data_table = data.load_table(table_id)
             self._age_column_idx = self._map_age(age_myr)
 
-        self.age_myr = age_myr
+        wavelength = self.data_table[:, 0]
+        log_luminosity = self.data_table[:, self._age_column_idx]
+
+        if not np.all(np.isfinite(wavelength)) or np.any(wavelength <= 0):
+            raise ValueError("SED wavelengths must be positive and finite")
+
+        if not np.all(np.isfinite(log_luminosity)):
+            raise ValueError("SED log-luminosities must be finite.")
 
     def _map_age(self, age: int) -> int:
         """
-        Map the starburst age (Myr) to the specific column index.
+        Map stellar population age to a Starburst99 column.
 
-        Logic follows the specific format of Leitherer et al. (1999) tables.
+        The mapping assumes the original age sequence:
+        1-20 Myr in steps of 1 Myr,
+        30-100 Myr in steps of 10 Myr,
+        and 200-900 Myr in steps of 100 Myr.
+
+        Parameters
+        ----------
+        age : int
+            Stellar population age in Myr.
+
+        Returns
+        -------
+        int
+            Column index corresponding to the requested age.
+
+        Raises
+        ------
+        ValueError
+            If the age is unsupported or its column is absent.
         """
-        if 30 <= age <= 100:
-            idx = (age // 10) + 18
-        elif 200 <= age <= 900:
-            idx = (age // 100) + 27
-        else:
-            idx = age
+        ages = (list(range(1, 21)) + list(range(30, 101, 10)) + list(range(200, 901, 100)))
+
+        age_to_column = {value: idx for idx, value in enumerate(ages, start=1)}
+
+        if age not in age_to_column:
+            raise ValueError(
+                f"Unsupported Starburst99 age: {age} Myr. "
+                f"Available ages: {ages}"
+            )
+
+        idx = age_to_column[age]
 
         if idx >= self.data_table.shape[1]:
             raise ValueError(
-                f"Calculated column index {idx} for age {age} Myr "
-                f"exceeds table dimensions ({self.data_table.shape[1]} columns)."
+                f"Age {age} Myr corresponds to column {idx}, "
+                f"but the table contains only "
+                f"{self.data_table.shape[1]} columns."
             )
 
-        return int(idx)
+        return idx
 
     def get_sed(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """
@@ -120,14 +242,17 @@ class SED:
         wavelength_cm = wavelength_angstrom * ANGSTROM_TO_CM
 
         frequency = SPEED_OF_LIGHT / wavelength_cm
-        energy_ryd = (frequency * PLANCK_EV) / RYDBERG_EV
+        energy_ryd = frequency * PLANCK_EV / RYDBERG_EV
 
-        log_luminosity = self.data_table[:, self._age_column_idx]
+        log_luminosity = self.data_table[:, self._age_column_idx] + np.log10(self._luminosity_scale)
         luminosity_lambda = 10**log_luminosity
 
         c_angstrom_s = SPEED_OF_LIGHT * 1e8
         luminosity_nu = luminosity_lambda * (wavelength_angstrom**2) / c_angstrom_s
         f_nu = luminosity_nu / (4 * np.pi * self.distance_cm**2)
+
+        if not np.all(np.isfinite(f_nu)) or np.any(f_nu <= 0):
+            raise ValueError("Calculated SED contains non-positive or non-finite fluxes.")
 
         return energy_ryd, f_nu
 
@@ -139,47 +264,65 @@ class SED:
         ----------
         output_dir : str or Path
             Directory where the output file will be saved.
+            Default is the current working directory.
 
         Returns
         -------
         Path
-            The path to the generated file.
+            Path to the generated file.
 
         Raises
         ------
         ValueError
-            If SED coverage does not include 1 Ryd.
+            If SED coverage does not include 1 Ryd
+            or contains duplicate energy values.
         """
         energy, f_nu = self.get_sed()
+        order = np.argsort(energy)
+
+        energy = energy[order]
+        f_nu   = f_nu[order]
+
+        if np.any(np.diff(energy) <= 0):
+            raise ValueError("SED photon energies must be strictly increasing.")
+
+        if not (energy[0] <= 1.0 <= energy[-1]):
+            raise ValueError("SED energy range must include 1 Ryd.")
+
         log_f_nu = np.log10(f_nu)
 
-        if energy[0] > energy[-1]:
-            energy = energy[::-1]
-            log_f_nu = log_f_nu[::-1]
-
-        idx_1ryd = np.argmin(np.abs(energy - 1.0))
-
-        if not (0.99 <= energy[idx_1ryd] <= 1.01):
-            raise ValueError(
-                f"SED coverage does not include 1 Ryd (closest: {energy[idx_1ryd]:.4f})."
-            )
-
-        norm_val = log_f_nu[idx_1ryd]
+        norm_val = np.interp(0.0, np.log10(energy), log_f_nu)
 
         filename = f"{self.run_name}_z{self.redshift}.out"
-        outpath = Path(output_dir) / filename
+
+        outpath = Path(output_dir).expanduser() / filename
+        outpath.parent.mkdir(parents=True, exist_ok=True)
+
+        if self._custom_table:
+            source_description = "Custom SED"
+            normalisation_description = "# User-provided luminosity"
+        else:
+            source_description = (f"Starburst99 SED fig{self.table_id} at {self.age_myr} Myr")
+
+            if self.sfr_msun_yr is not None:
+                normalisation_description = (f"# SFR = {self.sfr_msun_yr:.6g} Msun yr^-1")
+            else:
+                normalisation_description = (f"# Initial stellar mass = {self.mass_msun:.6g} Msun")
 
         lines = [
-            f"# SED profile at {self.age_myr} Myr",
+            f"# {source_description}",
+            normalisation_description,
+            f"# Distance = {self.distance_kpc} kpc",
             f"# z = {self.redshift}",
             "# E [Ryd] log10 (F_nu)",
         ]
 
-        for i in range(len(energy)):
-            command = "interpolate" if i == 0 else "continue"
-            lines.append(f"{command} ({energy[i]:.10f} {log_f_nu[i]:.10f})")
+        for idx, (e, log_flux) in enumerate(zip(energy, log_f_nu, strict=True)):
+            command = "interpolate" if idx == 0 else "continue"
 
-        lines.append(f"f(nu) = {norm_val:.14f} at {energy[idx_1ryd]:.10f} Ryd")
+            lines.append(f"{command} ({e:.10f} {log_flux:.10f})")
+
+        lines.append(f"f(nu) = {norm_val:.14f} at 1.0 Ryd")
         lines.append("")
 
         with open(outpath, "w") as f:

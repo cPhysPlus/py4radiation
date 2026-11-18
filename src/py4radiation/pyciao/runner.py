@@ -158,9 +158,13 @@ def setup_worker_logging(rank: int | None = None) -> None:
     )
 
 
-def initialize_worker(config: Config, rank: int | None = None) -> None:
+def initialise_worker(
+    config: Config,
+    rank: int | None = None,
+    configure_logging: bool = True,
+) -> None:
     """
-    Initialize the worker process with configuration and logging.
+    Initialise the worker process with configuration and logging.
 
     Parameters
     ----------
@@ -171,7 +175,9 @@ def initialize_worker(config: Config, rank: int | None = None) -> None:
     """
     global WORKER_CONFIG
     WORKER_CONFIG = config
-    setup_worker_logging(rank)
+
+    if configure_logging:
+        setup_worker_logging(rank)
 
 
 # ---------------------------------------------------------------------
@@ -197,7 +203,7 @@ def execute_task(task: TaskDef) -> TaskResult:
         return {
             "run_index": task.get("run_index", -1),
             "status": "failed",
-            "error": "Worker not initialized",
+            "error": "Worker not initialised",
         }
 
     run_index = task["run_index"]
@@ -208,19 +214,30 @@ def execute_task(task: TaskDef) -> TaskResult:
 
     try:
         if run_mode == 1:
-            heatingcooling(task, WORKER_CONFIG)
+            n_failed = heatingcooling(task, WORKER_CONFIG)
         elif run_mode == 3:
-            ionfractions(task, WORKER_CONFIG)
+            n_failed = ionfractions(task, WORKER_CONFIG)
         else:
             raise ValueError(f"Unsupported run mode: {run_mode}.")
 
         elapsed = time.time() - start_time
+
+        if n_failed > 0:
+            error = (
+                f"{n_failed} temperature calculation(s) failed "
+                f"or could not be processed."
+            )
+            logging.error(f"Run {run_index} FAILED in {elapsed:.2f} s: {error}")
+
+            return {"run_index": run_index, "status": "failed", "error": error}
+
         logging.info(f"Run {run_index} FINISHED in {elapsed:.2f} s.")
 
         return {"run_index": run_index, "status": "success", "error": None}
 
     except Exception as e:
         logging.error(f"Run {run_index} FAILED", exc_info=True)
+
         return {"run_index": run_index, "status": "failed", "error": str(e)}
 
 
@@ -308,6 +325,12 @@ def _get_temperature_loop(config: Config) -> list[float]:
         tmin = float(par["coolingMapTmin"])
         tmax = float(par["coolingMapTmax"])
 
+        if not (np.isfinite(tmin) and np.isfinite(tmax)):
+            raise ValueError("Temperature limits must be finite.")
+
+        if tmin <= 0 or tmax < tmin:
+            raise ValueError("Temperature limits must be positive and increasing.")
+
         tpts = par.get("coolingMapTpoints")
         tlog = par.get("coolingMapdLogT")
 
@@ -328,6 +351,10 @@ def _get_temperature_loop(config: Config) -> list[float]:
 
         elif tlog:
             step = float(tlog)
+
+            if not np.isfinite(step) or step <= 0:
+                raise ValueError("coolingMapdLogT must be positive and finite")
+
             current_t = tmin
             while current_t <= tmax * (1 + 1e-9):
                 temperatures.append(current_t)
@@ -339,7 +366,7 @@ def _get_temperature_loop(config: Config) -> list[float]:
         return temperatures
 
     except Exception as e:
-        raise ValueError(f"Error initializing temperature loop: {e}") from e
+        raise ValueError(f"Error initialising temperature loop: {e}") from e
 
 
 def _get_loops(task: TaskDef, config: Config) -> list[str]:
@@ -396,8 +423,8 @@ def _get_cooling(filepath: Path) -> tuple[float, float]:
                 if len(parts) >= 4:
                     return float(parts[2]), float(parts[3])
         raise ValueError("No valid data line found.")
-    except Exception:
-        return 0.0, 0.0
+    except Exception as e:
+        raise ValueError(f"Failed to parse cooling data from {filepath}.") from e
 
 
 def _get_mmw(abunfile: Path, ionsfile: Path) -> float:
@@ -513,18 +540,20 @@ def _get_ion_fraction(ionsfile: Path, elements: list[str]) -> dict[str, list[flo
 
                         elements_data[symbol] = logfracs[:expected_ions]
 
-            if symbol not in elements_data:
-                continue
-
         return elements_data
 
     except Exception as e:
         raise OSError(f"Failed to parse ion fractions from {ionsfile}: {e}") from e
 
 
-def heatingcooling(task: TaskDef, config: Config) -> None:
+def heatingcooling(task: TaskDef, config: Config) -> int:
     """
     Execute Mode 1: Heating and Cooling Maps.
+
+    Returns
+    -------
+    int
+        Number of temperature calculations that failed.
     """
     key_name = task["key_name"]
     datfile_path = Path(f"{key_name}.dat")
@@ -568,6 +597,8 @@ def heatingcooling(task: TaskDef, config: Config) -> None:
     temperatures = _get_temperature_loop(config)
     scale_factor = int(config.params.get("coolingScaleFactor", 1))
 
+    n_failed = 0
+
     for temp in temperatures:
         commands = list(task["base_commands"])
 
@@ -585,6 +616,8 @@ def heatingcooling(task: TaskDef, config: Config) -> None:
         heating, cooling, mmw = 0.0, 0.0, 0.0
 
         if crashed:
+            n_failed += 1
+
             logging.warning(
                 f"Run {task['run_index']}, T={temp:.2e} K: Cloudy crashed. Writing zeros ... "
             )
@@ -592,25 +625,41 @@ def heatingcooling(task: TaskDef, config: Config) -> None:
         else:
             try:
                 hden, eden = _get_physical_conditions(temp_physfile)
+
+                if not np.isfinite(hden) or hden <= 0:
+                    raise ValueError("Invalid hydrogen density in Cloudy output.")
+
                 heating, cooling = _get_cooling(temp_coolfile)
 
                 if scale_factor == 1:
                     factor = hden * hden
                 elif scale_factor == 2:
+                    if not np.isfinite(eden) or eden <= 0:
+                        raise ValueError("Invalid electron density in Cloudy output.")
+
                     factor = hden * eden
                 else:
                     raise ValueError(f"Invalid coolingScaleFactor: {scale_factor}")
 
-                if factor > 0:
-                    heating /= factor
-                    cooling /= factor
+                if not np.isfinite(factor) or factor <= 0:
+                    raise ValueError("Invalid density normalisation factor.")
+
+                heating /= factor
+                cooling /= factor
 
                 mmw = _get_mmw(temp_abunfile, temp_ionsfile)
 
+                if not np.isfinite(mmw) or mmw <= 0:
+                    raise ValueError("Invalid mean molecular weight.")
+
             except Exception as e:
+                n_failed += 1
+
                 logging.error(
                     f"Run {task['run_index']}, T={temp:.2e} K: Post-processing failed: {e}"
                 )
+
+                heating, cooling, mmw = 0.0, 0.0, 0.0
 
         with open(datfile_path, "a") as f:
             f.write(f"{temp:.6e}\t{heating:.6e}\t{cooling:.6e}\t{mmw:.6f}\n")
@@ -618,10 +667,16 @@ def heatingcooling(task: TaskDef, config: Config) -> None:
     for f in temp_toclean:
         f.unlink(missing_ok=True)
 
+    return n_failed
 
-def ionfractions(task: TaskDef, config: Config) -> None:
+def ionfractions(task: TaskDef, config: Config) -> int:
     """
     Execute Mode 3: Ionisation Fraction Maps.
+
+    Returns
+    -------
+    int
+        Number of temperature calculations that failed.
     """
     key_name = task["key_name"]
 
@@ -666,6 +721,7 @@ def ionfractions(task: TaskDef, config: Config) -> None:
             f.write("#Te\t" + "\t".join(f"{col}" for col in ion_cols) + "\n")
 
     temperatures = _get_temperature_loop(config)
+    n_failed = 0
 
     for temp in temperatures:
         commands = list(task["base_commands"])
@@ -678,6 +734,8 @@ def ionfractions(task: TaskDef, config: Config) -> None:
         )
 
         all_ion_fractions = {}
+        failed = crashed
+
         if crashed:
             logging.warning(f"Run {task['run_index']}, T={temp:.2e} K: Cloudy crashed")
             for el in dat_files:
@@ -688,6 +746,8 @@ def ionfractions(task: TaskDef, config: Config) -> None:
             try:
                 all_ion_fractions = _get_ion_fraction(temp_ionsfile, elements)
             except Exception as e:
+                failed = True
+
                 logging.error(
                     f"Run {task['run_index']}, T={temp:.2e} K: Ion fraction parsing failed: {e}"
                 )
@@ -698,9 +758,28 @@ def ionfractions(task: TaskDef, config: Config) -> None:
         log_temp = np.log10(temp)
         for el, f_path in dat_files.items():
             fractions = all_ion_fractions.get(el, [])
+            expected = ELEMENT_DATA["atomicNumber"][el] + 1
+
+            if len(fractions) != expected:
+                failed = True
+
+                logging.error(
+                    f"Run {task['run_index']}, T={temp:.2e} K: "
+                    f"Incomplete ionisation data for {el}. "
+                    f"Expected {expected} fractions, "
+                    f"received {len(fractions)}."
+                )
+
+                all_ion_fractions[el] = [-30.0] * expected
+
             with open(f_path, "a") as f:
                 fracs = [f"{frac:.3f}" for frac in fractions]
                 f.write(f"{log_temp:.3f}\t" + "\t".join(fracs) + "\n")
 
+        if failed:
+            n_failed +=1
+
     for f in temp_toclean:
         f.unlink(missing_ok=True)
+
+    return n_failed

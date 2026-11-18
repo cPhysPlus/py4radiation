@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 RE_FOR: Final[re.Pattern] = re.compile(
     r"\((-?\d*\.?\d*)\;(-?\d*\.?\d*)\;(-?\d*\.?\d*)\)"
 )
-RE_CMD: Final[re.Pattern] = re.compile(r"\[(.+?)\](.+)")
+RE_CMD: Final[re.Pattern] = re.compile(r"^loop\s+\[(.+?)\]\s+(.+)$", re.IGNORECASE)
 RE_SET: Final[re.Pattern] = re.compile(r"loop\s*\{")
 RE_PAR: Final[re.Pattern] = re.compile(r"^([a-zA-Z0-9_]+)\s*[=\s]\s*(.+)")
 
@@ -59,7 +59,7 @@ class Config:
 
         self.modes: dict[int, str] = {1: "HeatingCoolingMap", 3: "IonFractionMap"}
 
-    def _parse_loops(self, val: str) -> NDArray[np.float64]:
+    def _parse_loops(self, val: str) -> NDArray[np.float64] | list[str]:
         """
         Parse a loop value string into a range or a list of values.
 
@@ -96,10 +96,8 @@ class Config:
             if step == 0:
                 raise ValueError(f"Invalid step (0) in loop: {val}.")
 
-            if (end - start) * step < 0 and step > 0:
-                raise ValueError(f"Infinite loop detected: {val}.")
-            if (end - start) * step > 0 and step < 0:
-                raise ValueError(f"Infinite loop detected: {val}.")
+            if (end - start) * step < 0:
+                raise ValueError(f"Loop step points away from the endpoint: {val}.")
 
             return np.arange(start, end + step, step)
 
@@ -220,12 +218,10 @@ class Config:
                         val = match.group(2).strip()
                         self.params[key] = val
                     else:
-                        logging.debug(
-                            f"Line {n}: Unrecognized format, skipping: {line_content}"
-                        )
+                        logging.debug(f"Line {n}: Unrecognized format, skipping: {rline}")
                         continue
             except Exception as e:
-                logging.error(f'Error parsing line {n}: "{rline}" -> {e}.')
+                raise ValueError(f"Error parsing line {n}: {rline!r}") from e
 
         self._validate_config()
         logging.info("Configuration parsed succesfully.")
