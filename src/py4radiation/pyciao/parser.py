@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Parse pyCIAO parameter files and Cloudy loop expressions.
+"""
+
 import logging
 import re
 from pathlib import Path
@@ -18,20 +22,32 @@ RE_PAR: Final[re.Pattern] = re.compile(r"^([a-zA-Z0-9_]+)\s*[=\s]\s*(.+)")
 
 class Config:
     """
-    Parses the parameter file to configure pyCIAO and Cloudy execution.
+    Parse and validate configuration files for pyCIAO.
+
+    The parser reads the configuration parameters, constant
+    Cloudy commands and loop definitions from a .par file.
+
+    The resulting configuration is used by TaskManager to
+    generate individual Cloudy calculation tasks.
+
+    Parameters
+    ----------
+    parfile : str or Path
+        Path to the pyCIAO parameter file.
 
     Attributes
     ----------
     parfile : Path
-        Path to the parameter file.
+        Path to the input parameter file.
     params : dict[str, Any]
-        General configuration parameters.
+        Configuration parameters and their values.
     const_cmd : list[str]
-        Cloudy commands to be executed in every run.
-    loops_cmd : list[str]
-        Loop parameters and values
+        Cloudy instructions executed in every calculation.
+    loops_cmd : list[dict[str, Any]]
+        Ordered loop definitions containing the command,
+        values and loop type.
     modes : dict[int, str]
-        Supported run modes.
+        Supported Cloudy execution modes.
     """
 
     def __init__(self, parfile: str | Path) -> None:
@@ -61,10 +77,10 @@ class Config:
 
     def _parse_loops(self, val: str) -> NDArray[np.float64] | list[str]:
         """
-        Parse a loop value string into a range or a list of values.
+        Expand a loop expression into its requested values.
 
-        Handles 'for-loop' syntax (start;end;step) or standard space/comma
-        separated lists.
+        The method supports numerical ranges of the form
+        (start;end;step), as well as explicitly listed values.
 
         Parameters
         ----------
@@ -73,9 +89,9 @@ class Config:
 
         Returns
         -------
-        NDArray[np.float64] | list[str]
-            Numpy array of values if range is detected, otherwise list of
-            string values.
+        numpy.ndarray[np.float64] or list[str]
+            Numpy array of values if range is detected,
+            otherwise list of string values.
 
         Raises
         ------
@@ -165,14 +181,20 @@ class Config:
 
     def parse(self) -> None:
         """
-        Read and parse the parameter file.
+        Parse the parameter file and populate the configuration.
+
+        The method separates constant Cloudy commands from
+        loop definitions and general configuration parameters.
+
+        Parsed values are subsequently validated.
 
         Raises
         ------
         ValueError
-            If line syntax is incorrect.
-        IOError
-            If file reading fails.
+            If a parameter-file line is malformed or
+            configuration validation fails.
+        OSError
+            If the parameter file cannot be read.
         """
         logging.info(f"Parsing parameter file: {self.parfile}.")
 

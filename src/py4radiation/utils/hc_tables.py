@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+PRocess radiative heating and cooling tables for HD/MHD codes.
+"""
+
 from __future__ import annotations
 
 import logging
@@ -17,7 +21,21 @@ logger = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class LoopColumn:
     """
-    Describe one loop parameter from the pyCIAO `.run` file.
+    Describe a parameter column from a pyCIAO .run file.
+
+    Parameters
+    ----------
+    command : str
+        Cloudy loop-command name to identify, such as 'hden'.
+    output_header : str
+        Column heading in the generated heating/cooling table.
+    input_scale : {'linear', 'log10'}, optional
+        Interpretation of the values recorded in the .run file.
+        Defaults to 'linear'.
+    factor : float, optional
+        Multiplicative factor applied after converting the
+        input parameter to its requested scale.
+        Defaults to 1.0.
     """
 
     command: str
@@ -29,7 +47,15 @@ class LoopColumn:
 @dataclass(frozen=True)
 class RunRecord:
     """
-    One data row parsed from the pyCIAO `.run` file.
+    Represent one numbered run from a pyCIAO .run file.
+
+    Attributes
+    ----------
+    run_id : int
+        Run number used to identify the corresponding Cloudy map.
+    parameters : dict[str, str]
+        Dictionary mapping selected loop-command headers to
+        their original text values.
     """
 
     run_id: int
@@ -38,18 +64,47 @@ class RunRecord:
 
 class HeatingCoolingTables:
     """
-    Process and format heating and cooling tables for HD/MHD codes.
+    Combine radiative heating and cooling maps into a single table.
 
-    This class reads the outputs of pyCIAO to generate a single table
-    containing hydrogen number density, temperature, heating
-    and cooling rates and mean molecular weight.
+    This class reads the master pyCIAO .run file and the individual
+    heating/cooling maps produced by Cloudy.
+
+    For the default configuration, the output contains:
+
+        1. Hydrogen number density [cm^-3].
+        2. Temperature [K].
+        3. Heating coefficient [erg cm^3 s^-1].
+        4. Cooling coefficient [erg cm^3 s^-1].
+        5. Mean molecular weight [amu].
+
+    The coefficient units above assume coolingScaleFactor=1,
+    corresponding to normalisation of the volumetric heating
+    and cooling rates by n_H**2.
+
+    Other coolingScaleFactor values require the appropriate
+    interpretation of the resulting coefficients.
+
+    Parameters
+    ----------
+    run_dir : str or Path
+        Directory containing the master .run file and
+        heating/cooling maps.
+    run_name : str
+        Common simulation identifier.
+        The '.run' suffix may be supplied optionally.
+    loop_columns : Sequence[LoopColumn] or None, optional
+        Loop parameters to include in the final table.
+        By default, the 'hden' parameter is converted from
+        logarithmic to linear hydrogen number density.
 
     Attributes
     ----------
     run_dir : Path
-        Directory containing the pyCIAO run file and data maps.
+        Directory containing the input files.
     run_name : str
-        The common identifier (stem) of the pyCIAO run.
+        Common identifier for the simulation run.
+    loop_columns : tuple[LoopColumn, ...]
+        Selected loop parameters included in the output.
     """
 
     DEFAULT_LOOP_COLUMNS: tuple[LoopColumn, ...] = (
@@ -68,19 +123,6 @@ class HeatingCoolingTables:
     ) -> None:
         """
         Initialise the processor with the location and ID of the run.
-
-        Parameters
-        ----------
-        run_dir : str or Path
-            The folder containing the pyCIAO run files.
-        run_name : str
-            The unique identifier for the run.
-            The code expects to find '{run_name}.run' and associated
-            '{run_name}_runX.dat' files in the run_dir.
-        loop_columns
-            Loop parameters to copy into the final table.
-            By default, the logarithmic `hden` value is converted to linear
-            number density.
         """
         self.run_dir = Path(run_dir).expanduser()
         self.run_name = run_name.removesuffix(".run")
@@ -111,21 +153,68 @@ class HeatingCoolingTables:
     @staticmethod
     def _split_tabfields(line: str) -> list[str]:
         """
-        Split a tabular .run file preserving spaces in commands.
+        Split a tab-separated .run file row into individual fields.
+
+        Spaces within Cloudy commands are preserved.
+
+        Parameters
+        ----------
+        line : str
+            Text row from the master .run file.
+
+        Returns
+        -------
+        list[str]
+            Individual fields in their original order.
         """
+
         return [field.strip() for field in line.rstrip("\n").split("\t")]
 
     @staticmethod
     def _command_word(command_header: str) -> str:
         """
-        Return the first word of a loop-command header.
+        Extract the first word of a Cloudy loop-command header.
+
+        Parameters
+        ----------
+        command_header : str
+            Full loop-command header.
+
+        Returns
+        -------
+        str
+            Case-insensitive command keyword, converted to lower case.
+            Returns an empty string if the header contains no words.
         """
         parts = command_header.strip().split(maxsplit=1)
         return parts[0].casefold() if parts else ""
 
     def _read_run_file(self, runfile: Path) -> list[RunRecord]:
         """
-        Parse the tabular section of a pyCIAO run file.
+        Parse the tabular section of a pyCIAO .run file.
+
+        The method identifies the table header, selects the requested
+        loop parameters and constructs one record per numbered run.
+
+        The ordering of the original run file is preserved.
+
+        Parameters
+        ----------
+        runfile : Path
+            Path to the master pyCIAO .run file.
+
+        Returns
+        -------
+        list[RunRecord]
+            Numbered run records in their original order.
+
+        Raises
+        ------
+        OSError
+            If the run file cannot be read.
+        ValueError
+            If the header, parameter columns, run numbers or
+            tab-separated rows are malformed.
         """
         try:
             lines = runfile.read_text(encoding="utf-8").splitlines()
@@ -238,7 +327,26 @@ class HeatingCoolingTables:
 
     def _get_loop_value(self, record: RunRecord, column: LoopColumn) -> float:
         """
-        Extract and convert one requested loop value.
+        Extract and convert a selected loop-parameter value.
+
+        Parameters
+        ----------
+        record : RunRecord
+            Numbered run containing the original parameter values.
+        column : LoopColumn
+            Parameter definition specifying the command name,
+            input scale and multiplicative conversion factor.
+
+        Returns
+        -------
+        float
+            Converted numerical parameter value.
+
+        Raises
+        ------
+        ValueError
+            If the requested parameter is missing, ambiguous,
+            non-numeric or non-finite.
         """
         command_key = column.command.strip().casefold()
         matches = [
@@ -293,6 +401,36 @@ class HeatingCoolingTables:
     def _load_map(map_path: Path) -> NDArray[np.float64]:
         """
         Load and validate one heating/cooling map.
+
+        The input file must contain at least four columns:
+        temperature, heating coefficient, cooling coefficient
+        and mean molecular weight.
+
+        The method checks for missing or malformed data,
+        non-finite values, non-positive temperatures and mean
+        molecular weights, and negative heating or cooling values.
+
+        Temperature rows are sorted into increasing order when
+        necessary. Duplicate temperatures are rejected.
+
+        Parameters
+        ----------
+        map_path : Path
+            Path to the heating/cooling map.
+
+        Returns
+        -------
+        numpy.ndarray
+            Validated two-dimensional array containing the
+            first four physical columns, sorted by temperature.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the input map does not exist.
+        ValueError
+            If the file is empty, malformed or contains
+            invalid numerical values.
         """
         if not map_path.is_file():
             raise FileNotFoundError(f"Missing data map: {map_path}")
@@ -356,7 +494,23 @@ class HeatingCoolingTables:
 
     def _process_map(self, map_path: Path, record: RunRecord) -> NDArray[np.float64]:
         """
-        Combine one map with its loop-parameter values.
+        Combine one heating/cooling map with its loop parameters.
+
+        The selected loop-parameter values are repeated for every
+        temperature row and prepended to the physical data columns.
+
+        Parameters
+        ----------
+        map_path : Path
+            Path to the heating/cooling map.
+        record : RunRecord
+            Corresponding entry in the master .run file.
+
+        Returns
+        -------
+        numpy.ndarray
+            Selected loop-parameter columns followed by temperature,
+            heating, cooling and mean molecular weight.
         """
         map_data = self._load_map(map_path)
         n_rows = map_data.shape[0]
@@ -377,22 +531,38 @@ class HeatingCoolingTables:
 
     def write_table(self, outdir: str | Path = ".", outfile: str | None = None) -> Path:
         """
-        Write the heating/cooling rates table.
+        Write the combined heating/cooling table.
+
+        The individual Cloudy maps are processed in the order
+        recorded in the master .run file.
+
+        All maps must contain identical temperature grids.
+
+        The resulting table is first written to a temporary file.
+        The destination file is replaced only after every map
+        has been processed successfully.
 
         Parameters
         ----------
         outdir : str or Path, optional
-            Directory where the table will be saved.
-            Defaults in the directory specified by oudir.
-        outfile : str, optional
-            Name of the output file.
-            If None, defaults to '{run_name}_cooltable.dat'.
-            This file is saved in the current directory.
+            Directory where the combined table will be saved.
+            Defaults to the current working directory.
+        outfile : str or None, optional
+            Output filename. If None, defaults to
+            '{run_name}_cooltable.dat'.
 
         Returns
         -------
         Path
-            The full path to the generated table.
+            Path to the generated heating/cooling table.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the master .run file or a required data map is missing.
+        ValueError
+            If a data map is malformed or the temperature grids
+            differ between runs.
         """
         runfile = self.run_dir / f"{self.run_name}.run"
         if not runfile.is_file():

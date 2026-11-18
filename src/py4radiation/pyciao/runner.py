@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 
+"""
+Execute Cloudy calculations and process their numerical outputs.
+
+This module provides the worker routines used by pyCIAO for
+heating/cooling and ionisation-fraction calculations.
+
+Cloudy calculations may be distributed using Python
+multiprocessing or MPI.
+
+Failed temperature calculations are recorded and counted,
+while numerical placeholders preserve the expected
+dimensions of the output tables.
+"""
+
 import logging
 import re
 import subprocess
@@ -17,8 +31,19 @@ from .tasks import TaskDef
 
 class TaskResult(TypedDict):
     """
-    Structure for the result returned by a worker task.
-    """
+        Describe the result of one Cloudy execution task.
+
+        Attributes
+        ----------
+        run_index : int
+            Number identifying the attempted calculation.
+        status : str
+            Execution status, either 'success' or 'failed'.
+            A task fails if one or more temperature calculations
+            fail or cannot be processed.
+        error : str or None
+            Description of the failure, or None if the task succeeds.
+        """
 
     run_index: int
     status: str
@@ -132,18 +157,19 @@ ELEMENT_DATA: Final[dict[str, Any]] = {
 
 class CloudyExecutionError(RuntimeError):
     """
-    Custom exception for failures during Cloudy subprocess execution.
+    Represent a failure to launch a Cloudy subprocess.
     """
 
 
 def setup_worker_logging(rank: int | None = None) -> None:
     """
-    Configure logging for a worker process.
+    Configure logging for an MPI rank or multiprocessing worker.
 
     Parameters
     ----------
-    rank : int | None, optional
-        The MPI rank ID. If provided, it is included in the log format.
+    rank : int or None, optional
+        MPI rank to include in log messages.
+        If None, identify the worker using its process ID.
     """
     if rank is not None:
         log_fmt = f"[Rank-{rank}] %(levelname)s - %(message)s"
@@ -164,14 +190,22 @@ def initialise_worker(
     configure_logging: bool = True,
 ) -> None:
     """
-    Initialise the worker process with configuration and logging.
+    Initialise a worker with the shared Cloudy configuration.
+
+    The configuration is stored for subsequent calls to execute_task().
 
     Parameters
     ----------
     config : Config
-        Parsed configuration object.
-    rank : int | None, optional
-        MPI rank of this worker
+        Parsed and validated pyCIAO configuration.
+    rank : int or None, optional
+        MPI rank used to identify the worker in log messages.
+    configure_logging : bool, optional
+        Whether to configure worker-specific logging.
+        Defaults to True.
+
+        If False, retain the existing logging configuration,
+        particularly the main log-file handler on MPI rank zero.
     """
     global WORKER_CONFIG
     WORKER_CONFIG = config
@@ -179,23 +213,35 @@ def initialise_worker(
     if configure_logging:
         setup_worker_logging(rank)
 
-
-# ---------------------------------------------------------------------
-
-
 def execute_task(task: TaskDef) -> TaskResult:
     """
-    Execute a single task.
+    Execute one Cloudy task and report its completion status.
+
+    The selected calculation mode determines whether heating/cooling
+    or ionisation-fraction maps are generated.
+
+    A task is considered successful only when every temperature
+    calculation completes and its output is processed successfully.
+
+    If one or more temperature calculations fail, the task is
+    reported as failed even when placeholder rows have been
+    written to preserve the output dimensions.
+
+    Unexpected exceptions are recorded as failed results.
 
     Parameters
     ----------
     task : TaskDef
-        Task dictionary containing run parameters
+        Dictionary containing the run number, execution mode,
+        output-file stem and Cloudy commands.
 
     Returns
     -------
     TaskResult
-        Dictionary summarizing the success or failure of the run.
+        Dictionary containing:
+        - run_index : int
+        - status : 'success' or 'failed'
+        - error : str or None
     """
     global WORKER_CONFIG
 
@@ -245,39 +291,50 @@ def run_subprocess(
     commands: list[str], infile: Path, outfile: Path, cloudy_exe: str
 ) -> bool:
     """
-    Write input commands to file and execute Cloudy via subprocess.
+    Execute one Cloudy subprocess.
+
+    The supplied commands are written to a Cloudy input file.
+    The Cloudy executable is then launched with that file
+    as its standard input.
+
+    Successful execution requires both a zero return code and
+    the expected 'Cloudy exited OK' completion message.
 
     Parameters
     ----------
     commands : list[str]
-        List of Cloudy commands to write to the input file.
+        Cloudy instructions to write to the input file.
     infile : Path
-        Path to the input file.
+        Path to the temporary Cloudy input file.
     outfile : Path
-        Path to the output file.
+        Path to the Cloudy standard-output file.
     cloudy_exe : str
-        Path for the Cloudy executable.
+        Path to the Cloudy executable.
 
     Returns
     -------
     bool
-        True if Cloudy crashed or exited with error, False otherwise.
+        True if Cloudy failed or crashed.
+        False if Cloudy completed successfully.
 
     Raises
     ------
-    IOError
-        If file writing fails.
+    OSError
+        If an input/output operation fails or the Cloudy
+        executable cannot be found.
     CloudyExecutionError
-        If the subprocess fails to launch.
+        If launching the subprocess raises a subprocess error.
+
+    Notes
+    -----
+    The return value indicates failure rather than success.
     """
-    # 1. Input file
     try:
         with open(infile, "w") as f:
             f.writelines(f"{cmd}\n" for cmd in commands)
     except OSError as e:
         raise IOError(f"Failed to write input file {infile}.") from e
 
-    # 2. Execute Cloudy
     try:
         with open(outfile, "w") as f_out, open(infile, "r") as f_in:
             result = subprocess.run(
@@ -296,7 +353,6 @@ def run_subprocess(
     except OSError as e:
         raise OSError(f"IO error during subprocess execution: {e}.") from e
 
-    # 3. Check crashes/errors
     crashed = True
     try:
         if outfile.exists():
@@ -318,7 +374,26 @@ def run_subprocess(
 
 def _get_temperature_loop(config: Config) -> list[float]:
     """
-    Calculate the temperature points for the inner loop.
+    Generate the temperature grid for a Cloudy calculation.
+
+    Temperatures are logarithmically spaced using either the
+    requested number of samples or a logarithmic temperature step.
+
+    Parameters
+    ----------
+    config : Config
+        Configuration containing the minimum and maximum
+        temperatures and the sampling parameters.
+
+    Returns
+    -------
+    list[float]
+        Temperature values in kelvin.
+
+    Raises
+    ------
+    ValueError
+        If temperature limits or sampling parameters are invalid.
     """
     par = config.params
     try:
@@ -371,7 +446,19 @@ def _get_temperature_loop(config: Config) -> list[float]:
 
 def _get_loops(task: TaskDef, config: Config) -> list[str]:
     """
-    Extract specific loop command strings used in this task.
+    Extract the loop-specific Cloudy commands from a task.
+
+    Parameters
+    ----------
+    task : TaskDef
+        Cloudy task containing the specialised commands.
+    config : Config
+        Configuration defining the recognised loop commands.
+
+    Returns
+    -------
+    list[str]
+        Loop-specific Cloudy commands for the selected task.
     """
     loops = []
     loop_keys = [
@@ -388,8 +475,23 @@ def _get_loops(task: TaskDef, config: Config) -> list[str]:
 
 def _get_physical_conditions(filepath: Path) -> tuple[float, float]:
     """
-    Parse H density (hden) and electron density (eden)
-    from physical conditions file.
+    Extract hydrogen and electron number densities.
+
+    The values are obtained from the Cloudy physical-conditions
+    output file.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Cloudy physical-conditions file.
+
+    Returns
+    -------
+    tuple[float, float]
+        Hydrogen number density and electron number density,
+        respectively, in cm^-3.
+
+        Returns (0.0, 0.0) if the file cannot be read or parsed.
     """
     try:
         with open(filepath, "r") as f:
@@ -411,7 +513,25 @@ def _get_physical_conditions(filepath: Path) -> tuple[float, float]:
 
 def _get_cooling(filepath: Path) -> tuple[float, float]:
     """
-    Parse heating and cooling rates from cooling file.
+    Extract heating and cooling rates from Cloudy output.
+
+    The method reads the final valid data row of the Cloudy
+    cooling file and retrieves the heating and cooling rates.
+
+    Parameters
+    ----------
+    filepath : Path
+        Path to the Cloudy cooling output file.
+
+    Returns
+    -------
+    tuple[float, float]
+        Heating and cooling rates before density normalisation.
+
+    Raises
+    ------
+    ValueError
+        If no valid numerical data can be extracted.
     """
     try:
         with open(filepath, "r") as f:
@@ -429,7 +549,25 @@ def _get_cooling(filepath: Path) -> tuple[float, float]:
 
 def _get_mmw(abunfile: Path, ionsfile: Path) -> float:
     """
-    Calculate Mean Molecular Weight (MMW).
+    Calculate the mean molecular weight from Cloudy outputs.
+
+    The calculation uses elemental abundances and the mean
+    ionisation fractions to estimate the mass per particle.
+
+    Parameters
+    ----------
+    abunfile : Path
+        Path to the Cloudy elemental-abundance output file.
+    ionsfile : Path
+        Path to the Cloudy mean-ionisation output file.
+
+    Returns
+    -------
+    float
+        Mean molecular weight in atomic mass units.
+
+        Returns 0.0 if the required data cannot be read
+        or processed.
     """
     rel_abund = []
     try:
@@ -496,8 +634,36 @@ def _get_mmw(abunfile: Path, ionsfile: Path) -> float:
 
 def _get_ion_fraction(ionsfile: Path, elements: list[str]) -> dict[str, list[float]]:
     """
-    Parse ionisation fractions for specific elements.
+    Extract ionisation fractions for selected elements.
+
+    The method reads the mean-ionisation output produced by
+    Cloudy and extracts the logarithmic ionisation fractions
+    for the requested chemical elements.
+
+    Missing ionisation stages within a recognised element
+    are padded using the numerical value -30.0.
+
+    Parameters
+    ----------
+    ionsfile : Path
+        Path to the Cloudy mean-ionisation output file.
+    elements : list[str]
+        Chemical element symbols to extract.
+
+    Returns
+    -------
+    dict[str, list[float]]
+        Dictionary mapping each requested element to its
+        logarithmic ionisation fractions.
+
+        Completely absent elements may have empty lists.
+
+    Raises
+    ------
+    OSError
+        If the ionisation output cannot be read or parsed.
     """
+
     name2symbol = {v: k for k, v in ELEMENT_DATA["atomicName"].items()}
     atomic_numbers = ELEMENT_DATA["atomicNumber"]
     elements_data: dict[str, list[float]] = {el: [] for el in elements}
@@ -548,12 +714,46 @@ def _get_ion_fraction(ionsfile: Path, elements: list[str]) -> dict[str, list[flo
 
 def heatingcooling(task: TaskDef, config: Config) -> int:
     """
-    Execute Mode 1: Heating and Cooling Maps.
+    Calculate a radiative heating/cooling map for one task.
+
+    This routine executes Cloudy over the configured temperature
+    grid and extracts the corresponding heating and cooling rates
+    and mean molecular weights.
+
+    The output contains four columns:
+
+        1. Temperature [K].
+        2. Heating coefficient.
+        3. Cooling coefficient.
+        4. Mean molecular weight [amu].
+
+    The heating and cooling rates are normalised according
+    to coolingScaleFactor:
+
+        1 : divide by n_H**2.
+        2 : divide by n_H*n_e.
+
+    For coolingScaleFactor=1, the resulting coefficients have
+    units of erg cm^3 s^-1.
+
+    When a temperature calculation fails, zero-valued physical
+    quantities are written to preserve the table dimensions.
+    The failure is also counted.
+
+    Parameters
+    ----------
+    task : TaskDef
+        Cloudy task containing the run number, output-file
+        stem and base commands.
+    config : Config
+        Configuration containing the Cloudy executable,
+        physical parameters and temperature grid.
 
     Returns
     -------
     int
-        Number of temperature calculations that failed.
+        Number of temperature calculations that failed
+        or could not be processed.
     """
     key_name = task["key_name"]
     datfile_path = Path(f"{key_name}.dat")
@@ -671,12 +871,39 @@ def heatingcooling(task: TaskDef, config: Config) -> int:
 
 def ionfractions(task: TaskDef, config: Config) -> int:
     """
-    Execute Mode 3: Ionisation Fraction Maps.
+Calculate ionisation-fraction maps for one Cloudy task.
+
+    The method executes Cloudy across the configured temperature
+    grid and extracts logarithmic ionisation fractions for
+    the requested elements.
+
+    A separate output file is generated for each element.
+
+    Each file contains:
+
+        1. Logarithmic temperature, log10(T/K).
+        2. Logarithmic ionisation fractions for each ion stage.
+
+    Failed calculations are represented by -30.0 placeholders
+    to preserve the expected number of ionisation stages.
+
+    A temperature calculation is counted as failed if Cloudy
+    crashes or the ionisation data cannot be processed correctly.
+
+    Parameters
+    ----------
+    task : TaskDef
+        Cloudy task containing the run number, output-file
+        stem and base commands.
+    config : Config
+        Configuration containing the Cloudy executable,
+        selected chemical elements and temperature grid.
 
     Returns
     -------
     int
-        Number of temperature calculations that failed.
+        Number of temperature calculations that failed
+        or could not be processed.
     """
     key_name = task["key_name"]
 

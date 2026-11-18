@@ -12,10 +12,25 @@
 
 - **Stellar population scaling:** Scale Starburst99 luminosities according to the star-formation rate (continuous star formation) or initial stellar mass (instantaneous bursts).
 - **Starburst99 retrieval:** Download and cache Starburst99 tables on demand, with support for local files in offline environments.
+- **Haardt & Madau (2012) UV/X-ray background retrieva:** Download and cache the UV/X-ray background with support for the local table in offline environments.
 - **Cloudy integration:** Generate configuration files and execute photoionisation calculations through pyCIAO.
 - **Parallel execution:** Distribute Cloudy calculations using Python multiprocessing or MPI.
 - **Heating and cooling tables:** Process radiative heating and cooling rates and mean molecular weights into tables for HD/MHD simulations.
 - **Ion fractions:** Generate HDF5 ionisation tables.
+
+## Why Starburst99 Figures 7-12?
+
+Following the recommendations of Leitherer et al. (1999), **py4radiation** uses Starburst99 Figures 7-12 for photoionisation calculations. These models contain the stellar continuum only, whereas Figures 1-6 also include nebular continuum emission. Using stellar-only spectra avoids potential double-counting of nebular radiation, which is calculated self-consistently by Cloudy.
+
+## Haardt & Madau (2012) UV/X-ray background
+
+**py4radiation** also supports the Haardt & Madau (2012) ultraviolet/x-ray background (HM2012) at $z=0$. The original table provides the specific intensity $J_{\nu}$ in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$ sr$^{-1}$. For consistency with the stellar SEDs, the package converts $J_nu$ into the specific flux in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$:
+
+$$
+    F_{\nu,\mathrm{equiv}} = 4\pi\,J_{\nu}
+$$
+
+This allows the stellar and metagalactic radiation fields to be compared using the same spectral units and provides the correct normalisation for Cloudy. $F_{\nu}$ represents the angle-integrated intensity, not the directional flux of an isotropic radiation field.
 
 ## Requirements
 

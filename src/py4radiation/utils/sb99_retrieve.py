@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Retrieve and load original Starburst99 tables with local caching.
+"""
+
 import re
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -18,25 +22,26 @@ class SB99Table:
     This class provides access to the original Starburst99 dataset
     presented by Leitherer et al. (1999).
 
+    Tables are downloaded on demand and cached locally to avoid
+    repeated downloads. An existing local table may also be
+    provided for use on systems without internet access.
+
     Figures 1-12 contain spectral energy distributions (SEDs).
     Figures 7-12 include stellar emission only, they are recommended
     as input spectra for photoionisation models.
 
-    Tables are downloaded on demand and stored in a local cache
-    to avoid repeated downloads.
-
     Parameters
     ----------
     figure: str
-            Figure identifier from Leitherer et al. (1999), e.g. '8a'.
-            The corresponding filename is constructed as 'fig8a.dat'.
+        Figure identifier from Leitherer et al. (1999), e.g. '8a'.
+        The corresponding filename is constructed as 'fig8a.dat'.
     path : str, Path or None, optional
-            Destination file path. If None, use the default cache
-            directory provided by platformdirs.
+        Destination file path. If None, use the default cache
+        directory provided by platformdirs.
     refresh: bool, optional
-            If True, download a fresh copy of the table on the next
-            retrieval, even if a cached copy exists.
-            Default is False.
+        If True, download a fresh copy of the table on the next
+        retrieval, even if a cached copy exists.
+        Default is False.
 
     Attributes
     ----------
@@ -59,6 +64,9 @@ class SB99Table:
     """
 
     def __init__(self, figure: str, path: str | Path | None = None, refresh: bool = False) -> None:
+        """
+        Select a Starburst99 figure and its local file or cache location.
+        """
         figure = figure.strip().lower()
 
         if not re.fullmatch(r"(?:[1-9]|1[0-2])[a-z]", figure):
@@ -78,13 +86,13 @@ class SB99Table:
 
     def get_sb99table(self) -> Path:
         """
-        Retrieve the Starburst99 table.
+        Return a local Starburst99 table, downloading it when necessary.
 
-        Return the cached table if available. Otherwise, download
-        the file from the Starburst99 website.
+        If the requested table already exists and refresh is False,
+        the existing file is returned without accessing the network.
 
-        Downloads are written to a temporary file before replacing
-        the destination to avoid leaving incomplete files.
+        When downloading, the table is first written to a temporary
+        file and then moved into its final location.
 
         Returns
         -------
@@ -94,9 +102,12 @@ class SB99Table:
         Raises
         ------
         requests.RequestException
-            If the download fails.
+            If the network request fails.
+        ValueError
+            If the download response is empty or does not contain
+            the expected table data.
         OSError
-            If the file cannot be written to the destination.
+            If the local table cannot be created or replaced.
         """
         if self.path.is_file() and not self._refresh:
             return self.path
@@ -157,10 +168,9 @@ class SB99Table:
         Returns
         -------
         numpy.ndarray
-            Transposed table, with each original column stored
-            in a row. For SED tables, the first row contains
-            wavelengths and the remaining rows contain the
-            spectra at different stellar population ages.
+            Starburst99 table with wavelengths in the first
+            column and spectra at different stellar population
+            ages in the remaining columns.
 
         Notes
         -----

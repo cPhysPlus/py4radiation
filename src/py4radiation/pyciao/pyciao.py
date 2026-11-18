@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+"""
+Provide the command-line and parallel-execution interface for pyCIAO.
+
+Cloudy calculations are executed using Python multiprocessing
+or MPI when multiple MPI ranks are available.
+
+The module handles configuration parsing, task distribution,
+execution-result collection and final run reporting.
+"""
+
 import argparse
 import itertools
 import logging
@@ -23,14 +33,17 @@ from .tasks import TaskDef, TaskManager
 
 def setup_main_logging(outdir: str, prefix: str) -> None:
     """
-    Set up the main log file for Rank 0.
+    Configure logging for the main pyCIAO process.
+
+    Log messages are written to the main run log file and
+    standard output.
 
     Parameters
     ----------
     outdir : str
-        Directory to save the log file.
+        Output-directory prefix defined by the configuration.
     prefix : str
-        Prefix for the log filename.
+        Prefix used to construct the log filename.
     """
     logfile = f"{prefix}.log"
     if outdir:
@@ -50,12 +63,24 @@ def setup_main_logging(outdir: str, prefix: str) -> None:
 
 def write_runfile(config: Config) -> None:
     """
-    Write the summary .run file.
+    Write the master pyCIAO .run file.
+
+    The file records constant Cloudy commands, ordered loop
+    definitions and the parameter combinations associated
+    with the numbered Cloudy runs.
+
+    The tabular section is used by IonTables and
+    HeatingCoolingTables to associate individual output
+    maps with their corresponding physical parameters.
+
+    The format and ordering must remain consistent with
+    the task-generation procedure.
 
     Parameters
     ----------
     config : Config
-        Configuration object.
+        Parsed pyCIAO configuration containing the constant
+        commands and loop definitions.
     """
     par = config.params
 
@@ -112,7 +137,31 @@ def write_runfile(config: Config) -> None:
 
 def run_mpi(config: Config | None, tasks: list[TaskDef] | None) -> list[TaskResult]:
     """
-    Execute tasks using MPI.
+    Execute Cloudy tasks using MPI.
+
+    The configuration and task list are broadcast from rank
+    zero to the remaining MPI ranks.
+
+    Each rank executes a subset of the tasks, and the resulting
+    execution summaries are gathered by rank zero.
+
+    Parameters
+    ----------
+    config : Config or None
+        Parsed execution configuration supplied by rank zero.
+    tasks : list[TaskDef] or None
+        Numbered Cloudy tasks supplied by rank zero.
+
+    Returns
+    -------
+    list[TaskResult]
+        Combined task results on rank zero.
+        An empty list is returned on the other ranks.
+
+    Raises
+    ------
+    RuntimeError
+        If the MPI initialisation data are not received.
     """
     COMM = MPI.COMM_WORLD
     RANK = COMM.Get_rank()
@@ -143,7 +192,27 @@ def run_multiprocessing(
     config: Config, tasks: list[TaskDef], nproc: int
 ) -> list[TaskResult]:
     """
-    Execute tasks using multiprocessing.
+    Execute Cloudy tasks using Python multiprocessing.
+
+    The configuration is shared with the worker processes
+    during their initialisation.
+
+    Individual tasks are executed independently, and their
+    results are collected as they become available.
+
+    Parameters
+    ----------
+    config : Config
+        Parsed pyCIAO execution configuration.
+    tasks : list[TaskDef]
+        Numbered Cloudy tasks to execute.
+    nproc : int
+        Number of worker processes.
+
+    Returns
+    -------
+    list[TaskResult]
+        Execution results in completion order.
     """
     logging.info(f"Starting multiprocessing pool with {nproc} processes.")
 
@@ -163,7 +232,28 @@ def run_multiprocessing(
 
 def main() -> None:
     """
-    Main Execution Routine.
+    Run the pyCIAO command-line interface.
+
+    The command-line interface accepts a parameter file
+    and an optional number of multiprocessing workers.
+
+    When launched with multiple MPI ranks, MPI execution
+    takes precedence over Python multiprocessing.
+
+    The main process generates the master .run file,
+    collects execution results and reports the total
+    numbers of successful and failed tasks.
+
+    A non-zero process exit status is returned when
+    one or more tasks fail.
+
+    Command-line arguments
+    ----------------------
+    parfile : Path
+        Path to the pyCIAO .par configuration file.
+    --nproc : int, optional
+        Number of multiprocessing workers.
+        Ignored when executing with MPI.
     """
     is_mpi = False
     rank = 0

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+"""
+Generate Cloudy execution tasks from parsed pyCIAO loops.
+"""
+
 import itertools
 import logging
 from collections.abc import Iterator
@@ -12,6 +16,21 @@ from .parser import Config
 
 
 class TaskDef(TypedDict):
+    """
+    Describe one Cloudy calculation for a worker process.
+
+    Attributes
+    ----------
+    run_index : int
+        Number identifying the Cloudy run.
+    key_name : str
+        Output-file stem, including its destination directory.
+    base_commands : list[str]
+        Constant and loop-specific Cloudy instructions.
+    run_mode : int
+        Cloudy execution mode: 1 for heating/cooling
+        or 3 for ionisation fractions.
+    """
     run_index: int
     key_name: str
     base_commands: list[str]
@@ -20,47 +39,51 @@ class TaskDef(TypedDict):
 
 class TaskManager:
     """
-    Generates execution tasks based on the parsed configuration.
+    Generate Cloudy execution tasks based on the parsed configuration.
 
-    This class handles the combinatorial logic of creating unique Cloudy
-    run configurations by iterating over the specified loops and combining
-    them with constant commands.
+    The class combines all configured loop values using a
+    Cartesian product and creates one task for each combination.
+
+    The task ordering is consistent with the ordered parameter
+    combinations recorded in the master pyCIAO .run file.
+
+    Parameters
+    ----------
+    config : Config
+        Parsed pyCIAO configuration.
 
     Attributes
     ----------
     config : Config
-        Configuration object containing parsed parameters and commands.
+        Configuration used to generate the tasks.
     start_idx : int
-        The starting index for run numbering. Default is 1.
+        Initial run number obtained from runStartIndex.
+        Defaults to 1.
     """
 
     def __init__(self, config: Config) -> None:
         """
-        Initialize the TaskManager.
-
-        Parameters
-        ----------
-        config : Config
-            A valid, parsed Config object.
+        Store the configuration and determine the initial run number.
         """
         self.config = config
         self.start_idx = int(config.params.get("runStartIndex", 1))
 
     def _create_task(self, run_idx: int, loops_cmd: list[str]) -> TaskDef:
         """
-        Create a single task dictionary for a worker to execute.
+        Create a worker task for one combination of loop values.
 
         Parameters
         ----------
         run_idx : int
-            Unique identifier for this run.
+            Run number assigned to the calculation.
         loops_cmd : list[str]
             Specific list of loop commands for this run.
 
         Returns
         -------
         TaskDef
-            Dictionary containing all necessary information to execute the task.
+            Dictionary containing the run number, output-file stem,
+            Cloudy commands and calculation mode.
         """
         outdir = self.config.params.get("outputDir", "")
         prefix = self.config.params.get("outputFilePrefix", "ciaorun")
@@ -83,7 +106,7 @@ class TaskManager:
         self, template: str, value: float | str | NDArray[np.float64]
     ) -> str:
         """
-        Format a Cloudy command string with a specific value.
+        Insert a loop value into a Cloudy command template.
 
         If the template contains '*', replace it with the value.
         Otherwise, append the value to the template.
@@ -112,15 +135,10 @@ class TaskManager:
 
         Yields
         ------
-        Iterator[TaskDef]
-            An iterator yielding task dictionaries.
-
-        Examples
-        --------
-        >>> manager = TaskManager(config)
-        >>> for task in manager.gen_tasks():
-        ...     print(task['run_index]')
+        TaskDef
+            Dictionary describing one Cloudy calculation.
         """
+
         loop_iter = []
 
         for loop_item in self.config.loops_cmd:

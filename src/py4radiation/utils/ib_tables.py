@@ -9,38 +9,61 @@ from numpy.typing import NDArray
 
 logger = logging.getLogger(__name__)
 
+"""
+Generate ionisation tables from Cloudy outputs.
+"""
 
 class IonTables:
     """
-    A class to generate ion fraction tables from pyCIAO/Cloudy output files.
+    Generate ionisation-fraction tables from pyCIAO/Cloudy outputs.
 
-    This class parses a simulation run configuration, loads distributed
-    ion fraction maps, and generates a single HDF5 file suitable for
-    astrophysical codes.
+    This class reads the established pyCIAO .run file and the
+    ionisation-fraction maps generated for individual Cloudy runs.
+
+    The results are assembled into a multidimensional HDF5 table
+    compatible with Trident.
+
+    The final dataset dimensions are ordered as:
+
+        (ionisation stage, density, redshift, temperature)
+
+    For calculations performed only at z=0, the ionisation grid
+    is duplicated along the redshift axis, producing coordinates
+    z=0 and z=1e-4.
+
+    The second redshift slice is introduced for Trident
+    interpolation compatibility. It does not represent an
+    independent Cloudy calculation or redshift evolution.
+
+    Parameters
+    ----------
+    run_dir : str or Path
+        Directory containing the pyCIAO .run file and
+        individual ionisation-fraction maps.
+    run_name : str
+        Common identifier for the simulation run.
+        The '.run' suffix may be supplied optionally.
+    elements : str
+        Space-separated chemical element symbols to include
+        in the final HDF5 table, for example 'H C N O'.
 
     Attributes
     ----------
     run_dir : Path
-        Directory containing the pyCIAO run file and data maps.
+        Directory containing the input files.
     run_name : str
-        The common identifier of the pyCIAO run.
+        Identifier for the simulation run.
+    runfile : Path
+        Path to the master .run file.
+    outfile : Path
+        Path to the generated ionisation HDF5 table.
     """
 
     def __init__(self, run_dir: str | Path, run_name: str, elements: str) -> None:
         """
-        Initialise the processor with the location and ID of the run.
-
-        Parameters
-        ----------
-        run_dir : str or Path
-            The folder containing the pyCIAO run files.
-        run_name : str
-            The unique identifier for the run.
-            The code expects to find '{run_name}.run' and associated
-            '{run_name}_runX.dat' files in the run_dir.
-        elements : Iterable[str]
-            List of elements for the ion fraction tables.
+        Locate the run files and select the requested chemical elements.
         """
+
         self.run_dir = Path(run_dir)
         self.run_name = run_name.removesuffix(".run")
         self.elements = elements.split()
@@ -53,8 +76,31 @@ class IonTables:
 
     def _parse_runfile(self) -> tuple[list[list[float]], list[str], int]:
         """
-        Parse the run file for loop parameters and run count.
+        Parse the master pyCIAO run file.
+
+        The method extracts the ordered loop parameters and their
+        sampled values, together with the total number of runs.
+
+        The ordering is preserved because it determines how the
+        individual ionisation maps are assembled into the
+        multidimensional grid.
+
+        Returns
+        -------
+        parameter_values : list[list[float]]
+            Numerical values associated with each loop parameter.
+        parameter_names : list[str]
+            Corresponding loop-command names.
+        n_runs : int
+            Number of runs recorded in the master run file.
+
+        Raises
+        ------
+        ValueError
+            If the number of runs is inconsistent with the
+            multidimensional parameter grid.
         """
+
         with open(self.runfile, "r", encoding="utf-8") as f:
             lines = [ln.strip() for ln in f]
 
@@ -87,8 +133,30 @@ class IonTables:
         self, map_path: str | Path
     ) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
         """
-        Read a single '*_runX_ELEMENT.dat' file.
+        Read one ionisation-fraction map.
+
+        Parameters
+        ----------
+        map_path : str or Path
+            Path to a file named
+            '{run_name}_runX_ELEMENT.dat'.
+
+        Returns
+        -------
+        temperature : numpy.ndarray
+            Logarithmic temperatures, log10(T/K).
+        ion_fraction : numpy.ndarray
+            Logarithmic ionisation fractions for the different
+            ionisation stages of the selected element.
+
+        Raises
+        ------
+        RuntimeError
+            If the input map cannot be read.
+        ValueError
+            If the map does not contain the expected data columns.
         """
+
         try:
             data = np.loadtxt(map_path, comments="#", ndmin=2)
         except Exception as e:
@@ -104,8 +172,37 @@ class IonTables:
 
     def _process_element(self, element: str) -> None:
         """
-        Process each element provided in the run.
+        Assemble and store the ionisation table for one element.
+
+        Individual ionisation maps are combined according to the
+        parameter ordering recorded in the master .run file.
+
+        The ionisation-stage dimension is moved to the first axis
+        to produce the ordering required by Trident.
+
+        For a single-redshift calculation at z=0, the ionisation
+        grid is duplicated at z=1e-4.
+
+        The resulting HDF5 dataset contains the attributes:
+
+            Temperature : logarithmic temperature grid
+            Parameter1  : hydrogen number-density grid
+            Parameter2  : redshift grid
+
+        Parameters
+        ----------
+        element : str
+            Chemical element symbol.
+
+        Raises
+        ------
+        FileNotFoundError
+            If a required ionisation map is missing.
+        ValueError
+            If temperature grids, ion-fraction dimensions or
+            redshift configuration are inconsistent.
         """
+
         logger.info(f"Processing element {element}...")
 
         parameter_values, parameter_names, n_runs = self._parse_runfile()
@@ -165,7 +262,25 @@ class IonTables:
 
     def write_table(self) -> None:
         """
-        Write the ion fractions table.
+        Generate the HDF5 ionisation tables for the selected elements.
+
+        Each element is stored as a separate HDF5 dataset containing
+        the logarithmic ionisation fractions.
+
+        The output file follows the naming convention:
+
+            {run_name}_iontable.h5
+
+        The file is opened in append mode. Existing datasets with
+        the same element names are not overwritten automatically.
+
+        Raises
+        ------
+        ValueError
+            If no chemical elements were specified or the input
+            parameter grids are inconsistent.
+        FileNotFoundError
+            If a required ionisation map is missing.
         """
         if not self.elements:
             logger.warning("No elements specified!")

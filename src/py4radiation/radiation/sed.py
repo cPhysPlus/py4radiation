@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+"""
+Generate Cloudy-readable spectral energy distributions.
+
+Supports Starburst99 stellar continua, custom spectral luminosities,
+and the Haardt & Madau (2012) background at redshift zero.
+"""
+
 from pathlib import Path
 
 import re
@@ -19,44 +26,54 @@ ANGSTROM_TO_CM = 1.0e-8  # cm
 
 class SED:
     """
-    Load, process and format spectral energy distributions for pyCIAO.
+    Load, process and format spectral energy distributions for Cloudy and pyCIAO.
 
-    This class handles the conversion of Leitherer et al. (1999) style
-    SED tables into pyCIAO/Cloudy-readable formats.
+    Starburst99 Figures 7-12 contain stellar continua without the nebular continuum
+    included in Figures 1-6. The stellar luminosities are scaled by the star-formation
+    rate or initial stellar mass and diluted according to the distance from the source.
 
-    For scaling, consider an object of interest located at a user-specified
-    distance from the radiation source.
+    Custom spectra are treated as spectral luminosities in the same way.
+
+    Form HM2012, the input is the meta-galactic specific intensity J_nu.
+    The returned spectral quantity is 4*pi*J_nu, representing the angle-integrated
+    intensity rather than the directional flux of an isotropic radiation field.
 
     Parameters
     ----------
     run_name : str
         Identifier used for the output filename.
     table_id : str, optional
-        Starburst99 figure identifier, e.g. '8b' or '10b'.
-        Ignored if custom table is provided.
+        Starburst99 figure identifier, e.g. '8b' or '10b', or
+        'HM12' for the Haardt & Madau (2012) background.
         Default is '8b'.
     table : str, Path or None, optional
-        Path to a custom SED table containing two columns:
-        [1] wavelength in Angstroms
-        [2] log10 luminosity in erg s^-1 Angstrom^-1.
-        If None, retrieve the specified Starburst99 table.
+        Path to a custom two-column spectrum containing wavelength
+        in Angstroms and log10(L_lambda) in erg s^-1 Angstrom^-1.
     distance_kpc : float, optional
         Distance from the radiation source in kiloparsecs.
-        Default is 1.0.
+        Default is 1.0. Not applied to HM2012.
     age_myr : int, optional
         Stellar population age in Myr. Used to select the
         corresponding Starburst99 column. Ignored for custom
-        tables.
+        tables and HM2012.
         Default is 3.
     sfr_msun_yr : float or None, optional
         Star formation rate in solar masses per year,
         this parameter scales the SED of continuous star
-        formation models.
+        formation models (Figures 8, 10 and 12).
+        The reference SFR is 1 solar mass per year.
     mass_msun: float or None, optional
         Initial mass in solar masses, this parameter
-        scales the SED of instantaneous star formation models.
-    sb99_path : string, Path or None, optional
-        Path to a locally stored Starburst99 model.
+        scales the SED of instantaneous star formation
+        models (Figures 7, 9 and 11).
+        The reference stellar mass is 1e6 solar masses.
+    sb99_path : str, Path or None, optional
+        Path to an existing local Starburst99 table.
+        Allows offline use.
+    hm12_path : str, PAth or None, optional
+        Path to an existing UVB.out file.
+        Requires table_id='HM12'. If None, use the cached
+        HM2012 table or download it when necessary.
 
     Attributes
     ----------
@@ -69,15 +86,16 @@ class SED:
     distance_cm : float
         Distance from the radiation source in centimetres.
     data_table : numpy.ndarray
-        SED table with wavelengths in the first column.
+        Loaded spectrum, with wavelengths in the first column.
     age_myr : int
-        Requested stellar population age.
+        Requested stellar-population age.
     redshift : str
         Redshift identifier, currently fixed at z = 0.
 
     References
     ----------
     Leitherer, C., et al. (1999), ApJS, 123, 3.
+    Haardt, F. and Madau, P. (2012), ApJ, 746, 125.
     """
 
     def __init__(
@@ -92,6 +110,9 @@ class SED:
         sb99_path: str | Path | None = None,
         hm12_path: str | Path | None = None,
     ) -> None:
+        """
+        Initialise the selected radiation spectrum and validate its inputs.
+        """
 
         if not run_name or "/" in run_name or "\\" in run_name:
             raise ValueError("run_name must be a non-empty filename identifier.")
@@ -203,12 +224,11 @@ class SED:
 
     def _map_age(self, age: int) -> int:
         """
-        Map stellar population age to a Starburst99 column.
+        Map a supported Starburst99 age to its data-column index.
 
-        The mapping assumes the original age sequence:
-        1-20 Myr in steps of 1 Myr,
-        30-100 Myr in steps of 10 Myr,
-        and 200-900 Myr in steps of 100 Myr.
+        The original Starburst99 age sequence contains ages from 1 to
+        20 Myr in steps of 1 Myr, from 30 to 100 Myr in steps of
+        10 Myr, and from 200 to 900 Myr in steps of 100 Myr.
 
         Parameters
         ----------
@@ -218,7 +238,8 @@ class SED:
         Returns
         -------
         int
-            Column index corresponding to the requested age.
+            Index of the column corresponding to the selected age.
+            Column zero contains wavelength.
 
         Raises
         ------
@@ -248,14 +269,36 @@ class SED:
 
     def get_sed(self) -> tuple[npt.NDArray[np.float64], npt.NDArray[np.float64]]:
         """
-        Calculates Energy (Ryd) and Specific flux (F_nu).
+        Calculate photon energies and spectral flux densities.
+
+        For Starburst99 and custom spectra, the spectral luminosity
+        L_lambda is converted to L_nu and diluted according to the
+        distance from the radiation source:
+
+            F_nu = L_nu / (4*pi*d**2)
+
+        For HM2012, the tabulated specific intensity is converted into
+        an equivalent spectral flux density:
+
+            F_nu = 4*pi*J_nu
+
+        This quantity represents the angle-integrated specific intensity
+        of the metagalactic background. No distance, star-formation-rate
+        or stellar-mass scaling is applied to HM2012.
 
         Returns
         -------
-        energy_ryd : np.ndarray
+        energy_ryd : numpy.ndarray
             Photon energies in Rydbergs.
-        F_nu : np.ndarray
-            Specific flux F_nu in erg s^-1 cm^-2 Hz^-1
+        F_nu : numpy.ndarray
+            Spectral flux density for stellar and custom sources,
+            or angle-integrated intensity for HM2012, in erg s^-1 cm^-2 Hz^-1.
+
+        Raises
+        ------
+        ValueError
+            If a calculated stellar or custom spectral flux contains
+            non-positive or non-finite values.
         """
 
         wavelength_angstrom = self.data_table[:, 0]
@@ -285,6 +328,20 @@ class SED:
         """
         Write a pyCIAO/Cloudy-readable input file.
 
+        The generated file contains Cloudy 'interpolate' and 'continue'
+        commands defining the spectral shape as a function of photon
+        energy, followed by an 'f(nu)' command specifying the absolute
+        normalisation at 1 Ryd.
+
+        The output filename follows the convention:
+
+            {run_name}_z0.0000e+00.out
+
+        For HM2012, repeated wavelength coordinates are separated
+        slightly to obtain strictly increasing photon energies.
+        The current implementation also adds the Cloudy command
+        'illuminate isotropic'.
+
         Parameters
         ----------
         output_dir : str or Path
@@ -294,13 +351,14 @@ class SED:
         Returns
         -------
         Path
-            Path to the generated file.
+            Path to the generated Cloudy input file.
 
         Raises
         ------
         ValueError
-            If SED coverage does not include 1 Ryd
-            or contains duplicate energy values.
+            If the energy grid contains duplicate or non-increasing
+            values after source-specific processing, or if the
+            spectrum does not cover 1 Ryd.
         """
         energy, f_nu = self.get_sed()
         order = np.argsort(energy)
