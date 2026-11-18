@@ -24,10 +24,10 @@ Following the recommendations of Leitherer et al. (1999), **py4radiation** uses 
 
 ## Haardt & Madau (2012) UV/X-ray background
 
-**py4radiation** also supports the Haardt & Madau (2012) ultraviolet/x-ray background (HM2012) at $z=0$. The original table provides the specific intensity $J_{\nu}$ in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$ sr$^{-1}$. For consistency with the stellar SEDs, the package converts $J_nu$ into the specific flux in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$:
+**py4radiation** also supports the Haardt & Madau (2012) ultraviolet/x-ray background (HM2012) at $z=0$. The original table provides the specific intensity $J_{\nu}$ in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$ sr $^{-1}$. For consistency with the stellar SEDs, the package converts $J_nu$ into the specific flux in erg s $^{-1}$ cm $^{-2}$ Hz $^{-1}$:
 
 $$
-    F_{\nu,\mathrm{equiv}} = 4\pi\,J_{\nu}
+    F_{\nu,\mathrm{equiv}} = 4\pi J_{\nu}
 $$
 
 This allows the stellar and metagalactic radiation fields to be compared using the same spectral units and provides the correct normalisation for Cloudy. $F_{\nu}$ represents the angle-integrated intensity, not the directional flux of an isotropic radiation field.

@@ -1,0 +1,28 @@
+.sig-name,
+.descname {
+    font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+    font-weight: 600;
+}
+
+.sig-paren {
+    margin-left: 0.15em;
+    margin-right: 0.15em;
+}
+
+.sig {
+    font-size: 1.02em;
+    line-height: 1.6;
+}
+
+.sig-param {
+    margin-left: 0.06em;
+    margin-right: 0.06em;
+}
+
+.toctree-wrapper p.caption {
+    font-size: 1.4em;
+    font-weight: 700;
+    text-transform: none;
+    margin-top: 1.5em;
+    margin-bottom: 0.3em;
+}

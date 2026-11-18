@@ -1,12 +1,16 @@
-import os
 import sys
+import tomllib
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath("../../src"))
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
 
 project = "py4radiation"
 copyright = "2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia"
 author = "D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia"
-release = "0.1.0"
+
+with (ROOT / "pyproject.toml").open("rb") as f:
+    release = tomllib.load(f)["project"]["version"]
 
 extensions = [
     "sphinx.ext.autodoc",

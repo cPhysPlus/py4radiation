@@ -1,45 +1,26 @@
-py4radiation.radiation package
-==============================
+Radiation
+=========
 
-Submodules
-----------
+The ``radiation`` subpackage provides tools for processing
+spectral energy distributions (SEDs) and preparing parameter
+files for Cloudy calculations.
 
-py4radiation.radiation.hc\_tables module
-----------------------------------------
 
-.. automodule:: py4radiation.radiation.hc_tables
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-py4radiation.radiation.ib\_tables module
-----------------------------------------
-
-.. automodule:: py4radiation.radiation.ib_tables
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-py4radiation.radiation.parfiles module
---------------------------------------
-
-.. automodule:: py4radiation.radiation.parfiles
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-py4radiation.radiation.sed module
----------------------------------
+Spectral Energy Distributions
+-----------------------------
 
 .. automodule:: py4radiation.radiation.sed
+
+.. autoclass:: py4radiation.radiation.sed.SED
    :members:
    :show-inheritance:
-   :undoc-members:
 
-Module contents
----------------
 
-.. automodule:: py4radiation.radiation
+Cloudy Parameter Files
+----------------------
+
+.. automodule:: py4radiation.radiation.parfiles
+
+.. autoclass:: py4radiation.radiation.parfiles.ParameterFiles
    :members:
    :show-inheritance:
-   :undoc-members:

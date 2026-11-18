@@ -1,45 +1,42 @@
-py4radiation.pyciao package
-===========================
+pyCIAO
+=====
 
-Submodules
-----------
+pyCIAO provides tools for parsing Cloudy configuration files,
+generating execution tasks and running Cloudy calculations
+using multiprocessing or MPI.
 
-py4radiation.pyciao.parser module
----------------------------------
+
+Configuration Parser
+--------------------
 
 .. automodule:: py4radiation.pyciao.parser
+
+.. autoclass:: py4radiation.pyciao.parser.Config
    :members:
    :show-inheritance:
-   :undoc-members:
 
-py4radiation.pyciao.pyciao module
----------------------------------
 
-.. automodule:: py4radiation.pyciao.pyciao
+Task Management
+---------------
+
+.. automodule:: py4radiation.pyciao.tasks
+
+.. autoclass:: py4radiation.pyciao.tasks.TaskManager
    :members:
    :show-inheritance:
-   :undoc-members:
 
-py4radiation.pyciao.runner module
----------------------------------
+
+Cloudy Execution
+----------------
 
 .. automodule:: py4radiation.pyciao.runner
    :members:
    :show-inheritance:
-   :undoc-members:
 
-py4radiation.pyciao.tasks module
---------------------------------
 
-.. automodule:: py4radiation.pyciao.tasks
+Parallel Execution and Command-Line Interface
+---------------------------------------------
+
+.. automodule:: py4radiation.pyciao.pyciao
    :members:
    :show-inheritance:
-   :undoc-members:
-
-Module contents
----------------
-
-.. automodule:: py4radiation.pyciao
-   :members:
-   :show-inheritance:
-   :undoc-members:

@@ -1,0 +1,828 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Utilities" href="py4radiation.utils.html"><link rel="prev" title="Radiation" href="py4radiation.radiation.html">
+
+    <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
+        <title>pyCIAO - py4radiation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7684ed23" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">py4radiation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">py4radiation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html">Radiation</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">pyCIAO</a></li>
+<li class="toctree-l2"><a class="reference internal" href="py4radiation.utils.html">Utilities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/py4radiation.pyciao.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="pyciao">
+<h1>pyCIAO<a class="headerlink" href="#pyciao" title="Link to this heading">¶</a></h1>
+<p>pyCIAO provides tools for parsing Cloudy configuration files,
+generating execution tasks and running Cloudy calculations
+using multiprocessing or MPI.</p>
+<section id="module-py4radiation.pyciao.parser">
+<span id="configuration-parser"></span><h2>Configuration Parser<a class="headerlink" href="#module-py4radiation.pyciao.parser" title="Link to this heading">¶</a></h2>
+<p>Parse pyCIAO parameter files and Cloudy loop expressions.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.parser.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parfile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.parser.Config" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parse and validate configuration files for pyCIAO.</p>
+<p>The parser reads the configuration parameters, constant
+Cloudy commands and loop definitions from a .par file.</p>
+<p>The resulting configuration is used by TaskManager to
+generate individual Cloudy calculation tasks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parfile</strong><span class="classifier">str or Path</span></dt><dd><p>Path to the pyCIAO parameter file.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>parfile</strong><span class="classifier">Path</span></dt><dd><p>Path to the input parameter file.</p>
+</dd>
+<dt><strong>params</strong><span class="classifier">dict[str, Any]</span></dt><dd><p>Configuration parameters and their values.</p>
+</dd>
+<dt><strong>const_cmd</strong><span class="classifier">list[str]</span></dt><dd><p>Cloudy instructions executed in every calculation.</p>
+</dd>
+<dt><strong>loops_cmd</strong><span class="classifier">list[dict[str, Any]]</span></dt><dd><p>Ordered loop definitions containing the command,
+values and loop type.</p>
+</dd>
+<dt><strong>modes</strong><span class="classifier">dict[int, str]</span></dt><dd><p>Supported Cloudy execution modes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.pyciao.parser.Config.parse">
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.parser.Config.parse" title="Link to this definition">¶</a></dt>
+<dd><p>Parse the parameter file and populate the configuration.</p>
+<p>The method separates constant Cloudy commands from
+loop definitions and general configuration parameters.</p>
+<p>Parsed values are subsequently validated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>ValueError</dt><dd><p>If a parameter-file line is malformed or
+configuration validation fails.</p>
+</dd>
+<dt>OSError</dt><dd><p>If the parameter file cannot be read.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-py4radiation.pyciao.tasks">
+<span id="task-management"></span><h2>Task Management<a class="headerlink" href="#module-py4radiation.pyciao.tasks" title="Link to this heading">¶</a></h2>
+<p>Generate Cloudy execution tasks from parsed pyCIAO loops.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.tasks.</span></span><span class="sig-name descname"><span class="pre">TaskManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generate Cloudy execution tasks based on the parsed configuration.</p>
+<p>The class combines all configured loop values using a
+Cartesian product and creates one task for each combination.</p>
+<p>The task ordering is consistent with the ordered parameter
+combinations recorded in the master pyCIAO .run file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Parsed pyCIAO configuration.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Configuration used to generate the tasks.</p>
+</dd>
+<dt><strong>start_idx</strong><span class="classifier">int</span></dt><dd><p>Initial run number obtained from runStartIndex.
+Defaults to 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="py4radiation.pyciao.tasks.TaskManager.gen_tasks">
+<span class="sig-name descname"><span class="pre">gen_tasks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.tasks.TaskManager.gen_tasks" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a stream of tasks by iterating over all configured loops.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TaskDef</dt><dd><p>Dictionary describing one Cloudy calculation.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-py4radiation.pyciao.runner">
+<span id="cloudy-execution"></span><h2>Cloudy Execution<a class="headerlink" href="#module-py4radiation.pyciao.runner" title="Link to this heading">¶</a></h2>
+<p>Execute Cloudy calculations and process their numerical outputs.</p>
+<p>This module provides the worker routines used by pyCIAO for
+heating/cooling and ionisation-fraction calculations.</p>
+<p>Cloudy calculations may be distributed using Python
+multiprocessing or MPI.</p>
+<p>Failed temperature calculations are recorded and counted,
+while numerical placeholders preserve the expected
+dimensions of the output tables.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.CloudyExecutionError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">CloudyExecutionError</span></span><a class="headerlink" href="#py4radiation.pyciao.runner.CloudyExecutionError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+<p>Represent a failure to launch a Cloudy subprocess.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.TaskResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">TaskResult</span></span><a class="headerlink" href="#py4radiation.pyciao.runner.TaskResult" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TypedDict</span></code></p>
+<p>Describe the result of one Cloudy execution task.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>run_index</strong><span class="classifier">int</span></dt><dd><p>Number identifying the attempted calculation.</p>
+</dd>
+<dt><strong>status</strong><span class="classifier">str</span></dt><dd><p>Execution status, either ‘success’ or ‘failed’.
+A task fails if one or more temperature calculations
+fail or cannot be processed.</p>
+</dd>
+<dt><strong>error</strong><span class="classifier">str or None</span></dt><dd><p>Description of the failure, or None if the task succeeds.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.execute_task">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">execute_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.execute_task" title="Link to this definition">¶</a></dt>
+<dd><p>Execute one Cloudy task and report its completion status.</p>
+<p>The selected calculation mode determines whether heating/cooling
+or ionisation-fraction maps are generated.</p>
+<p>A task is considered successful only when every temperature
+calculation completes and its output is processed successfully.</p>
+<p>If one or more temperature calculations fail, the task is
+reported as failed even when placeholder rows have been
+written to preserve the output dimensions.</p>
+<p>Unexpected exceptions are recorded as failed results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>task</strong><span class="classifier">TaskDef</span></dt><dd><p>Dictionary containing the run number, execution mode,
+output-file stem and Cloudy commands.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>TaskResult</dt><dd><p>Dictionary containing:
+- run_index : int
+- status : ‘success’ or ‘failed’
+- error : str or None</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.heatingcooling">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">heatingcooling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.heatingcooling" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate a radiative heating/cooling map for one task.</p>
+<p>This routine executes Cloudy over the configured temperature
+grid and extracts the corresponding heating and cooling rates
+and mean molecular weights.</p>
+<p>The output contains four columns:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Temperature [K].</p></li>
+<li><p>Heating coefficient.</p></li>
+<li><p>Cooling coefficient.</p></li>
+<li><p>Mean molecular weight [amu].</p></li>
+</ol>
+</div></blockquote>
+<p>The heating and cooling rates are normalised according
+to coolingScaleFactor:</p>
+<blockquote>
+<div><p>1 : divide by n_H**2.
+2 : divide by n_H*n_e.</p>
+</div></blockquote>
+<p>For coolingScaleFactor=1, the resulting coefficients have
+units of erg cm^3 s^-1.</p>
+<p>When a temperature calculation fails, zero-valued physical
+quantities are written to preserve the table dimensions.
+The failure is also counted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>task</strong><span class="classifier">TaskDef</span></dt><dd><p>Cloudy task containing the run number, output-file
+stem and base commands.</p>
+</dd>
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Configuration containing the Cloudy executable,
+physical parameters and temperature grid.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int</dt><dd><p>Number of temperature calculations that failed
+or could not be processed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.initialise_worker">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">initialise_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">configure_logging</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.initialise_worker" title="Link to this definition">¶</a></dt>
+<dd><p>Initialise a worker with the shared Cloudy configuration.</p>
+<p>The configuration is stored for subsequent calls to execute_task().</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl>
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Parsed and validated pyCIAO configuration.</p>
+</dd>
+<dt><strong>rank</strong><span class="classifier">int or None, optional</span></dt><dd><p>MPI rank used to identify the worker in log messages.</p>
+</dd>
+<dt><strong>configure_logging</strong><span class="classifier">bool, optional</span></dt><dd><p>Whether to configure worker-specific logging.
+Defaults to True.</p>
+<p>If False, retain the existing logging configuration,
+particularly the main log-file handler on MPI rank zero.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.ionfractions">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">ionfractions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.ionfractions" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate ionisation-fraction maps for one Cloudy task.</p>
+<p>The method executes Cloudy across the configured temperature
+grid and extracts logarithmic ionisation fractions for
+the requested elements.</p>
+<p>A separate output file is generated for each element.</p>
+<p>Each file contains:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Logarithmic temperature, log10(T/K).</p></li>
+<li><p>Logarithmic ionisation fractions for each ion stage.</p></li>
+</ol>
+</div></blockquote>
+<p>Failed calculations are represented by -30.0 placeholders
+to preserve the expected number of ionisation stages.</p>
+<p>A temperature calculation is counted as failed if Cloudy
+crashes or the ionisation data cannot be processed correctly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>task</strong><span class="classifier">TaskDef</span></dt><dd><p>Cloudy task containing the run number, output-file
+stem and base commands.</p>
+</dd>
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Configuration containing the Cloudy executable,
+selected chemical elements and temperature grid.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>int</dt><dd><p>Number of temperature calculations that failed
+or could not be processed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.run_subprocess">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">run_subprocess</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cloudy_exe</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.run_subprocess" title="Link to this definition">¶</a></dt>
+<dd><p>Execute one Cloudy subprocess.</p>
+<p>The supplied commands are written to a Cloudy input file.
+The Cloudy executable is then launched with that file
+as its standard input.</p>
+<p>Successful execution requires both a zero return code and
+the expected ‘Cloudy exited OK’ completion message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>commands</strong><span class="classifier">list[str]</span></dt><dd><p>Cloudy instructions to write to the input file.</p>
+</dd>
+<dt><strong>infile</strong><span class="classifier">Path</span></dt><dd><p>Path to the temporary Cloudy input file.</p>
+</dd>
+<dt><strong>outfile</strong><span class="classifier">Path</span></dt><dd><p>Path to the Cloudy standard-output file.</p>
+</dd>
+<dt><strong>cloudy_exe</strong><span class="classifier">str</span></dt><dd><p>Path to the Cloudy executable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>bool</dt><dd><p>True if Cloudy failed or crashed.
+False if Cloudy completed successfully.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>OSError</dt><dd><p>If an input/output operation fails or the Cloudy
+executable cannot be found.</p>
+</dd>
+<dt>CloudyExecutionError</dt><dd><p>If launching the subprocess raises a subprocess error.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The return value indicates failure rather than success.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.runner.setup_worker_logging">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.runner.</span></span><span class="sig-name descname"><span class="pre">setup_worker_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.runner.setup_worker_logging" title="Link to this definition">¶</a></dt>
+<dd><p>Configure logging for an MPI rank or multiprocessing worker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rank</strong><span class="classifier">int or None, optional</span></dt><dd><p>MPI rank to include in log messages.
+If None, identify the worker using its process ID.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-py4radiation.pyciao.pyciao">
+<span id="parallel-execution-and-command-line-interface"></span><h2>Parallel Execution and Command-Line Interface<a class="headerlink" href="#module-py4radiation.pyciao.pyciao" title="Link to this heading">¶</a></h2>
+<p>Provide the command-line and parallel-execution interface for pyCIAO.</p>
+<p>Cloudy calculations are executed using Python multiprocessing
+or MPI when multiple MPI ranks are available.</p>
+<p>The module handles configuration parsing, task distribution,
+execution-result collection and final run reporting.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.main">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.main" title="Link to this definition">¶</a></dt>
+<dd><p>Run the pyCIAO command-line interface.</p>
+<p>The command-line interface accepts a parameter file
+and an optional number of multiprocessing workers.</p>
+<p>When launched with multiple MPI ranks, MPI execution
+takes precedence over Python multiprocessing.</p>
+<p>The main process generates the master .run file,
+collects execution results and reports the total
+numbers of successful and failed tasks.</p>
+<p>A non-zero process exit status is returned when
+one or more tasks fail.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.run_mpi">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_mpi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_mpi" title="Link to this definition">¶</a></dt>
+<dd><p>Execute Cloudy tasks using MPI.</p>
+<p>The configuration and task list are broadcast from rank
+zero to the remaining MPI ranks.</p>
+<p>Each rank executes a subset of the tasks, and the resulting
+execution summaries are gathered by rank zero.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config or None</span></dt><dd><p>Parsed execution configuration supplied by rank zero.</p>
+</dd>
+<dt><strong>tasks</strong><span class="classifier">list[TaskDef] or None</span></dt><dd><p>Numbered Cloudy tasks supplied by rank zero.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list[TaskResult]</dt><dd><p>Combined task results on rank zero.
+An empty list is returned on the other ranks.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt>RuntimeError</dt><dd><p>If the MPI initialisation data are not received.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.run_multiprocessing">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">run_multiprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nproc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.run_multiprocessing" title="Link to this definition">¶</a></dt>
+<dd><p>Execute Cloudy tasks using Python multiprocessing.</p>
+<p>The configuration is shared with the worker processes
+during their initialisation.</p>
+<p>Individual tasks are executed independently, and their
+results are collected as they become available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Parsed pyCIAO execution configuration.</p>
+</dd>
+<dt><strong>tasks</strong><span class="classifier">list[TaskDef]</span></dt><dd><p>Numbered Cloudy tasks to execute.</p>
+</dd>
+<dt><strong>nproc</strong><span class="classifier">int</span></dt><dd><p>Number of worker processes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>list[TaskResult]</dt><dd><p>Execution results in completion order.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.setup_main_logging">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">setup_main_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.setup_main_logging" title="Link to this definition">¶</a></dt>
+<dd><p>Configure logging for the main pyCIAO process.</p>
+<p>Log messages are written to the main run log file and
+standard output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>outdir</strong><span class="classifier">str</span></dt><dd><p>Output-directory prefix defined by the configuration.</p>
+</dd>
+<dt><strong>prefix</strong><span class="classifier">str</span></dt><dd><p>Prefix used to construct the log filename.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="py4radiation.pyciao.pyciao.write_runfile">
+<span class="sig-prename descclassname"><span class="pre">py4radiation.pyciao.pyciao.</span></span><span class="sig-name descname"><span class="pre">write_runfile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#py4radiation.pyciao.pyciao.write_runfile" title="Link to this definition">¶</a></dt>
+<dd><p>Write the master pyCIAO .run file.</p>
+<p>The file records constant Cloudy commands, ordered loop
+definitions and the parameter combinations associated
+with the numbered Cloudy runs.</p>
+<p>The tabular section is used by IonTables and
+HeatingCoolingTables to associate individual output
+maps with their corresponding physical parameters.</p>
+<p>The format and ordering must remain consistent with
+the task-generation procedure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>config</strong><span class="classifier">Config</span></dt><dd><p>Parsed pyCIAO configuration containing the constant
+commands and loop definitions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="py4radiation.utils.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Utilities</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="py4radiation.radiation.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Radiation</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2026, D. Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">pyCIAO</a><ul>
+<li><a class="reference internal" href="#module-py4radiation.pyciao.parser">Configuration Parser</a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.parser.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.parser.Config.parse"><code class="docutils literal notranslate"><span class="pre">Config.parse()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-py4radiation.pyciao.tasks">Task Management</a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskManager"><code class="docutils literal notranslate"><span class="pre">TaskManager</span></code></a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.tasks.TaskManager.gen_tasks"><code class="docutils literal notranslate"><span class="pre">TaskManager.gen_tasks()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-py4radiation.pyciao.runner">Cloudy Execution</a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.CloudyExecutionError"><code class="docutils literal notranslate"><span class="pre">CloudyExecutionError</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.TaskResult"><code class="docutils literal notranslate"><span class="pre">TaskResult</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.execute_task"><code class="docutils literal notranslate"><span class="pre">execute_task()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.heatingcooling"><code class="docutils literal notranslate"><span class="pre">heatingcooling()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.initialise_worker"><code class="docutils literal notranslate"><span class="pre">initialise_worker()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.ionfractions"><code class="docutils literal notranslate"><span class="pre">ionfractions()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.run_subprocess"><code class="docutils literal notranslate"><span class="pre">run_subprocess()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.runner.setup_worker_logging"><code class="docutils literal notranslate"><span class="pre">setup_worker_logging()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-py4radiation.pyciao.pyciao">Parallel Execution and Command-Line Interface</a><ul>
+<li><a class="reference internal" href="#py4radiation.pyciao.pyciao.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.pyciao.run_mpi"><code class="docutils literal notranslate"><span class="pre">run_mpi()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.pyciao.run_multiprocessing"><code class="docutils literal notranslate"><span class="pre">run_multiprocessing()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.pyciao.setup_main_logging"><code class="docutils literal notranslate"><span class="pre">setup_main_logging()</span></code></a></li>
+<li><a class="reference internal" href="#py4radiation.pyciao.pyciao.write_runfile"><code class="docutils literal notranslate"><span class="pre">write_runfile()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
