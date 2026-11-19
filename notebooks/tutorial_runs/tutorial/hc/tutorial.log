@@ -1,10 +1,10 @@
-2026-11-18 19:14:12,700 - INFO - Log file initialised at /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc/tutorial.log.
-2026-11-18 19:14:12,701 - INFO - --- pyCIAO Multiprocessing Run Started ---
-2026-11-18 19:14:12,701 - INFO - Generated 2 Cloudy tasks.
-2026-11-18 19:14:12,701 - INFO - Writing run file: /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc/tutorial.run.
-2026-11-18 19:14:12,701 - INFO - Starting multiprocessing pool with 2 processes.
-2026-11-18 19:14:42,630 - INFO - --- Run Finished ---
-2026-11-18 19:14:42,630 - INFO - Total tasks: 2
-2026-11-18 19:14:42,631 - INFO - Successful:  2
-2026-11-18 19:14:42,631 - INFO - Failed:      0
-2026-11-18 19:14:42,631 - INFO - Total execution time: 29.93 seconds
+2026-11-18 19:17:13,580 - INFO - Log file initialised at /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc/tutorial.log.
+2026-11-18 19:17:13,580 - INFO - --- pyCIAO Multiprocessing Run Started ---
+2026-11-18 19:17:13,580 - INFO - Generated 2 Cloudy tasks.
+2026-11-18 19:17:13,581 - INFO - Writing run file: /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc/tutorial.run.
+2026-11-18 19:17:13,581 - INFO - Starting multiprocessing pool with 2 processes.
+2026-11-18 19:17:42,211 - INFO - --- Run Finished ---
+2026-11-18 19:17:42,212 - INFO - Total tasks: 2
+2026-11-18 19:17:42,212 - INFO - Successful:  2
+2026-11-18 19:17:42,212 - INFO - Failed:      0
+2026-11-18 19:17:42,212 - INFO - Total execution time: 28.63 seconds
