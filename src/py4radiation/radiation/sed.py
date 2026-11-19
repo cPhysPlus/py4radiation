@@ -418,8 +418,6 @@ class SED:
             lines.append(f"{command} ({e:.10f} {log_flux:.10f})")
 
         lines.append(f"f(nu) = {norm_val:.14f} at 1.0 Ryd")
-        if self._hm12:
-            lines.append("illuminate isotropic")
         lines.append("")
 
         with open(outpath, "w") as f:

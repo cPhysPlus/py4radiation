@@ -76,4 +76,3 @@ def test_spectral_preparation(sb99_file, uvb_file, tmp_path):
 
     norm = float(next(line.split()[2] for line in lines if line.startswith("f(nu) =")))
     np.testing.assert_allclose(norm, np.log10(4 * np.pi * 1e-23), atol=1e-10, rtol=0)
-    assert "illuminate isotropic" in lines
