@@ -3,14 +3,14 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Radiation" href="py4radiation.radiation.html"><link rel="prev" title="Quickstart" href="quickstart.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Radiation" href="py4radiation.radiation.html"><link rel="prev" title="Tutorials" href="tutorials.html">
 
     <!-- Generated with Sphinx 9.0.4 and Furo 2025.12.19 -->
         <title>API Reference - py4radiation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7684ed23" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=5fe3d47b" />
     
     
 
@@ -19,18 +19,24 @@
   body {
     --color-code-background: #f2f2f2;
   --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #315D80;
+  --color-brand-content: #315D80;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8CC8EA;
+  --color-brand-content: #8CC8EA;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8CC8EA;
+  --color-brand-content: #8CC8EA;
   
       }
     }
@@ -195,8 +201,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference and Development</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children current-page"><a class="current reference internal" href="#">API Reference</a><input aria-label="Toggle navigation of API Reference" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html">Radiation</a></li>
@@ -204,6 +211,7 @@
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.utils.html">Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
 </ul>
 
@@ -225,12 +233,16 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/modules.rst.txt" title="View this page">
+  <a class="muted-link" href="https://github.com/cPhysPlus/py4radiation/blob/main/docs/source/modules.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/cPhysPlus/py4radiation/edit/main/docs/source/modules.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -247,12 +259,12 @@
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
 <p>The py4radiation API is organised into three subpackages:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">radiation</span></code>: Generation and processing of spectral energy
+<li><p><code class="docutils literal notranslate"><span class="pre">radiation</span></code>: Preparation of spectral energy
 distributions and Cloudy parameter files.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pyciao</span></code>: Configuration, task management and parallel
+<li><p><code class="docutils literal notranslate"><span class="pre">pyciao</span></code>: Configuration, task management and
 execution of Cloudy calculations.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">utils</span></code>: Retrieval of reference spectra and processing
-of heating, cooling and ionisation-fraction tables.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils</span></code>: Retrieval of reference spectra and
+processing of numerical tables.</p></li>
 </ul>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
@@ -280,20 +292,6 @@ of heating, cooling and ionisation-fraction tables.</p></li>
 </ul>
 </div>
 </section>
-<section id="module-py4radiation">
-<span id="package-interface"></span><h2>Package interface<a class="headerlink" href="#module-py4radiation" title="Link to this heading">¶</a></h2>
-<p>py4radiation</p>
-<ol class="upperalpha simple" start="4">
-<li><p>Villarruel-Yanez, W. E. Banda-Barragan, B. Casavecchia.</p></li>
-</ol>
-<p>The package provides tools for preparing spectral energy distributions,
-preparing Cloudy calculations, and processing heating, cooling and
-ion fraction tables.</p>
-<p>The principal public classes are SED, ParameterFiles,
-IonTables and HeatingCoolingTables.</p>
-<p>Cloudy execution utilities are available through the
-pyciao subpackage.</p>
-</section>
 </section>
 
         </article>
@@ -310,14 +308,14 @@ pyciao subpackage.</p>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="quickstart.html">
+          <a class="prev-page" href="tutorials.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Quickstart</div>
+                <div class="title">Tutorials</div>
                 
               </div>
             </a>
@@ -353,7 +351,6 @@ pyciao subpackage.</p>
             <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
 <li><a class="reference internal" href="#subpackages">Subpackages</a></li>
-<li><a class="reference internal" href="#module-py4radiation">Package interface</a></li>
 </ul>
 </li>
 </ul>
@@ -365,7 +362,7 @@ pyciao subpackage.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=01f34227"></script>
+</div><script src="_static/documentation_options.js?v=38b66d78"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

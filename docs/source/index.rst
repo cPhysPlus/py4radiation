@@ -1,62 +1,68 @@
-Welcome to py4radiation
-=======================
+Welcome to py4radiation!
+========================
 
-**py4radiation** is a modular Python framework for generating
-radiative heating and cooling rates and ionisation fractions
-from custom spectral energy distributions (SEDs).
+.. container:: landing-intro
 
-The package provides an integrated workflow for preparing radiation
-fields, executing photoionisation calculations with Cloudy, and
-processing the resulting data into tables suitable for coupling
-with astrophysical hydrodynamics (HD) and magnetohydrodynamics
-(MHD) codes.
+   **Radiation-field preparation and Cloudy workflows
+   for astrophysical simulations.**
 
+   py4radiation is a modular Python framework for preparing
+   custom spectral energy distributions (SEDs), executing Cloudy
+   photoionisation calculations, and processing radiative
+   heating, cooling and ionisation data for astrophysical
+   hydrodynamic and magnetohydrodynamic simulations.
 
 Overview
 --------
 
-The framework consists of three main components:
+The workflow consists of:
 
-* **Radiation fields:** Prepare Cloudy-compatible SEDs from
-  Starburst99 stellar population models, the Haardt & Madau
-  (2012) UV/X-ray background, or user-provided SEDs.
+**01 — Prepare spectra**
 
-* **Cloudy execution:** Prepare parameter files and perform
-  photoionisation calculations using pyCIAO, with support
-  for Python multiprocessing and MPI.
+Retrieve and prepare Starburst99 SEDs, the Haardt & Madau (2012)
+UV/X-ray background, or user-prepared SEDs. Apply the relevant
+physical scaling and convert the spectra into Cloudy-readable
+input files.
 
-* **Generation of tables:** Combine Cloudy outputs into radiative
-  heating/cooling tables and HDF5 ion fraction tables for
-  astrophysical HD/MHD codes.
+**02 — Execute Cloudy**
 
-The framework supports local input files and cached reference
-SEDs, allowing the preparation of radiation fields online and
-offline.
+Configure and execute photoionisation calculations with
+pyCIAO, using Python multiprocessing or MPI.
+
+**03 — Process results**
+
+Assemble heating/cooling tables and HDF5 ion fraction tables
+from Cloudy outputs.
 
 
-Scientific considerations
--------------------------
+Getting started
+---------------
 
-For stellar radiation fields, py4radiation uses the stellar-only
-spectra from Starburst99 Figures 7-12, following the
-recommendations of Leitherer et al. (1999) for photoionisation
-calculations.
+New users should begin with the :doc:`installation` guide
+and :doc:`quickstart`.
 
-For the Haardt & Madau (2012) ultraviolet background, the
-tabulated specific intensity is converted into the equivalent
-spectral quantity
+The :doc:`tutorials` page provides three executed Jupyter
+notebooks covering the complete workflow, including figures,
+numerical results and reference data.
 
-.. math::
+For detailed information about individual classes and
+methods, consult the :doc:`modules`.
 
-   F_{\nu,\mathrm{equiv}} = 4\pi J_\nu.
 
-This convention allows the stellar and metagalactic radiation
-fields to be represented using the same spectral units.
+Scientific conventions
+----------------------
 
-Here, :math:`4\pi J_\nu` is the angle-integrated specific
-intensity, not the directional flux of an isotropic field.
+py4radiation prepares existing radiation models rather
+than calculating stellar populations or synthesising the
+metagalactic background.
 
-See the :doc:`quickstart` for a practical introduction.
+For photoionisation calculations, the package uses the
+stellar-only spectra from Starburst99 Figures 7-12.
+
+For HM2012, the tabulated specific intensity is represented
+by the angle-integrated quantity. This quantity has the same
+units as the stellar spectral flux density, but it is not the
+directional flux of an isotropic radiation field.
 
 
 Documentation
@@ -68,10 +74,12 @@ Documentation
 
    installation
    quickstart
+   tutorials
 
 .. toctree::
    :maxdepth: 2
-   :caption: Reference
+   :caption: Reference and Development
 
    modules
+   testing
    citation

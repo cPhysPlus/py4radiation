@@ -26,3 +26,72 @@
     margin-top: 1.5em;
     margin-bottom: 0.3em;
 }
+
+.content h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1.2;
+    margin-bottom: 1.2rem;
+}
+
+.content h2 {
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    margin-top: 2.4rem;
+}
+
+.content h3 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+}
+
+.landing-intro {
+    max-width: 48rem;
+    font-size: 1.12rem;
+    line-height: 1.75;
+    margin-bottom: 2.4rem;
+}
+
+.landing-intro strong {
+    color: var(--color-brand-content);
+}
+
+.sig-name,
+.descname {
+    font-weight: 600;
+}
+
+.sig {
+    font-size: 1.02em;
+    line-height: 1.6;
+}
+
+.sig-paren {
+    margin-left: 0.15em;
+    margin-right: 0.15em;
+}
+
+.sig-param {
+    margin-left: 0.06em;
+    margin-right: 0.06em;
+}
+
+.toctree-wrapper p.caption {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 1.8rem;
+    margin-bottom: 0.6rem;
+}
+
+@media (max-width: 768px) {
+    .content h1 {
+        font-size: 2rem;
+    }
+
+    .landing-intro {
+        font-size: 1rem;
+    }
+}

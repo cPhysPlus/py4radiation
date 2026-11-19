@@ -10,7 +10,7 @@
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
-    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=7684ed23" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=5fe3d47b" />
     
     
 
@@ -19,18 +19,24 @@
   body {
     --color-code-background: #f2f2f2;
   --color-code-foreground: #1e1e1e;
+  --color-brand-primary: #315D80;
+  --color-brand-content: #315D80;
   
   }
   @media not print {
     body[data-theme="dark"] {
       --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8CC8EA;
+  --color-brand-content: #8CC8EA;
   
     }
     @media (prefers-color-scheme: dark) {
       body:not([data-theme="light"]) {
         --color-code-background: #202020;
   --color-code-foreground: #d0d0d0;
+  --color-brand-primary: #8CC8EA;
+  --color-brand-content: #8CC8EA;
   
       }
     }
@@ -195,8 +201,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference and Development</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="modules.html">API Reference</a><input aria-label="Toggle navigation of API Reference" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.radiation.html">Radiation</a></li>
@@ -204,6 +211,7 @@
 <li class="toctree-l2"><a class="reference internal" href="py4radiation.utils.html">Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a></li>
 </ul>
 
@@ -225,12 +233,16 @@
         </a>
         <div class="content-icon-container">
           <div class="view-this-page">
-  <a class="muted-link" href="_sources/index.rst.txt" title="View this page">
+  <a class="muted-link" href="https://github.com/cPhysPlus/py4radiation/blob/main/docs/source/index.rst?plain=true" title="View this page">
     <svg><use href="#svg-eye"></use></svg>
     <span class="visually-hidden">View this page</span>
   </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
+</div><div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/cPhysPlus/py4radiation/edit/main/docs/source/index.rst" rel="edit" title="Edit this page">
+    <svg><use href="#svg-pencil"></use></svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
             <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
               <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
               <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
@@ -244,51 +256,52 @@
         </div>
         <article role="main" id="furo-main-content">
           <section id="welcome-to-py4radiation">
-<h1>Welcome to py4radiation<a class="headerlink" href="#welcome-to-py4radiation" title="Link to this heading">¶</a></h1>
-<p><strong>py4radiation</strong> is a modular Python framework for generating
-radiative heating and cooling rates and ionisation fractions
-from custom spectral energy distributions (SEDs).</p>
-<p>The package provides an integrated workflow for preparing radiation
-fields, executing photoionisation calculations with Cloudy, and
-processing the resulting data into tables suitable for coupling
-with astrophysical hydrodynamics (HD) and magnetohydrodynamics
-(MHD) codes.</p>
+<h1>Welcome to py4radiation!<a class="headerlink" href="#welcome-to-py4radiation" title="Link to this heading">¶</a></h1>
+<div class="landing-intro docutils container">
+<p><strong>Radiation-field preparation and Cloudy workflows
+for astrophysical simulations.</strong></p>
+<p>py4radiation is a modular Python framework for preparing
+custom spectral energy distributions (SEDs), executing Cloudy
+photoionisation calculations, and processing radiative
+heating, cooling and ionisation data for astrophysical
+hydrodynamic and magnetohydrodynamic simulations.</p>
+</div>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p>The framework consists of three main components:</p>
-<ul class="simple">
-<li><p><strong>Radiation fields:</strong> Prepare Cloudy-compatible SEDs from
-Starburst99 stellar population models, the Haardt &amp; Madau
-(2012) UV/X-ray background, or user-provided SEDs.</p></li>
-<li><p><strong>Cloudy execution:</strong> Prepare parameter files and perform
-photoionisation calculations using pyCIAO, with support
-for Python multiprocessing and MPI.</p></li>
-<li><p><strong>Generation of tables:</strong> Combine Cloudy outputs into radiative
-heating/cooling tables and HDF5 ion fraction tables for
-astrophysical HD/MHD codes.</p></li>
-</ul>
-<p>The framework supports local input files and cached reference
-SEDs, allowing the preparation of radiation fields online and
-offline.</p>
+<p>The workflow consists of:</p>
+<p><strong>01 — Prepare spectra</strong></p>
+<p>Retrieve and prepare Starburst99 SEDs, the Haardt &amp; Madau (2012)
+UV/X-ray background, or user-prepared SEDs. Apply the relevant
+physical scaling and convert the spectra into Cloudy-readable
+input files.</p>
+<p><strong>02 — Execute Cloudy</strong></p>
+<p>Configure and execute photoionisation calculations with
+pyCIAO, using Python multiprocessing or MPI.</p>
+<p><strong>03 — Process results</strong></p>
+<p>Assemble heating/cooling tables and HDF5 ion fraction tables
+from Cloudy outputs.</p>
 </section>
-<section id="scientific-considerations">
-<h2>Scientific considerations<a class="headerlink" href="#scientific-considerations" title="Link to this heading">¶</a></h2>
-<p>For stellar radiation fields, py4radiation uses the stellar-only
-spectra from Starburst99 Figures 7-12, following the
-recommendations of Leitherer et al. (1999) for photoionisation
-calculations.</p>
-<p>For the Haardt &amp; Madau (2012) ultraviolet background, the
-tabulated specific intensity is converted into the equivalent
-spectral quantity</p>
-<div class="math-wrapper docutils container">
-<div class="math notranslate nohighlight">
-\[F_{\nu,\mathrm{equiv}} = 4\pi J_\nu.\]</div>
-</div>
-<p>This convention allows the stellar and metagalactic radiation
-fields to be represented using the same spectral units.</p>
-<p>Here, <span class="math notranslate nohighlight">\(4\pi J_\nu\)</span> is the angle-integrated specific
-intensity, not the directional flux of an isotropic field.</p>
-<p>See the <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a> for a practical introduction.</p>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h2>
+<p>New users should begin with the <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a> guide
+and <a class="reference internal" href="quickstart.html"><span class="doc">Quickstart</span></a>.</p>
+<p>The <a class="reference internal" href="tutorials.html"><span class="doc">Tutorials</span></a> page provides three executed Jupyter
+notebooks covering the complete workflow, including figures,
+numerical results and reference data.</p>
+<p>For detailed information about individual classes and
+methods, consult the <a class="reference internal" href="modules.html"><span class="doc">API Reference</span></a>.</p>
+</section>
+<section id="scientific-conventions">
+<h2>Scientific conventions<a class="headerlink" href="#scientific-conventions" title="Link to this heading">¶</a></h2>
+<p>py4radiation prepares existing radiation models rather
+than calculating stellar populations or synthesising the
+metagalactic background.</p>
+<p>For photoionisation calculations, the package uses the
+stellar-only spectra from Starburst99 Figures 7-12.</p>
+<p>For HM2012, the tabulated specific intensity is represented
+by the angle-integrated quantity. This quantity has the same
+units as the stellar spectral flux density, but it is not the
+directional flux of an isotropic radiation field.</p>
 </section>
 <section id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
@@ -315,14 +328,26 @@ intensity, not the directional flux of an isotropic field.</p>
 <li class="toctree-l2"><a class="reference internal" href="quickstart.html#next-steps">Next steps</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#preparing-and-comparing-radiation-spectra">01. Preparing and comparing radiation spectra</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#preparing-and-running-cloudy-calculations">02. Preparing and running Cloudy calculations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#processing-heating-cooling-and-ionisation-tables">03. Processing heating, cooling and ionisation tables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials.html#reference-data">Reference data</a></li>
+</ul>
+</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference and Development</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="modules.html">API Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="modules.html#subpackages">Subpackages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="modules.html#module-py4radiation">Package interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="testing.html">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#running-the-tests">Running the tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#test-coverage">Test coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html#scope">Scope</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a><ul>
@@ -381,9 +406,10 @@ intensity, not the directional flux of an isotropic field.</p>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Welcome to py4radiation</a><ul>
+<li><a class="reference internal" href="#">Welcome to py4radiation!</a><ul>
 <li><a class="reference internal" href="#overview">Overview</a></li>
-<li><a class="reference internal" href="#scientific-considerations">Scientific considerations</a></li>
+<li><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li><a class="reference internal" href="#scientific-conventions">Scientific conventions</a></li>
 <li><a class="reference internal" href="#documentation">Documentation</a><ul>
 </ul>
 </li>
@@ -398,10 +424,9 @@ intensity, not the directional flux of an isotropic field.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=01f34227"></script>
+</div><script src="_static/documentation_options.js?v=38b66d78"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     </body>
 </html>
