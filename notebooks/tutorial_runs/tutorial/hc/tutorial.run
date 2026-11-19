@@ -1,0 +1,18 @@
+# Run started Wed Nov 18 19:14:12 2026
+#
+# cloudyRunMode = 1
+# outputFilePrefix = tutorial
+# outputDir = /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc/
+#
+# Commands to be executed everytime:
+# stop zone 1
+# set dr 0
+# iterate to convergence
+#
+# Loop commands and values:
+# hden: -3.0 -2.0
+# init "/home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/tutorial_z*.out": 0.0000e+00
+#
+#run	hden	init "/home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/tutorial_z*.out"
+1	-3.0	0.0000e+00
+2	-2.0	0.0000e+00

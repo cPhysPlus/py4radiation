@@ -167,6 +167,20 @@ MPI-based execution is also supported when the optional MPI dependencies and a c
 
 The resulting calculations can be processed using `HeatingCoolingTables` and `IonTables` to generate tables for astrophysical simulation and analysis tools.
 
+## Tutorials
+
+The [`notebooks/`](notebooks/) directory contains worked examples
+demonstrating how to prepare radiation spectra, perform Cloudy
+calculations, and process the resulting tables.
+
+The notebooks include figures and numerical outputs so that
+the examples can be explored directly on GitHub without
+executing the calculations.
+
+- [Preparing and comparing radiation spectra](notebooks/01_preparing_spectra.ipynb)
+- [Preparing and running Cloudy calculations](notebooks/02_cloudy_calculations.ipynb)
+- [Processing heating, cooling and ion tables](notebooks/03_processing_tables.ipynb)
+
 ## Citation
 
 **py4radiation** is introduced in:

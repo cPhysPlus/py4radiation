@@ -1,0 +1,54 @@
+#####################################################
+################## RUN  PARAMETERS ##################
+
+# path to CLOUDY executable
+cloudyExe              = /home/cphys/software/c13.05/source/cloudy.exe
+
+# save raw output from CLOUDY
+saveCloudyOutputFiles   = 0
+
+# exit if CLOUDY crashes
+exitOnCrash             = 1
+
+# run name
+outputFilePrefix       = tutorial
+
+# output path
+outputDir              = /home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/hc
+
+# index of first run
+runStartIndex           = 1
+
+# TEST
+test                    = 0
+
+# run mode
+cloudyRunMode          = 1
+
+#####################################################
+########## HEATING & COOLING MAP PARAMETERS #########
+
+# min T
+coolingMapTmin = 1e3
+
+# max T
+coolingMapTmax = 1e5
+
+# T resolution (log points)
+coolingMapTpoints = 11
+
+# scale factor (1 - n_H^2, 2 - n_H * n_e)
+coolingScaleFactor = 1
+
+#####################################################
+####################### LOOPS #######################
+
+command stop zone 1
+
+command set dr 0
+
+command iterate to convergence
+
+loop [hden] (-3;-2;1.0)
+
+loop [init "/home/cphys/repos/py4radiation/notebooks/tutorial_runs/tutorial/tutorial_z*.out"] 0.0000e+00
