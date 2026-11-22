@@ -44,7 +44,7 @@ This allows the stellar and metagalactic radiation fields to be compared using t
 
 - Starburst99 and Haardt & Madau (2012) tables are not distributed with the package. They can be downloaded automatically using the scripts provided in [`src/py4radiation/utils`](https://github.com/cPhysPlus/py4radiation/tree/main/src/py4radiation/utils) when needed or provided as local files.
 
-- Cloudy is not distributed with py4radiation and must be installed independently. We recommend [version C13.05]{https://data.nublado.org/cloudy_releases/c13}.
+- Cloudy is not distributed with py4radiation and must be installed independently. We recommend [version C13.05](https://data.nublado.org/cloudy_releases/c13).
 
 
 ## Installation & Documentation:
