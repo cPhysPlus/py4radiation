@@ -6,16 +6,16 @@
 
 **D. Villarruel-Yanez, W.E. Banda-Barragan & B. Casavecchia (in prep.)**
 
-**py4radiation** is a modular Python framework designed to generate radiative heating and cooling rates and ionisation fractions from spectral energy distributions (SEDs). The package provides an integrated workflow for preparing radiation fields, executing photoionisation calculations with Cloudy, and processing the resulting data into tables suitable for coupling with astrophysical hydrodynamics (HD) and magnetohydrodynamics (MHD) codes.
+**py4radiation** is a modular Python framework designed to generate radiative heating/cooling rates and ionisation fractions from spectral energy distributions (SEDs). The package provides an integrated workflow for preparing radiation fields, executing photo-ionisation calculations with Cloudy, and processing the resulting data into tables suitable for coupling with simulation codes and post-processing packages.
 
 ## Features
 
+- **Starburst99 retrieval script:** Download and cache Starburst99 tables on demand, with support for local files in offline environments.
+- **Haardt & Madau (2012) UV/X-ray background retrieval script:** Download and cache the meta-galactic background with support for the local table in offline environments.
 - **Stellar population scaling:** Scale Starburst99 luminosities according to the star-formation rate (continuous star formation) or initial stellar mass (instantaneous bursts).
-- **Starburst99 retrieval:** Download and cache Starburst99 tables on demand, with support for local files in offline environments.
-- **Haardt & Madau (2012) UV/X-ray background retrieva:** Download and cache the UV/X-ray background with support for the local table in offline environments.
-- **Cloudy integration:** Generate configuration files and execute photoionisation calculations through pyCIAO.
-- **Parallel execution:** Distribute Cloudy calculations using Python multiprocessing or MPI.
-- **Heating and cooling tables:** Process radiative heating and cooling rates and mean molecular weights into tables for HD/MHD simulations.
+- **Cloudy integration:** Generate configuration files and execute photoionisation calculations through pyCIAO and Cloudy.
+- **Parallel execution:** Distribute Cloudy calculations using Python `multiprocessing` or `mpi4py` with the MPI library.
+- **Heating and cooling tables:** Process radiative heating/ cooling rates and mean particle mass into tables for HD/MHD simulations.
 - **Ion fractions:** Generate HDF5 ionisation tables.
 
 ## Why Starburst99 Figures 7-12?
