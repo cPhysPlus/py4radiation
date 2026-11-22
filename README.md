@@ -37,12 +37,15 @@ This allows the stellar and metagalactic radiation fields to be compared using t
 ## Requirements
 
 - Python 3.11 or newer.
-- Cloudy (Ferland et al. 2013), installed separately, for photoionisation calculations.
+- [Cloudy (Ferland et al. 2013)](https://data.nublado.org/cloudy_releases/c13), installed separately, for photoionisation calculations.
 - A compatible MPI implementation for MPI-based execution (optional).
 
-Cloudy is not distributed with **py4radiation** and must be installed independently. The package can be used to process existing simulation outputs without executing Cloudy. We recommend version C13.05.
+### Notes:
 
-Starburst99 tables are also not distributed with the package. They can be downloaded automatically when needed or provided as local files.
+- Starburst99 tables are also not distributed with the package. They can be downloaded automatically when needed or provided as local files.
+
+- Cloudy is not distributed with **py4radiation** and must be installed independently. We recommend [version C13.05]{https://data.nublado.org/cloudy_releases/c13}.
+
 
 ## Installation & Documentation:
 
