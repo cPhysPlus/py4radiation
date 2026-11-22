@@ -72,7 +72,7 @@ The notebooks include figures and numerical outputs so that the examples can be 
 - [Preparing and comparing radiation spectra](notebooks/01_preparing_spectra.ipynb)
 - [Preparing and running Cloudy calculations](notebooks/02_cloudy_calculations.ipynb)
 - [Processing heating, cooling and ion tables](notebooks/03_processing_tables.ipynb)
-- [Reading the catalogue datasets](notebooks/04_tables_catalogue.ipynb)
+- [Reading the catalogue datasets: heating/cooling/ion tables](notebooks/04_tables_catalogue.ipynb)
 
 ## Citation
 
