@@ -42,7 +42,7 @@ This allows the stellar and metagalactic radiation fields to be compared using t
 
 ### Notes:
 
-- Starburst99 tables are also not distributed with the package. They can be downloaded automatically when needed or provided as local files.
+- Starburst99 tables are also not distributed with the package. They can be downloaded automatically using the scripts in [`py4radiation/utils`](py4radiation/utils)when needed or provided as local files.
 
 - Cloudy is not distributed with **py4radiation** and must be installed independently. We recommend [version C13.05]{https://data.nublado.org/cloudy_releases/c13}.
 
@@ -57,8 +57,7 @@ The user is referred to the [code documentation](https://py4radiation.readthedoc
 
 ## Tutorials:
 
-The [`notebooks/`](notebooks/) directory contains worked examples demonstrating how to prepare radiation spectra, perform Cloudy
-calculations, and process the resulting tables.
+The [`notebooks/`](notebooks/) directory contains worked examples demonstrating how to prepare radiation spectra, perform Cloudy calculations, and process the resulting tables.
 
 The notebooks include figures and numerical outputs so that the examples can be explored directly on GitHub without executing the calculations.
 
