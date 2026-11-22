@@ -42,18 +42,26 @@ This allows the stellar and metagalactic radiation fields to be compared using t
 
 ### Notes:
 
-- Starburst99 tables are also not distributed with the package. They can be downloaded automatically using the scripts in [`src/py4radiation/utils`](https://github.com/cPhysPlus/py4radiation/tree/main/src/py4radiation/utils)when needed or provided as local files.
+- Starburst99 and Haardt & Madau (2012) tables are not distributed with the package. They can be downloaded automatically using the scripts provided in [`src/py4radiation/utils`](https://github.com/cPhysPlus/py4radiation/tree/main/src/py4radiation/utils) when needed or provided as local files.
 
 - Cloudy is not distributed with **py4radiation** and must be installed independently. We recommend [version C13.05]{https://data.nublado.org/cloudy_releases/c13}.
 
 
 ## Installation & Documentation:
 
-The user is referred to the [code documentation](https://py4radiation.readthedocs.io/) for details on:
+The user is referred to the [code documentation](https://py4radiation.readthedocs.io) for details on:
 
 - **Installation:** https://py4radiation.readthedocs.io/en/latest/installation.html
 - **Quickstart:** https://py4radiation.readthedocs.io/en/latest/quickstart.html
 - **Tutorials:** https://py4radiation.readthedocs.io/en/latest/tutorials.html
+
+## Catalogue: 
+
+This [dataset repository](https://github.com/cPhysPlus/heating-cooling-ion-tables) provides ready-to-use datasets generated with py4radiation, including:
+
+- **Heating and cooling functions in ASCII format:** these can be readily coupled to any existing hydrodynamic code, like [PLUTO/gPLUTO](https://plutocode.ph.unito.it).
+  
+- **Ion fraction tables in HDF5 format:** these can be readily coupled to post-processing tools, like [Trident](https://github.com/trident-project/trident).
 
 ## Tutorials:
 
