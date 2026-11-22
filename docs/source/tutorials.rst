@@ -60,6 +60,21 @@ It shows:
 <https://github.com/cPhysPlus/py4radiation/blob/main/notebooks/03_processing_tables.ipynb>`_
 
 
+04. An overview of the provided py4radiation tables
+-----------------------------------------------------
+
+This tutorial demonstrates how to load and inspect the heating/cooling
+and ion-fraction tables provided with your py4radiation installation.
+It shows:
+
+* How to download the tables from our Data Release repository.
+* An overview of heating and cooling coefficients at selected number densities.
+* An overview of average-ionisation-state diagram for a selected element.
+
+`Open notebook 04 on GitHub
+<https://github.com/cPhysPlus/py4radiation/blob/main/notebooks/04_tables_catalogue.ipynb>`_
+
+
 Reference data
 --------------
 

@@ -14,7 +14,7 @@ py4radiation is developed by:
 * Wladimir E. Banda-Barragan
 * Benedetta Casavecchia
 
-The associated scientific publication is currently
+The associated publication is currently
 in preparation:
 
 Villarruel-Yanez, D., Banda-Barragan, W. E., and

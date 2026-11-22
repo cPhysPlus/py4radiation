@@ -23,7 +23,7 @@ For example, consider a stellar population with:
 * Stellar population age of 3 Myr.
 * Distance of 1 kpc from the source.
 
-The corresponding SED can be generated using:
+The corresponding SED can be prepared using:
 
 .. code-block:: python
 
@@ -57,11 +57,8 @@ Starburst99 normalisation
 Starburst99 Figures 7-12 contain stellar-only spectra,
 without the nebular continuum included in Figures 1-6.
 
-The luminosity of continuous star-formation models
-(Figures 8, 10 and 12) scales with the star-formation rate.
-
-For instantaneous-burst models (Figures 7, 9 and 11),
-the luminosity scales with the initial stellar mass.
+The luminosity of continuous star-formation models (Figures 8, 10 and 12) scales with the star-formation rate.
+For instantaneous-burst models (Figures 7, 9 and 11), the luminosity scales with the initial stellar mass.
 
 The spectral flux density is calculated as
 
