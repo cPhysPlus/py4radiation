@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use py4radiation in your research, please cite the following paper."
+type: software
+title: "py4radiation"
+authors:
+  - family-names: "Villarruel-Yánez"
+    given-names: "Daniel"
+  - family-names: "Banda-Barragán"
+    given-names: "Wladimir E."
+  - family-names: "Casavecchia"
+    given-names: "Benedetta"
+year: 2026
+version: "0.1.0"
+doi: "10.48550/arXiv.2611.29772"
+repository-code: "https://github.com/cPhysPlus/py4radiation"
+url: "https://py4radiation.readthedocs.io"
