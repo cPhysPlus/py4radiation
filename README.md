@@ -4,7 +4,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11%2B-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**D. Villarruel-Yanez, W.E. Banda-Barragan & B. Casavecchia (in prep.)**
+**D. Villarruel-Yanez, W.E. Banda-Barragan & B. Casavecchia (2026)**
 
 **py4radiation** is a modular Python framework designed to generate radiative heating/cooling rates and ionisation fractions from spectral energy distributions (SEDs). The package provides an integrated workflow for preparing radiation fields, executing photo-ionisation calculations with Cloudy, and processing the resulting data into tables suitable for coupling with simulation codes and post-processing packages.
 
@@ -76,11 +76,14 @@ The notebooks include figures and numerical outputs so that the examples can be 
 
 ## Citation
 
-**py4radiation** is introduced in:
+If you use `py4radiation` in your research, please cite our paper:
 
-D. Villarruel-Yanez, W. E. Banda-Barragan & B. Casavecchia (in preparation).
+Villarruel-Yánez, D., Banda-Barragán, W. E., & Casavecchia, B. (2026).
+*py4radiation: a framework for generating heating/cooling functions and ion fractions from custom radiation fields for astrophysical simulations*.
+arXiv:2611.29772.
+https://doi.org/10.48550/arXiv.2611.29772
 
-If you use this package in your research, please cite the associated publication once available.
+The citation is also available in [BibTeX format](CITATION.bib).
 
 ## Licence
 
