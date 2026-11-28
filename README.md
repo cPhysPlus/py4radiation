@@ -78,10 +78,7 @@ The notebooks include figures and numerical outputs so that the examples can be 
 
 If you use `py4radiation` in your research, please cite our paper:
 
-Villarruel-Yánez, D., Banda-Barragán, W. E., & Casavecchia, B. (2026).
-*py4radiation: a framework for generating heating/cooling functions and ion fractions from custom radiation fields for astrophysical simulations*.
-arXiv:2611.29772.
-https://doi.org/10.48550/arXiv.2611.29772
+Villarruel-Yánez, D., Banda-Barragán, W. E., & Casavecchia, B. (2026). *py4radiation: a framework for generating heating/cooling functions and ion fractions from custom radiation fields for astrophysical simulations*. arXiv:2611.29772. https://doi.org/10.48550/arXiv.2611.29772
 
 The citation is also available in [BibTeX format](CITATION.bib).
 
